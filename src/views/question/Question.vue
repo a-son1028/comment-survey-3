@@ -10,8 +10,8 @@
     >Security And Privacy Comments Survey</h3>
 
     <div
-      class="mt-3"
-      style="font-size: 18px"
+      class="mt-4 comment-content"
+      style="font-size: 20px"
     ><b>Comment:</b> I don't understand why this app requires the all permission to add or modify calendar events ...</div>
 
     <div id="questions">

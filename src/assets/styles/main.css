@@ -25,6 +25,14 @@
   src: url('../fonts/montserrat/Montserrat-Bold.ttf'); 
 }
 
+@font-face {
+  font-family: American-Typewriter-Regular;
+  src: url('../fonts/American Typewriter Regular/American Typewriter Regular.ttf'); 
+}
+
+.comment-content{
+  font-family: American-Typewriter-Regular;
+}
 /*//////////////////////////////////////////////////////////////////
 [ RESTYLE TAG ]*/
 
