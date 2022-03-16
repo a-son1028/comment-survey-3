@@ -47,7 +47,7 @@
           v-if="question1 === 0 || question1 === 2"
           class="if-no"
         >
-          Please enter the reason:
+          Please explain the reason:
           <div class="anwsers">
             <textarea
               id=""
@@ -169,7 +169,7 @@
               v-if="question41 === 0"
               class="if-no "
             >
-              Please enter the reason:
+              Please explain the reason:
               <div class="anwsers">
                 <textarea
                   id=""
@@ -242,7 +242,7 @@
               v-if="question51 === 0"
               class="if-no "
             >
-              Please enter the reason:
+              Please explain the reason:
               <div class="anwsers">
                 <textarea
                   id=""
@@ -272,17 +272,54 @@
             v-if="question6 === 1"
             class="if-yes"
           >
-            <div class="ml-3">6.1. Does it mention the purpose of data sharing?</div>
-            <UIRadioGroup
-              v-model="question61"
-              name="question61"
-              :options="question6Options"
-            />
+            <!-- "6.1 -->
+            <div class="6.1">
+              <div class="ml-3">6.1. Does it mention the purpose of data sharing?</div>
+              <UIRadioGroup
+                v-model="question61"
+                name="question61"
+                :options="question6Options"
+              />
 
-            <!-- if 6.1 yes -->
+              <!-- if yes -->
+              <div
+                v-if="question61 === 1"
+                class="if-yes"
+              >
+                Please copy the related content to the text:
+                <div class="anwsers">
+                  <textarea
+                    id=""
+                    name="reason"
+                    cols="30"
+                    rows="5"
+                    style="width: 100%"
+                  />
+                </div>
+          
+              </div>
+        
+              <!-- if 6.1 no -->
+              <div 
+                v-if="question61 === 0"
+                class="if-no "
+              >
+                Please explain the reason:
+                <div class="anwsers">
+                  <textarea
+                    id=""
+                    name="reason"
+                    cols="30"
+                    rows="5"
+                    style="width: 100%"
+                  />
+                </div>
+              </div> 
+            </div>
+
+            <!-- if 6.2 yes -->
             <div
-              v-if="question61 === 1"
-              class="if-yes"
+              class="6.2"
             >
               <div class="ml-3">6.2. Does the comment refer to any the specific third parties?</div>
               <UIRadioGroup
@@ -291,7 +328,7 @@
                 :options="question6Options"
               />
 
-              <!-- if yes -->
+              <!-- if 6.2 yes -->
               <div
                 v-if="question62 === 1"
                 class="if-yes"
@@ -314,7 +351,7 @@
                 v-if="question62 === 0"
                 class="if-no "
               >
-                Please enter the reason:
+                Please explain the reason:
                 <div class="anwsers">
                   <textarea
                     id=""
@@ -326,24 +363,6 @@
                 </div>
               </div> 
             </div>
-
-
-            <!-- if 6.1 no -->
-            <div 
-              v-if="question61 === 0"
-              class="if-no "
-            >
-              Please enter the reason:
-              <div class="anwsers">
-                <textarea
-                  id=""
-                  name="reason"
-                  cols="30"
-                  rows="5"
-                  style="width: 100%"
-                />
-              </div>
-            </div> 
           </div>
           
         </div>
