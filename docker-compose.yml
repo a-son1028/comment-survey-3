@@ -38,7 +38,7 @@ services:
         - traefik.http.routers.survey-web.rule=Host(`rais.dista.uninsubria.it`)
         - traefik.http.routers.survey-web.entrypoints=https
         - traefik.http.routers.survey-web.tls=true
-        - traefik.http.services.survey-web.loadbalancer.server.port=3333
+        - traefik.http.services.survey-web.loadbalancer.server.port=3000
 
 networks:
   traefik-public:
