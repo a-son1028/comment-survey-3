@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   web:
-    image: untadee/comment-servey:latest
+    image: untadee/comment-survey:latest
     build: .
     networks:
       - traefik-public
@@ -17,7 +17,7 @@ services:
           cpus: '0.50'
           memory: 256M
       # service restart policy
-      replicas: 10
+      replicas: 1
       update_config:
         parallelism: 1
         order: start-first
