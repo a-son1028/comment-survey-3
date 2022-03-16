@@ -308,22 +308,6 @@
               />
             </div>
           </div>
-
-          <div 
-            v-if="question6 === 0 || question6 === 2"
-            class="if-no"
-          >
-            Please enter the reason:
-            <div class="anwsers">
-              <textarea
-                id=""
-                name="reason"
-                cols="30"
-                rows="5"
-                style="width: 100%"
-              />
-            </div>
-          </div>
         </div>
 
         <!-- question 7 -->
