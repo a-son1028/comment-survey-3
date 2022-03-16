@@ -398,8 +398,9 @@ export default {
    question6Options,
   }),
   watch: {
-    question1(data) {
-      console.log(data)
+    question6() {
+      this.question61 = null
+      this.question62 = null
     }
   },
   mounted() {
