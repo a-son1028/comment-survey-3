@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import Home from '@/views/Home.vue'
+import Question from '@/views/question/Question.vue'
 import Introduce from '@/views/introduce/Introduce.vue'
 import NotFound from '@/components/NotFound.vue'
 
@@ -23,7 +23,7 @@ const routes = [
       },
       {
         path: '/questions',
-        component: Home,
+        component: Question,
       }
     ]
   },

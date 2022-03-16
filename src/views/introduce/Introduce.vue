@@ -16,21 +16,16 @@
       </div>
     </div>
         
-    <div class="wrap-btn-next">
-      <button 
-        class="login100-form-btn button-intro" 
-        @click="next"
-      >
-        Next
-      </button>
-    </div>
+    <UINextButton @next="next" />
   </div>
 </template>
 
 <script>
-// import { mapGetters } from 'vuex';
-
+import UINextButton from '@/components/UINextButton.vue'
 export default {
+  components: {
+    UINextButton
+  },
   mounted() {
   },
   methods: {
