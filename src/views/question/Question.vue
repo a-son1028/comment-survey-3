@@ -26,38 +26,17 @@
         />
 
         <!-- if yes -->
-        <div
+        <UITextarea
           v-if="question1 === 1"
-          class="if-yes"
-        >
-          Please copy the related content to the text:
-          <div class="anwsers">
-            <textarea
-              id=""
-              name="reason"
-              cols="30"
-              rows="5"
-              style="width: 100%"
-            />
-          </div>
-          
-        </div>
+          v-model="question1copy"
+          label="Please copy the related content to the text:"
+        />
 
-        <div 
+        <!-- if-no -->
+        <UITextarea
           v-if="question1 === 0 || question1 === 2"
-          class="if-no"
-        >
-          Please explain the reason:
-          <div class="anwsers">
-            <textarea
-              id=""
-              name="reason"
-              cols="30"
-              rows="5"
-              style="width: 100%"
-            />
-          </div>
-        </div>
+          label="Please explain the reason:"
+        />
           
       </div>
 
@@ -75,21 +54,10 @@
           />
 
           <!-- if 2 yes -->
-          <div 
+          <UITextarea
             v-if="question2 === 0 || question2 === 1 || question2 === 2"
-            class="if-yes"
-          >
-            Please copy the related content to the text:
-            <div class="anwsers">
-              <textarea
-                id=""
-                name="reason"
-                cols="30"
-                rows="5"
-                style="width: 100%"
-              />
-            </div>
-          </div>
+            label="Please copy the related content to the text:"
+          />
         </div>
 
         <!-- question 3 -->
@@ -102,21 +70,10 @@
           />
 
           <!-- if 3 yes -->
-          <div 
+          <UITextarea
             v-if="question3 === 0 || question3 === 1 || question3 === 2"
-            class="if-yes"
-          >
-            Please copy the related content to the text:
-            <div class="anwsers">
-              <textarea
-                id=""
-                name="reason"
-                cols="30"
-                rows="5"
-                style="width: 100%"
-              />
-            </div>
-          </div>
+            label="Please copy the related content to the text:"
+          />
         </div>
 
 
@@ -165,22 +122,10 @@
             </div>
 
             <!-- if 4.1 no -->
-            <div 
+            <UITextarea
               v-if="question41 === 0"
-              class="if-no "
-            >
-              Please explain the reason:
-              <div class="anwsers">
-                <textarea
-                  id=""
-                  name="reason"
-                  cols="30"
-                  rows="5"
-                  style="width: 100%"
-                />
-              </div>
-            </div> 
-          
+              label="Please explain the reason:"
+            />
           </div>
         </div>
 
@@ -238,22 +183,10 @@
             </div>
 
             <!-- if 5.1 no -->
-            <div 
+            <UITextarea
               v-if="question51 === 0"
-              class="if-no "
-            >
-              Please explain the reason:
-              <div class="anwsers">
-                <textarea
-                  id=""
-                  name="reason"
-                  cols="30"
-                  rows="5"
-                  style="width: 100%"
-                />
-              </div>
-            </div> 
-          
+              label="Please explain the reason:"
+            />
           </div>
         </div>
 
@@ -282,39 +215,16 @@
               />
 
               <!-- if yes -->
-              <div
+              <UITextarea
                 v-if="question61 === 1"
-                class="if-yes"
-              >
-                Please copy the related content to the text:
-                <div class="anwsers">
-                  <textarea
-                    id=""
-                    name="reason"
-                    cols="30"
-                    rows="5"
-                    style="width: 100%"
-                  />
-                </div>
-          
-              </div>
+                label="Please copy the related content to the text:"
+              />
         
               <!-- if 6.1 no -->
-              <div 
+              <UITextarea
                 v-if="question61 === 0"
-                class="if-no "
-              >
-                Please explain the reason:
-                <div class="anwsers">
-                  <textarea
-                    id=""
-                    name="reason"
-                    cols="30"
-                    rows="5"
-                    style="width: 100%"
-                  />
-                </div>
-              </div> 
+                label="Please explain the reason:"
+              />
             </div>
 
             <!-- if 6.2 yes -->
@@ -329,53 +239,21 @@
               />
 
               <!-- if 6.2 yes -->
-              <div
+              <UITextarea
                 v-if="question62 === 1"
-                class="if-yes"
-              >
-                Please copy the related content to the text:
-                <div class="anwsers">
-                  <textarea
-                    id=""
-                    name="reason"
-                    cols="30"
-                    rows="5"
-                    style="width: 100%"
-                  />
-                </div>
-          
-              </div>
+                label="Please copy the related content to the text:"
+              />
         
               <!-- if 6.2 no -->
-              <div 
+              <UITextarea
                 v-if="question62 === 0"
-                class="if-no "
-              >
-                Please explain the reason:
-                <div class="anwsers">
-                  <textarea
-                    id=""
-                    name="reason"
-                    cols="30"
-                    rows="5"
-                    style="width: 100%"
-                  />
-                </div>
-              </div> 
+                label="Please explain the reason:"
+              />
             </div>
           </div>
-          
         </div>
-
-    
-
-        
       </div>
-      
-
     </div>
-
-
     <UINextButton />
   </div>
 </template>
@@ -384,6 +262,7 @@
 <script>
 import UINextButton from '@/components/UINextButton.vue'
 import UIRadioGroup from '@/components/UIRadioGroup.vue'
+import UITextarea from '@/components/UITextarea.vue'
 
 const question1Options = [{label: 'Yes', value: 1}, {label: 'No', value: 0}, {label: 'Maybe', value: 2}]
 const question2Options = [{label: 'Positive', value: 1}, {label: 'Negative', value: 0}, {label: 'Neutral', value: 2}, {label: 'None', value: 3}]
@@ -395,10 +274,12 @@ const question6Options = question4Options
 export default {
   components: {
     UINextButton,
-    UIRadioGroup
+    UIRadioGroup,
+    UITextarea,
   },
   data: () => ({
    question1: null,
+   question1copy: '',
    question2: null,
    question3: null,
    question31: null,
@@ -420,6 +301,9 @@ export default {
     question6() {
       this.question61 = null
       this.question62 = null
+    },
+    question1copy(data) {
+      console.log(1, data)
     }
   },
   mounted() {
