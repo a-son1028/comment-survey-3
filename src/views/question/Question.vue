@@ -214,10 +214,38 @@
               />
 
               <!-- if yes -->
-              <UITextarea
+              <div
                 v-if="question61 === 1"
-                label="Please copy the related content to the textbox:"
-              />
+              >
+                Please select the related content to the textbox:
+                <div class="anwsers">
+                  <label class="container-checkbox">metrics
+                    <input
+                      class="type-question"
+                      type="checkbox"
+                    >
+                    <span class="checkmark" />
+                  </label>
+
+                  <label class="container-checkbox">tranning
+                    <input
+                      class="type-question"
+                      type="checkbox"
+                    >
+                    <span class="checkmark" />
+                  </label>
+
+                  <label class="container-checkbox">discovery
+                    <input
+                      class="type-question"
+                      type="checkbox"
+                    >
+                    <span class="checkmark" />
+                  </label>
+                
+                </div>
+              </div>
+              
         
               <!-- if 6.1 no -->
               <UITextarea
@@ -238,10 +266,37 @@
               />
 
               <!-- if 6.2 yes -->
-              <UITextarea
+              <div
                 v-if="question62 === 1"
-                label="Please copy the related content to the textbox:"
-              />
+              >
+                Please select the related content to the textbox:
+                <div class="anwsers">
+                  <label class="container-checkbox">metrics
+                    <input
+                      class="type-question"
+                      type="checkbox"
+                    >
+                    <span class="checkmark" />
+                  </label>
+
+                  <label class="container-checkbox">tranning
+                    <input
+                      class="type-question"
+                      type="checkbox"
+                    >
+                    <span class="checkmark" />
+                  </label>
+
+                  <label class="container-checkbox">discovery
+                    <input
+                      class="type-question"
+                      type="checkbox"
+                    >
+                    <span class="checkmark" />
+                  </label>
+                
+                </div>
+              </div>
         
               <!-- if 6.2 no -->
               <UITextarea
