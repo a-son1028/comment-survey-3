@@ -30,7 +30,7 @@
         <UITextarea
           v-if="question1 === 1"
           v-model="question1copy"
-          label="Please copy the related content to the text:"
+          label="Please copy the related content to the textbox:"
         />
 
         <!-- if-no -->
@@ -57,7 +57,7 @@
           <!-- if 2 yes -->
           <UITextarea
             v-if="question2 === 0 || question2 === 1 || question2 === 2"
-            label="Please copy the related content to the text:"
+            label="Please copy the related content to the textbox:"
           />
         </div>
 
@@ -73,7 +73,7 @@
           <!-- if 3 yes -->
           <UITextarea
             v-if="question3 === 0 || question3 === 1 || question3 === 2"
-            label="Please copy the related content to the text:"
+            label="Please copy the related content to the textbox:"
           />
         </div>
 
@@ -101,7 +101,7 @@
               v-if="question41 === 1"
               class="if-yes"
             >
-              Please select the related content to the text:
+              Please select the related content to the textbox:
               <div class="anwsers">
                 <label class="container-checkbox">tracking
                   <input
@@ -121,12 +121,6 @@
               </div>
           
             </div>
-
-            <!-- if 4.1 no -->
-            <UITextarea
-              v-if="question41 === 0"
-              label="Please explain the reason:"
-            />
           </div>
         </div>
 
@@ -139,8 +133,13 @@
             :options="question5Options"
           />
 
+          
           <!-- if 5 yes -->
           <div v-if="question5 === 1">
+            <UITextarea
+              label="Please copy the related content to the textbox:"
+            />
+
             <div class="ml-3">5.1. Does it mention the purpose of data collection?</div>
             <UIRadioGroup
               v-model="question51"
@@ -148,12 +147,14 @@
               :options="question5Options"
             />
 
+            
+            
             <!-- if 5.1 yes -->
             <div
               v-if="question51 === 1"
               class="if-yes"
             >
-              Please select the related content to the text:
+              Please select the related content to the textbox:
               <div class="anwsers">
                 <label class="container-checkbox">metrics
                   <input
@@ -182,12 +183,6 @@
               </div>
           
             </div>
-
-            <!-- if 5.1 no -->
-            <UITextarea
-              v-if="question51 === 0"
-              label="Please explain the reason:"
-            />
           </div>
         </div>
 
@@ -206,6 +201,9 @@
             v-if="question6 === 1"
             class="if-yes"
           >
+            <UITextarea
+              label="Please copy the type of the data item to the textbox:"
+            />
             <!-- "6.1 -->
             <div class="6.1">
               <div class="ml-3">6.1. Does it mention the purpose of this data sharing?</div>
@@ -218,7 +216,7 @@
               <!-- if yes -->
               <UITextarea
                 v-if="question61 === 1"
-                label="Please copy the related content to the text:"
+                label="Please copy the related content to the textbox:"
               />
         
               <!-- if 6.1 no -->
@@ -242,7 +240,7 @@
               <!-- if 6.2 yes -->
               <UITextarea
                 v-if="question62 === 1"
-                label="Please copy the related content to the text:"
+                label="Please copy the related content to the textbox:"
               />
         
               <!-- if 6.2 no -->
