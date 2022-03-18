@@ -9,9 +9,7 @@
       <div class="intro mt-3">
         <div class="intro-title text-underline font-weight-bold">Description:</div>
         <div class="intro-desc">
-          <div>The main purpose of this survey is that we want to validate the security- and privacy-related comments. We will design and develop a tool to validate these comments automatically. In particular, we will compare the comment’s content with the actual behavior of the apps (i.e., data collection, data sharing, permission, third party, etc).</div>
-          <br>
-          <div>In this survey, we want to collect and analyse the security- and privacy-related comments. The participant will answer the question of 50 comments.</div>
+          We are developing a tool for automatic analysis of comments provided by users on target apps. At this purpose, we need to collect human understanding of comments to be then matched with our analysis. The aim of this survey is indeed to collect your evaluation on a limited set of comments (i.e., 50). In particular, we focus on comments that could be in some how related to security/privacy features of apps.
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <UILoader v-if="isLoading" />
     <h5
       class="text-center"
       style="text-transform: capitalize;"
@@ -11,14 +12,14 @@
 
     <div
       class="mt-4 comment-content"
-      style="font-size: 20px"
+      style="font-size: 21px"
     ><b>Comment:</b> I don't understand why this app requires the all permission to add or modify calendar events ...</div>
 
     <div id="questions">
 
       <!-- question 1 -->
       <div class="mt-2">
-        <div class="ml-3">1. Is this comment about the security and privacy issues of the app?</div>
+        <div class="ml-3">1. Is this comment about an issue related to the security and/or privacy of the app?</div>
         <UIRadioGroup
           v-model="question1"
           name="question1"
@@ -46,7 +47,7 @@
         <div
           class="mt-2"
         >
-          <div class="ml-3">2. What is the sentiment of the comment on security?</div>
+          <div class="ml-3">2. Which is the sentiment of this comment on security?</div>
           <UIRadioGroup
             v-model="question2"
             name="question2"
@@ -62,7 +63,7 @@
 
         <!-- question 3 -->
         <div class="mt-2">
-          <div class="ml-3">3. What is the sentiment of the comment on privacy?</div>
+          <div class="ml-3">3. Which is the sentiment of this comment on privacy?</div>
           <UIRadioGroup
             v-model="question3"
             name="question3"
@@ -79,7 +80,7 @@
 
         <!-- question 4 -->
         <div class="mt-2">
-          <div class="ml-3">4. Does this comment mention permissions required by the app?</div>
+          <div class="ml-3">4. Does this comment mention the permissions required by the considered app?</div>
           <UIRadioGroup
             v-model="question4"
             name="question4"
@@ -88,7 +89,7 @@
 
           <!-- if 4 yes -->
           <div v-if="question4 === 1">
-            <div class="ml-3">4.1. Does the comment refer to any the specific permissions?</div>
+            <div class="ml-3">4.1. Does the comment refer to any specific permissions?</div>
             <UIRadioGroup
               v-model="question41"
               name="question41"
@@ -131,7 +132,7 @@
 
         <!-- question 5 -->
         <div class="mt-2">
-          <div class="ml-3">5. Does this comment mention the collected data items?</div>
+          <div class="ml-3">5. Does this comment mention the data collected by the considered app?</div>
           <UIRadioGroup
             v-model="question5"
             name="question5"
@@ -193,7 +194,7 @@
 
         <!-- question 6 -->
         <div class="mt-2">
-          <div class="ml-3">6. Does this comment mention any sharing of data with third party?</div>
+          <div class="ml-3">6. Does this comment mention that the considered app shares data with a third party?</div>
           <UIRadioGroup
             v-model="question6"
             name="question6"
@@ -207,7 +208,7 @@
           >
             <!-- "6.1 -->
             <div class="6.1">
-              <div class="ml-3">6.1. Does it mention the purpose of data sharing?</div>
+              <div class="ml-3">6.1. Does it mention the purpose of this data sharing?</div>
               <UIRadioGroup
                 v-model="question61"
                 name="question61"
@@ -231,7 +232,7 @@
             <div
               class="6.2"
             >
-              <div class="ml-3">6.2. Does the comment refer to any the specific third parties?</div>
+              <div class="ml-3">6.2. Does the comment refer to any specific third parties?</div>
               <UIRadioGroup
                 v-model="question62"
                 name="question62"
@@ -263,6 +264,7 @@
 import UINextButton from '@/components/UINextButton.vue'
 import UIRadioGroup from '@/components/UIRadioGroup.vue'
 import UITextarea from '@/components/UITextarea.vue'
+import UILoader from '@/components/UILoader.vue'
 
 const question1Options = [{label: 'Yes', value: 1}, {label: 'No', value: 0}, {label: 'Maybe', value: 2}]
 const question2Options = [{label: 'Positive', value: 1}, {label: 'Negative', value: 0}, {label: 'Neutral', value: 2}, {label: 'None', value: 3}]
@@ -276,37 +278,37 @@ export default {
     UINextButton,
     UIRadioGroup,
     UITextarea,
+    UILoader
   },
   data: () => ({
-   question1: null,
-   question1copy: '',
-   question2: null,
-   question3: null,
-   question31: null,
-   question4: null,
-   question41: null,
-   question5: null,
-   question51: null,
-   question6: null,
-   question61: null,
-   question62: null,
-   question1Options,
-   question2Options,
-   question3Options,
-   question4Options,
-   question5Options,
-   question6Options,
+    isLoading: true,
+    question1: null,
+    question1copy: '',
+    question2: null,
+    question3: null,
+    question31: null,
+    question4: null,
+    question41: null,
+    question5: null,
+    question51: null,
+    question6: null,
+    question61: null,
+    question62: null,
+    question1Options,
+    question2Options,
+    question3Options,
+    question4Options,
+    question5Options,
+    question6Options,
   }),
   watch: {
     question6() {
       this.question61 = null
       this.question62 = null
     },
-    question1copy(data) {
-      console.log(1, data)
-    }
   },
   mounted() {
+    this.isLoading = false
   },
   methods: {
     next() {
