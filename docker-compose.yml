@@ -7,17 +7,19 @@ services:
       - traefik-public
     depends_on:
       - be
+    environment:
+      - API_URL=http://be:3333 
     deploy:
       # service resource management
-      resources:
+      # resources:
         # Hard limit - Docker does not allow to allocate more
-        limits:
-          cpus: '0.50'
-          memory: 512M
+        # limits:
+        #   cpus: '0.50'
+        #   memory: 512M
         # Soft limit - Docker makes best effort to return to it
-        reservations:
-          cpus: '0.50'
-          memory: 256M
+        # reservations:
+        #   cpus: '0.50'
+        #   memory: 256M
       # service restart policy
       replicas: 1
       update_config:
@@ -37,10 +39,10 @@ services:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - traefik.http.routers.comment-survey.rule=Host(`rais.dista.uninsubria.it`)
-        - traefik.http.routers.comment-survey.entrypoints=https
-        - traefik.http.routers.comment-survey.tls=true
-        - traefik.http.services.comment-survey.loadbalancer.server.port=3000
+        - traefik.http.routers.comment-survey-fe.rule=Host(`rais.dista.uninsubria.it`)
+        - traefik.http.routers.comment-survey-fe.entrypoints=https
+        - traefik.http.routers.comment-survey-fe.tls=true
+        - traefik.http.services.comment-survey-fe.loadbalancer.server.port=3000
   be:
     image: untadee/comment-survey-be:latest
     networks:

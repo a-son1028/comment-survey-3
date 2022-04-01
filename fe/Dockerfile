@@ -14,11 +14,11 @@ RUN npm install
 COPY . .
 
 # compile source to es5
-# RUN npm run build
+RUN npm run build
 
 # our app is running on port 5000 within the container, so need to expose it
 EXPOSE 3000
 
 # the command that starts our app
 # CMD ["npm", "run", "dev"]
-CMD ["npm", "run", "production"]
+CMD ["npm", "run", "serve"]
