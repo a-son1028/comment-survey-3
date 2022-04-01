@@ -7,8 +7,6 @@ services:
       - comment-survey
     depends_on:
       - be
-    environment:
-      - API_URL=http://be:3333
     deploy:
       # service resource management
       # resources:
@@ -50,6 +48,19 @@ services:
       - comment-survey
     environment:
       - MONGODB_URL=mongodb://admin:123123@mongodb_container:27017/comment-survey?authSource=admin
+    deploy:
+      labels:
+        # Frontend
+        - "traefik.enable=true"
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+        - "traefik.http.routers.comment-survey-be.rule=Host(`rais.dista.uninsubria.it`) && PathPrefix(`/api/`)"
+        - "traefik.http.routers.comment-survey-be.entrypoints=https"
+        - traefik.http.routers.comment-survey-be.tls=true
+        - "traefik.http.services.comment-survey-be.loadbalancer.server.port=3333"
+        - "traefik.http.routers.comment-survey-be.service=comment-survey-be"
+        - traefik.http.routers.comment-survey-be.middlewares=comment-survey-strip-prefix
+        - traefik.http.middlewares.comment-survey-strip-prefix.stripprefix.prefixes=/api
 networks:
   traefik-public:
     external: true
