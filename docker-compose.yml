@@ -2,7 +2,6 @@ version: '3.7'
 services:
   fe:
     image: untadee/comment-survey-fe:latest
-    build: .
     networks:
       - traefik-public
     depends_on:
