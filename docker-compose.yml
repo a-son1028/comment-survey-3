@@ -4,6 +4,7 @@ services:
     image: untadee/comment-survey-fe:latest
     networks:
       - traefik-public
+      - comment-survey
     depends_on:
       - be
     environment:
@@ -46,6 +47,7 @@ services:
     image: untadee/comment-survey-be:latest
     networks:
       - mongodb_net
+      - comment-survey
     environment:
       - MONGODB_URL=mongodb://admin:123123@mongodb_container:27017/comment-survey?authSource=admin
 networks:
@@ -53,6 +55,7 @@ networks:
     external: true
   mongodb_net:
     external: true
+  comment-survey:
 volumes:
   data:
 
