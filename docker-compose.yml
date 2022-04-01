@@ -1,10 +1,12 @@
 version: '3.7'
 services:
-  web:
-    image: untadee/comment-survey:latest
+  fe:
+    image: untadee/comment-survey-fe:latest
     build: .
     networks:
       - traefik-public
+    depends_on:
+      - be
     deploy:
       # service resource management
       resources:
@@ -39,9 +41,16 @@ services:
         - traefik.http.routers.comment-survey.entrypoints=https
         - traefik.http.routers.comment-survey.tls=true
         - traefik.http.services.comment-survey.loadbalancer.server.port=3000
-
+  be:
+    image: untadee/comment-survey-be:latest
+    networks:
+      - mongodb_net
+    environment:
+      - MONGODB_URL=mongodb://admin:123123@mongodb_container:27017/comment-survey?authSource=admin
 networks:
   traefik-public:
+    external: true
+  mongodb_net:
     external: true
 volumes:
   data:

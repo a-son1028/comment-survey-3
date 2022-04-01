@@ -217,15 +217,15 @@
                     Please select the related content to the textbox:
                     <div class="anwsers">
                       <label 
-                        v-for="thirdParty in THIRD_PARTIES"
-                        :key="thirdParty"
+                        v-for="purpose in PURPOSES"
+                        :key="purpose"
                         class="container-checkbox"
-                      >{{ thirdParty }}
+                      >{{ purpose }}
                         <input
                           v-model="question61.selectedContent"
                           class="type-question"
                           type="checkbox"
-                          :value="thirdParty.toLowerCase()"
+                          :value="purpose.toLowerCase()"
                         >
                         <span class="checkmark" />
                       </label>

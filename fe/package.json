@@ -9,7 +9,8 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
-    "dev": "vue-cli-service serve"
+    "dev": "vue-cli-service serve",
+    "production": "vue-cli-service serve --mode production"
   },
   "dependencies": {
     "@vue/eslint-config-airbnb": "^5.3.0",

@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 import mongoose from "mongoose";
 import Utils from "../utils";
 
+console.log("process.env.MONGODB_URL", process.env.MONGODB_URL)
 mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
     useUnifiedTopology: true,

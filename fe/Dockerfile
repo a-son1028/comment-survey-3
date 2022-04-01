@@ -21,4 +21,4 @@ EXPOSE 3000
 
 # the command that starts our app
 # CMD ["npm", "run", "dev"]
-CMD ["npm", "run", "serve"]
+CMD ["npm", "run", "production"]
