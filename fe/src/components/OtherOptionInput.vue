@@ -11,7 +11,6 @@
         class="input100"
         type="text"
         style="padding: 0 15px; font-family: Poppins-Regular, sans-serif"
-        required
         :value="value"
         @change="$emit('input', $event.target.value)"
       >
