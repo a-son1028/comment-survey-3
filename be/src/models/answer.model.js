@@ -28,7 +28,11 @@ var answerSchema = new Schema(
     },
     questions: [
       {
-        id: {
+        commentId: {
+          type: String,
+          required: true
+        },
+        stt: {
           type: Number,
           required: true
         },

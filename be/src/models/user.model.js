@@ -32,7 +32,8 @@ var userSchema = new Schema(
     },
     hasExperience: {
       type: String
-    }
+    },
+    commentSurveyId: Schema.Types.ObjectId
   },
   {
     timestamps: true,

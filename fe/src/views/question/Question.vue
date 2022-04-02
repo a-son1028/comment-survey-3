@@ -511,17 +511,25 @@ export default {
       e.preventDefault();
       this.isLoading = true
       const data = {
-        id: this.question.id,
+        commentId: this.question.commentId,
+        stt: this.question.stt,
         responses: [this.question1, this.question2, this.question3, this.question4, this.question41, this.question5, this.question51, this.question6, this.question61, this.question62]
       }
       this.$store.dispatch(STORE_ANSWER, data)
       .then(() => {
-        this.$store.commit('setQuestionId', this.questionId + 1)
+
+        if(this.questionId == 50) {
+          this.$router.push('/success')
+        } else {
+          this.$store.commit('setQuestionId', this.questionId + 1)
+        }
+        
         this.isLoading = false
 
         this.clearFormData()
       })
     },
+
     back() {
       this.$store.commit('setQuestionId', this.questionId - 1)
     }

@@ -7,9 +7,59 @@ import Utils from "../utils";
 import Services from "../services";
 import constants from "../utils/constants";
 class SurveyController {
+  async success(req, res, next) {
+    try {
+      const user = req.user;
+      let answer = await Models.Answer.findOne({
+        userId: user.id
+      });
+
+      if(!answer || answer.questions.length < 50) return
+
+      await Models.User.updateOne({
+        _id: user.id
+      }, {
+        isAnswerd: true
+      })
+
+      await Models.CommentSurvey.updateOne({
+        _id: user.commentSurveyId
+      }, {
+        isDone: true
+      })
+
+      res.json()
+    } catch (error) {
+      next(error);
+    }
+  } 
   async getQuestions(req, res, next) {
     try {
-      res.json(constants.questions)
+      const user = req.user;
+      const { commentSurveyId } = user
+      const commentSurvey = await Models.CommentSurvey.findOne({
+        ...(commentSurveyId 
+          ? {
+              _id: commentSurveyId
+            } 
+          : { isSelected: false })
+      })
+
+      await commentSurvey.updateOne({
+        isSelected: true
+      })
+
+      if(!commentSurveyId) {
+        await Models.User.updateOne({
+        _id: user.id
+        }, {
+            $set: {
+              commentSurveyId: commentSurvey.id
+            }
+          })
+      }
+
+      res.json(_.sortBy(commentSurvey.comments, "stt"))
     } catch (error) {
       next(error);
     }
@@ -44,7 +94,7 @@ class SurveyController {
         });
 
       let newQuestions = answer.questions
-      const oldQuestionIndex = answer.questions.findIndex(item => item.id === question.id)
+      const oldQuestionIndex = answer.questions.findIndex(item => item.stt === question.stt)
       if(~oldQuestionIndex) {
         newQuestions[oldQuestionIndex] = question
       } else newQuestions.push(question)
@@ -61,13 +111,14 @@ class SurveyController {
         {}
       );
 
+      const currentQuestion = newQuestions.length + 1 <= 50 ? newQuestions.length + 1 : 50 
       await Models.User.updateOne(
         {
           _id: user.id
         },
         {
           $set: {
-            currentQuestion: newQuestions.length + 1
+            currentQuestion
           }
         },
         {}

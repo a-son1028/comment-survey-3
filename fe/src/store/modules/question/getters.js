@@ -6,10 +6,10 @@ export default {
     return state.answer;
   },
   getQuestionAnswered(state) {
-    return (state.answer.questions || []).find(item => item.id === state.questionId)
+    return ((state.answer || {}).questions || []).find(item => item.stt === state.questionId)
   },
   getQuestion(state) {
-    return state.questions.find(item => item.id === state.questionId)
+    return state.questions.find(item => item.stt === state.questionId)
   },
   getQuestionId(state) {
     return state.questionId

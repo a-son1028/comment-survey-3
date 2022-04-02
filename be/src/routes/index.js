@@ -19,7 +19,14 @@ router.get(
 );
 router.post(
   "/questions",
+  [Middlewares.Auth.isUser],
   Controllers.Survey.getQuestions
+);
+
+router.post(
+  "/success",
+  [Middlewares.Auth.isUser],
+  Controllers.Survey.success
 );
 
 module.exports = router;

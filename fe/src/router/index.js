@@ -7,7 +7,7 @@ import Introduce from '@/views/introduce/Introduce.vue'
 import NotFound from '@/components/NotFound.vue'
 import Login from '@/views/Login.vue'
 import SignUp from '@/views/SignUp.vue'
-
+import Success from '@/views/Success.vue'
 // midlewares
 
 Vue.use(VueRouter)
@@ -31,6 +31,10 @@ const routes = [
       {
         path: '/questions',
         component: Question,
+      },
+      {
+        path: '/success',
+        component: Success,
       }
     ]
   },

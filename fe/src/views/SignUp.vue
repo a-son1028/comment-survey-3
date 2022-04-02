@@ -116,7 +116,7 @@
             class="fa fa-globe"
             aria-hidden="true"
           /></span></div>
-          <div class="wrap-input100 validate-input mt-3"><b class="mr-2">Do you have experience in text data collection?</b>
+          <div class="wrap-input100 validate-input mt-3"><b class="mr-2">Do you have experience in text data collection?</b> <br>
             <div class="form-check form-check-inline ml-4"><input
               id="hasExperience1"
               v-model="hasExperience"

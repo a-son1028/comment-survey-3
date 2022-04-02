@@ -1,7 +1,8 @@
 import {
   STORE_ANSWER,
   GET_QUESTIONS,
-  GET_ANSWER
+  GET_ANSWER,
+  SUCCESS
 } from './action.type';
 import api from '@/services/api'
 
@@ -17,7 +18,9 @@ export default {
     })
   },
   [GET_QUESTIONS](store) {
-    return api({}).post('/questions').then(response => {
+    return api({
+      headers: { Authorization: localStorage.token }
+    }).post('/questions').then(response => {
       store.commit('setQuestions', response.data)
     })
   },
@@ -27,5 +30,10 @@ export default {
     }).get('/answer').then(response => {
       store.commit('setAnswer', response.data)
     })
+  },
+  [SUCCESS]() {
+    return api({
+      headers: { Authorization: localStorage.token }
+    }).post('/success')
   },
 };

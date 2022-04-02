@@ -15,7 +15,7 @@
         :value="value"
         @change="$emit('input', $event.target.value)"
       >
-      <div style="color:#999999; font-size: 12px;padding-left: 10px">Note: Other options is seperated by comma</div>
+      <div style="color:#999999; font-size: 12px;padding-left: 10px">Other options is seperated by comma</div>
     </div>
   </div>
 </template>
