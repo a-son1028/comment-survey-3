@@ -56,9 +56,7 @@ services:
         - "traefik.http.routers.comment-survey-be.entrypoints=https"
         - traefik.http.routers.comment-survey-be.tls=true
         - "traefik.http.services.comment-survey-be.loadbalancer.server.port=3333"
-        - "traefik.http.routers.comment-survey-be.service=comment-survey-be"
-        - traefik.http.routers.comment-survey-be.middlewares=comment-survey-strip-prefix
-        - traefik.http.middlewares.comment-survey-strip-prefix.stripprefix.prefixes=/comment-api
+
 networks:
   traefik-public:
     external: true
