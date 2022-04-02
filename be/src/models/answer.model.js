@@ -49,6 +49,9 @@ var answerSchema = new Schema(
             reason: {
               type: String, 
             },
+            others: {
+              type: String, 
+            },
          }
         ]
       }

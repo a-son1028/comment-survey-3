@@ -29,6 +29,9 @@ var userSchema = new Schema(
     },
     currentQuestion: {
       type: Number
+    },
+    hasExperience: {
+      type: String
     }
   },
   {

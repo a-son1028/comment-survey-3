@@ -17,7 +17,6 @@ class Model {
     this.Category = categoryModel;
     this.Group = groupModel;
     this.Tree = treeModel;
-    
   }
 }
 export default new Model();

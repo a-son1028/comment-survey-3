@@ -42,7 +42,8 @@ class AuthController {
         country,
         age,
         gender,
-        fieldOfWork
+        fieldOfWork,
+        hasExperience
       } = req.body;
       // hash password
 
@@ -54,7 +55,8 @@ class AuthController {
         age,
         gender,
         fieldOfWork,
-        currentQuestion: 1
+        hasExperience,
+        currentQuestion: 1,
       });
 
       if (!user) return res.status(400).json({

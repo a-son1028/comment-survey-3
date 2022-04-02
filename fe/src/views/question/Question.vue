@@ -35,7 +35,7 @@
             <UITextarea
               v-if="question1.value == 1"
               v-model="question1.coppiedContent"
-              label="Please copy the related content to the textbox:"
+              label="Please select one or more label that describe the content you've inserted in the textbox:"
             />
 
             <!-- if-no -->
@@ -161,7 +161,7 @@
                   v-if="question51.value == 1"
                   class="if-yes"
                 >
-                  Please select the related content to the textbox:
+                  Please select one or more purposes mentioned in the text you've inserted above:
                   <div class="anwsers">
                     <label 
                       v-for="purpose in PURPOSES"
@@ -177,7 +177,9 @@
                       <span class="checkmark" />
                     </label>
                   </div>
-          
+                  <div class="">
+                    <OtherOptionInput v-model="question51.others" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -199,7 +201,7 @@
               >
                 <UITextarea
                   v-model="question6.coppiedContent"
-                  label="Please copy the type of the data item to the textbox:"
+                  label="Please select one or more label that describe the content you've inserted in the textbox:"
                 />
                 <!-- "6.1 -->
                 <div class="6.1">
@@ -214,7 +216,7 @@
                   <div
                     v-if="question61.value == 1"
                   >
-                    Please select the related content to the textbox:
+                    Please select one or more purposes mentioned in the text you've inserted above:
                     <div class="anwsers">
                       <label 
                         v-for="purpose in PURPOSES"
@@ -230,15 +232,16 @@
                         <span class="checkmark" />
                       </label>
                     </div>
+                    <OtherOptionInput v-model="question61.others" />
                   </div>
               
         
                   <!-- if 6.1 no -->
-                  <UITextarea
+                  <!-- <UITextarea
                     v-if="question61.value == 0"
                     v-model="question61.reason"
                     label="Please explain the reason:"
-                  />
+                  /> -->
                 </div>
 
                 <!-- if 6.2 yes -->
@@ -256,8 +259,8 @@
                   <div
                     v-if="question62.value == 1"
                   >
-                    Please select the related content to the textbox:
-                    <div class="anwsers">
+                    Please select one or more third-parties mentioned in the text you've inserted above:
+                    <div class="anwsers scrollable">
                       <label 
                         v-for="thirdParty in THIRD_PARTIES"
                         :key="thirdParty"
@@ -272,14 +275,17 @@
                         <span class="checkmark" />
                       </label>
                     </div>
+                    <div class="mt-2"> 
+                      <OtherOptionInput v-model="question62.others" />
+                    </div>
                   </div>
         
                   <!-- if 6.2 no -->
-                  <UITextarea
+                  <!-- <UITextarea
                     v-if="question62.value == 0"
                     v-model="question62.reason"
                     label="Please explain the reason:"
-                  />
+                  /> -->
                 </div>
               </div>
             </div>
@@ -310,6 +316,7 @@ import UINextButton from '@/components/UINextButton.vue'
 import UIRadioGroup from '@/components/UIRadioGroup.vue'
 import UITextarea from '@/components/UITextarea.vue'
 import UILoader from '@/components/UILoader.vue'
+import OtherOptionInput from '@/components/OtherOptionInput.vue'
 import { PERMISSIONS, THIRD_PARTIES, PURPOSES } from '@/constants'
 import { STORE_ANSWER, GET_QUESTIONS, GET_ANSWER } from '@/store/modules/question/action.type.js'
 import { GET_USER_INFO } from '@/store/modules/user/action.type.js'
@@ -326,7 +333,8 @@ export default {
     UINextButton,
     UIRadioGroup,
     UITextarea,
-    UILoader
+    UILoader,
+    OtherOptionInput
   },
   data: () => ({
     isLoading: true,
@@ -378,6 +386,7 @@ export default {
       coppiedContent: '',
       selectedContent: [],
       reason: '',
+      others: ''
     },
     question6: {
       name: 'question6',
@@ -392,6 +401,7 @@ export default {
       coppiedContent: '',
       selectedContent: [],
       reason: '',
+      others: ''
     },
     question62: {
       name: 'question62',
@@ -399,6 +409,7 @@ export default {
       coppiedContent: '',
       selectedContent: [],
       reason: '',
+      others: ''
     },
     question1Options,
     question2Options,
@@ -429,7 +440,10 @@ export default {
           this[response.name][key] = value
         })
       })
-    }
+    },
+    question62(data) {
+        console.log(1, data)
+      }
   },
   mounted() {
     Promise.all([
@@ -474,6 +488,7 @@ export default {
       this.question51.coppiedContent = ''
       this.question51.selectedContent = []
       this.question51.reason = ''
+      this.question51.others = ''
 
       this.question6.value = null
       this.question6.coppiedContent = ''
@@ -484,11 +499,13 @@ export default {
       this.question61.coppiedContent = ''
       this.question61.selectedContent = []
       this.question61.reason = ''
+      this.question61.others = ''
 
       this.question62.value = null
       this.question62.coppiedContent = ''
       this.question62.selectedContent = []
       this.question62.reason = ''
+      this.question62.others = ''
     },
     next(e) {
       e.preventDefault();
@@ -511,3 +528,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+  .scrollable {
+    overflow-y: scroll; max-height: 250px;
+  }
+</style>
