@@ -6,10 +6,15 @@ import _ from "lodash";
 
 main()
 async function main() {
-    await initCommentCollection()
-    await initCommentSurveyCollection()
+    // await initCommentCollection()
+    // await initCommentSurveyCollection()
+
+    resetCommentSurveyCollection()
 }
 
+async function resetCommentSurveyCollection() {
+     await Models.CommentSurvey.updateMany({}, { isDone: false, isSelected: false })
+}
 async function initCommentSurveyCollection() {
      await Models.CommentSurvey.deleteMany()
     const comments = await Models.Comment.find()
