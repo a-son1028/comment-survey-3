@@ -33,6 +33,22 @@ class SurveyController {
       next(error);
     }
   } 
+
+  async updateInstruction(req, res, next) {
+    const user = req.user;
+
+
+    const updateUser = await Models.User.updateOne({
+        _id: user.id
+        }, {
+            $set: {
+              isInstruction: true
+            }
+          })
+
+
+    res.json(updateUser)
+  }
   async getQuestions(req, res, next) {
     try {
       const user = req.user;

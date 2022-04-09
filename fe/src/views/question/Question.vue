@@ -441,9 +441,9 @@ export default {
         })
       })
     },
-    question62(data) {
-        console.log(1, data)
-      }
+    userInfo(userInfo) {
+      if(!userInfo.isInstruction) this.$router.push('/')
+    }
   },
   mounted() {
     Promise.all([

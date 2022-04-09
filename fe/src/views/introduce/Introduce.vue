@@ -94,6 +94,7 @@
 
 <script>
 import UINextButton from '@/components/UINextButton.vue'
+import { UPDATE_INSTRUCTION } from '@/store/modules/user/action.type.js'
 export default {
   components: {
     UINextButton
@@ -115,7 +116,11 @@ export default {
   },
   methods: {
     next() {
-      this.$router.push('/questions')
+      this.$store.dispatch(UPDATE_INSTRUCTION)
+        .then(() => {
+          this.$router.push('/questions')
+        })
+      
     },
     zoom(index) {
       window.open(this.imgPaths[index]);

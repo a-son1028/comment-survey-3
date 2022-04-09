@@ -23,6 +23,12 @@ router.post(
   Controllers.Survey.getQuestions
 );
 
+router.put(
+  "/instruction",
+  [Middlewares.Auth.isUser],
+  Controllers.Survey.updateInstruction
+);
+
 router.post(
   "/success",
   [Middlewares.Auth.isUser],

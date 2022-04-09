@@ -33,7 +33,11 @@ var userSchema = new Schema(
     hasExperience: {
       type: String
     },
-    commentSurveyId: Schema.Types.ObjectId
+    commentSurveyId: Schema.Types.ObjectId,
+    isInstruction: {
+      type: Boolean,
+      default: false
+    },
   },
   {
     timestamps: true,

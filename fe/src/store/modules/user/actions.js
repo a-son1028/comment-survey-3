@@ -1,7 +1,8 @@
 import {
   SIGNUP,
   LOGIN,
-  GET_USER_INFO
+  GET_USER_INFO,
+  UPDATE_INSTRUCTION
 } from './action.type';
 import api from '@/services/api'
 
@@ -25,6 +26,13 @@ export default {
       store.commit('setUserInfo', response.data)
 
       store.commit('setQuestionId', response.data.currentQuestion)
+    })
+  },
+  [UPDATE_INSTRUCTION](store) {
+    return api({
+      headers: { Authorization: localStorage.token }
+    }).put('/instruction').then(response => {
+      store.commit('setUserInfo', response.data)
     })
   },
 };
