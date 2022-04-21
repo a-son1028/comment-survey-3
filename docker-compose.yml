@@ -34,7 +34,7 @@ services:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - "traefik.http.routers.comment-survey-fe-2.rule=Host(`rais.dista.uninsubria.it/`) && PathPrefix(`/comment-survey2/`)"
+        - "traefik.http.routers.comment-survey-fe-2.rule=Host(`rais.dista.uninsubria.it`) && PathPrefix(`/comment-survey2/`)"
         - traefik.http.routers.comment-survey-fe-2.entrypoints=https
         - traefik.http.routers.comment-survey-fe-2.tls=true
         - traefik.http.services.comment-survey-fe-2.loadbalancer.server.port=3000
