@@ -24,41 +24,62 @@
         <div id="questions">
           <!-- question 1 -->
           <div class="mt-2">
-            <div class="ml-3"><b>The Comment Analysis:</b></div>
+            <div
+              class="ml-3"
+              style="font-size: 21px"
+            ><b>The Comment Analysis:</b></div>
             
             <div class="ml-3">
-              Security sentiment (hide):<br>
+              Security sentiment: <b>No</b><br>
               <div class="ml-10">+ Related content:</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Privacy sentiment (hide):<br>
+              Privacy sentiment: <b>No</b><br>
               <div class="ml-10">+ Related content:</div>
               <br>
             </div>
             
             <div class="ml-3">
-              Permission (hide):<br>
+              Permission: <b>No</b><br>
               <div class="ml-10">+ Name of permission:</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Data collection:<br>
+              Data collection: <b>Yes</b><br>
               <div class="ml-10">+ Personal data: Your card</div>
               <div class="ml-10">+ Purpose: Payment</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Data sharing:<br>
+              Data sharing: <b>Yes</b><br>
               <div class="ml-10">+ Personal data: Yours card</div>
               <div class="ml-10">+ Purpose: Payment</div>
               <div class="ml-10">+ Third party: Google</div>
               <br>
             </div>
 
+            <div>
+              <div>Is the result of our analysis similar to what you get from this comment?</div>
+
+              <UIRadioGroup
+                v-model="question1"
+                name="question1"
+                :options="questionOptions"
+              />
+
+              <div
+                v-if="question1 == 0"
+              >
+                <div>Can you provide the correct answer?</div>
+                <UITextarea
+                  v-model="content"
+                />
+              </div>
+            </div>
           </div>
 
           
@@ -86,14 +107,22 @@
 import { mapGetters } from 'vuex';
 import UINextButton from '@/components/UINextButton.vue'
 import UILoader from '@/components/UILoader.vue'
+import UIRadioGroup from '@/components/UIRadioGroup.vue'
+import UITextarea from '@/components/UITextarea.vue'
 
+const questionOptions = [{label: 'Yes', value: 1}, {label: 'No', value: 0}]
 export default {
   components: {
     UINextButton,
     UILoader,
+    UIRadioGroup,
+    UITextarea,
   },
   data: () => ({
     isLoading: true,
+    questionOptions,
+    question1: '',
+    content: '',
   }),
   computed: {
     ...mapGetters({

@@ -19,21 +19,9 @@
 
 <script>
 import UINextButton from '@/components/UINextButton.vue'
-import { UPDATE_INSTRUCTION } from '@/store/modules/user/action.type.js'
 export default {
   components: {
     UINextButton
-  },
-  data() {
-    return {
-      imgPaths: [
-        require('@/assets/images/question1.png'),
-        require('@/assets/images/question2.png'),
-        require('@/assets/images/question3.png'),
-        require('@/assets/images/question4.png'),
-        require('@/assets/images/question6.png'),
-      ], 
-    }
   },
   computed: {
   },
@@ -41,45 +29,8 @@ export default {
   },
   methods: {
     next() {
-      this.$store.dispatch(UPDATE_INSTRUCTION)
-        .then(() => {
-          this.$router.push('/questions')
-        })
-      
+      this.$router.push('/questions')
     },
-    zoom(index) {
-      window.open(this.imgPaths[index]);
-    }
   }
 };
 </script>
-<style>
-.wrap-images{
-  display: flex;
-}
-.image-item {
- margin: 0 15px; 
- position: relative;
-}
-
-.image-item:hover::after {
-  content: "";
-  position: absolute;
-  background-color: black;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-  opacity: 0.3;
-}
-
-.zoom-in{ 
-  position: relative;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  cursor: pointer;
-  z-index: 100;
-}
-</style>
