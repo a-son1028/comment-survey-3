@@ -1,1 +1,1 @@
-docker stack deploy --compose-file docker-compose.yml comment-survey
+docker stack deploy --compose-file docker-compose.yml comment-survey-2

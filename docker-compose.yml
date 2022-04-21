@@ -1,11 +1,9 @@
 version: '3.7'
 services:
   fe:
-    image: untadee/comment-survey-fe:latest
+    image: untadee/comment-survey-fe-2:latest
     networks:
       - traefik-public
-    depends_on:
-      - be
     deploy:
       # service resource management
       # resources:
@@ -36,30 +34,12 @@ services:
         - traefik.enable=true
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - traefik.http.routers.comment-survey-fe.rule=Host(`rais.dista.uninsubria.it`)
-        - traefik.http.routers.comment-survey-fe.entrypoints=https
-        - traefik.http.routers.comment-survey-fe.tls=true
-        - traefik.http.services.comment-survey-fe.loadbalancer.server.port=3000
-  be:
-    image: untadee/comment-survey-be:latest
-    networks:
-      - mongodb_net
-      - traefik-public
-    environment:
-      - MONGODB_URL=mongodb://admin:123123@mongodb_container:27017/comment-survey?authSource=admin
-    deploy:
-      labels:
-        # Frontend
-        - "traefik.enable=true"
-        - traefik.docker.network=traefik-public
-        - traefik.constraint-label=traefik-public
-        - "traefik.http.routers.comment-survey-be.rule=Host(`rais.dista.uninsubria.it`) && PathPrefix(`/comment-api/`)"
-        - "traefik.http.routers.comment-survey-be.entrypoints=https"
-        - traefik.http.routers.comment-survey-be.tls=true
-        - "traefik.http.services.comment-survey-be.loadbalancer.server.port=3333"
-        - "traefik.http.routers.comment-survey-be.service=comment-survey-be"
-        - traefik.http.routers.comment-survey-be.middlewares=comment-survey-strip-prefix
-        - traefik.http.middlewares.comment-survey-strip-prefix.stripprefix.prefixes=/comment-api
+        - "traefik.http.routers.comment-survey-fe-2.rule=Host(`rais.dista.uninsubria.it/`) && PathPrefix(`/comment-survey2/`)"
+        - traefik.http.routers.comment-survey-fe-2.entrypoints=https
+        - traefik.http.routers.comment-survey-fe-2.tls=true
+        - traefik.http.services.comment-survey-fe-2.loadbalancer.server.port=3000
+        - traefik.http.routers.comment-survey-fe-2.middlewares=comment-survey2-strip-prefix
+        - traefik.http.middlewares.comment-survey2-strip-prefix.stripprefix.prefixes=/comment-survey2
 networks:
   traefik-public:
     external: true
