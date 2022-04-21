@@ -10,7 +10,7 @@
       <h3
         class="text-center"
         style="text-transform: capitalize;"
-      >Security And Privacy Comments Survey</h3>
+      >Security And Privacy Comments Evaluation</h3>
 
       <div
         class="mt-4 comment-content"
