@@ -35,9 +35,16 @@ services:
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
         - traefik.http.routers.comment-survey-fe-2.rule=Host(`rais2.dista.uninsubria.it`)
+        - traefik.http.routers.comment-survey-fe-2.entrypoints=http
+        - traefik.http.routers.comment-survey-fe-2.middlewares=https-redirect
         - traefik.http.routers.comment-survey-fe-2.entrypoints=https
         - traefik.http.routers.comment-survey-fe-2.tls=true
         - traefik.http.services.comment-survey-fe-2.loadbalancer.server.port=3000
+
+        - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+
+        - traefik.http.routers.comment-survey-fe-2.tls.certresolver=le
 networks:
   traefik-public:
     external: true
