@@ -38,7 +38,7 @@ services:
         - traefik.http.routers.comment-survey-fe-2.entrypoints=https
         - traefik.http.routers.comment-survey-fe-2.tls=true
         - traefik.http.services.comment-survey-fe-2.loadbalancer.server.port=3000
-        - "traefik.http.routers.comment-survey-fe-2.service=comment-survey-be"
+        - "traefik.http.routers.comment-survey-fe-2.service=comment-survey-fe-2"
         - traefik.http.routers.comment-survey-fe-2.middlewares=comment-survey2-strip-prefix
         - traefik.http.middlewares.comment-survey2-strip-prefix.stripprefix.prefixes=/comment-survey2
 networks:
