@@ -27,43 +27,47 @@
             <div
               class="ml-3"
               style="font-size: 21px"
-            ><b>The Comment Analysis:</b></div>
+            ><b>The comment discusses about:</b></div>
             
             <div class="ml-3">
-              Security sentiment: <b>No</b><br>
-              <div class="ml-10">+ Related content:</div>
+              Security sentiment: an opinion of the user based on a feeling about the security issues of the apps.<br>
+              <div class="ml-10">
+                <b>Yes/No</b><br>
+                + Related content:</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Privacy sentiment: <b>No</b><br>
-              <div class="ml-10">+ Related content:</div>
+              Privacy sentiment: an opinion of the user based on a feeling about the privacy issues of the apps.<br>
+              <div class="ml-10">
+                <b>Yes/No</b><br>
+                + Related content:</div>
               <br>
             </div>
             
             <div class="ml-3">
-              Permission: <b>No</b><br>
+              Permission: <b>Yes/No</b><br>
               <div class="ml-10">+ Name of permission:</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Data collection: <b>Yes</b><br>
-              <div class="ml-10">+ Personal data: Your card</div>
-              <div class="ml-10">+ Purpose: Payment</div>
+              Data collection: <b>Yes/No</b><br>
+              <div class="ml-10">+ Personal data</div>
+              <div class="ml-10">+ Purpose</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Data sharing: <b>Yes</b><br>
-              <div class="ml-10">+ Personal data: Yours card</div>
-              <div class="ml-10">+ Purpose: Payment</div>
-              <div class="ml-10">+ Third party: Google</div>
+              Data sharing: <b>Yes/No</b><br>
+              <div class="ml-10">+ Personal data</div>
+              <div class="ml-10">+ Purpose</div>
+              <div class="ml-10">+ Third party</div>
               <br>
             </div>
 
             <div>
-              <div>Is the result of our analysis similar to what you get from this comment?</div>
+              <div><b>Question:</b> Is the result of our analysis similar to what you get from this comments?</div>
 
               <UIRadioGroup
                 v-model="question1"
@@ -74,7 +78,7 @@
               <div
                 v-if="question1 == 0"
               >
-                <div>Can you provide the correct answer?</div>
+                <div>If the user say “No”, we will ask the correct value (i.e., Can you provide the correct value?).</div>
                 <UITextarea
                   v-model="content"
                 />
@@ -110,7 +114,7 @@ import UILoader from '@/components/UILoader.vue'
 import UIRadioGroup from '@/components/UIRadioGroup.vue'
 import UITextarea from '@/components/UITextarea.vue'
 
-const questionOptions = [{label: 'Yes', value: 1}, {label: 'No', value: 0}]
+const questionOptions = [{label: 'Yes', value: 1}, {label: 'Partially', value: 2}, {label: 'No', value: 0} ]
 export default {
   components: {
     UINextButton,

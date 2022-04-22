@@ -9,7 +9,7 @@
       <div class="intro mt-3">
         <div class="intro-title text-underline font-weight-bold">Description:</div>
         <div class="intro-desc">
-          We are developing a tool for automatic analysis of comments provided by users on target apps. For this purpose, we need to collect human understanding of comments to be then matched with our analysis. The aim of this survey is indeed to collect your evaluation on a limited set of security & privacy-related comments (i.e., 100). In particular, we focus on comments that could be somehow regarding the data collection, data sharing, and needed permissions.
+          We are developing a tool for automatic analysis of comments provided by users on mobile apps. To evaluate this tool, we need to collect your evaluation on a limited set of comments (i.e., 100). In particular, we focus on comments that could be somehow related to security and privacy features of the target apps. Among these features, we are interested to detect comments on app's data collection, data sharing, and required permissions.
         </div>
       </div>
     </div>
