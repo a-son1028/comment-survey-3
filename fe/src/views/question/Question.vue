@@ -67,7 +67,7 @@
             </div>
 
             <div>
-              <div>Is the result of our analysis similar to what you get from this comments?</div>
+              <div>Do you agree with comment's analysis provided above?</div>
 
               <UIRadioGroup
                 v-model="question1"
