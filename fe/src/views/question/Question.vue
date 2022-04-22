@@ -32,7 +32,7 @@
             <div class="ml-3">
               Security sentiment: an opinion of the user based on a feeling about the security issues of the apps.<br>
               <div class="ml-10">
-                <b>Yes/No</b><br>
+                <b>No</b><br>
                 + Related content:</div>
               <br>
             </div>
@@ -40,34 +40,34 @@
             <div class="ml-3">
               Privacy sentiment: an opinion of the user based on a feeling about the privacy issues of the apps.<br>
               <div class="ml-10">
-                <b>Yes/No</b><br>
+                <b>No</b><br>
                 + Related content:</div>
               <br>
             </div>
             
             <div class="ml-3">
-              Permission: <b>Yes/No</b><br>
+              Permission: <b>No</b><br>
               <div class="ml-10">+ Name of permission:</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Data collection: <b>Yes/No</b><br>
-              <div class="ml-10">+ Personal data</div>
-              <div class="ml-10">+ Purpose</div>
+              Data collection: <b>Yes</b><br>
+              <div class="ml-10">+ Personal data: Yours card</div>
+              <div class="ml-10">+ Purpose: Payment</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Data sharing: <b>Yes/No</b><br>
-              <div class="ml-10">+ Personal data</div>
-              <div class="ml-10">+ Purpose</div>
-              <div class="ml-10">+ Third party</div>
+              Data sharing: <b>Yes</b><br>
+              <div class="ml-10">+ Personal data: Yours card</div>
+              <div class="ml-10">+ Purpose: Payment</div>
+              <div class="ml-10">+ Third party: Google</div>
               <br>
             </div>
 
             <div>
-              <div><b>Question:</b> Is the result of our analysis similar to what you get from this comments?</div>
+              <div>Is the result of our analysis similar to what you get from this comments?</div>
 
               <UIRadioGroup
                 v-model="question1"
@@ -78,7 +78,7 @@
               <div
                 v-if="question1 == 0"
               >
-                <div>If the user say “No”, we will ask the correct value (i.e., Can you provide the correct value?).</div>
+                <div>Can you provide the correct answer?</div>
                 <UITextarea
                   v-model="content"
                 />
