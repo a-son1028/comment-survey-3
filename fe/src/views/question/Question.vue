@@ -29,7 +29,7 @@
               style="font-size: 21px"
             ><b>The above comment discusses:</b></div>
             
-            <div class="ml-3">
+            <!-- <div class="ml-3">
               Some positive/negative aspects of <b>security mechanisms</b> adopted by the target app. These are:<br>
               <div class="ml-10">
                 + Related content:</div>
@@ -47,7 +47,7 @@
               The <b>permissions</b> used by the target app. These are:<br>
               <div class="ml-10">+ Name of permission:</div>
               <br>
-            </div>
+            </div> -->
 
             <div class="ml-3">
               The <b>data collection procedure</b> adopted by the target app. These are:<br>
