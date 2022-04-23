@@ -123,7 +123,7 @@ export default {
   data: () => ({
     isLoading: true,
     questionOptions,
-    question1: '',
+    question1: null,
     content: '',
   }),
   computed: {
