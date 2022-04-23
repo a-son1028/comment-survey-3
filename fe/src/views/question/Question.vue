@@ -27,39 +27,37 @@
             <div
               class="ml-3"
               style="font-size: 21px"
-            ><b>The comment discusses about:</b></div>
+            ><b>The above comment discusses:</b></div>
             
             <div class="ml-3">
-              Security sentiment: an opinion of the user based on a feeling about the security issues of the apps.<br>
+              Some positive/negative aspects of <b>security mechanisms</b> adopted by the target app. These are:<br>
               <div class="ml-10">
-                <b>No</b><br>
                 + Related content:</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Privacy sentiment: an opinion of the user based on a feeling about the privacy issues of the apps.<br>
+              Some positive/negative aspects of the <b>privacy management</b> adopted by the target app. These are:<br>
               <div class="ml-10">
-                <b>No</b><br>
                 + Related content:</div>
               <br>
             </div>
             
             <div class="ml-3">
-              Permission: <b>No</b><br>
+              The <b>permissions</b> used by the target app. These are:<br>
               <div class="ml-10">+ Name of permission:</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Data collection: <b>Yes</b><br>
+              The <b>data collection procedure</b> adopted by the target app. These are:<br>
               <div class="ml-10">+ Personal data: Yours card</div>
               <div class="ml-10">+ Purpose: Payment</div>
               <br>
             </div>
 
             <div class="ml-3">
-              Data sharing: <b>Yes</b><br>
+              The <b>data sharing procedure</b> adopted by the target app. These are:<br>
               <div class="ml-10">+ Personal data: Yours card</div>
               <div class="ml-10">+ Purpose: Payment</div>
               <div class="ml-10">+ Third party: Google</div>
