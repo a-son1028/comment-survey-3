@@ -37,13 +37,13 @@ var groupSchema = new Schema(
         collectionKeyWords: Array, 
         collectionSimiWords: Array, 
         collectionStructure: Array, 
-        collectionDataTypes: Array,
+        collectionDataTypes: Schema.Types.Object,,
 
         sharingKeyWords: Array, 
         sharingSimiWords: Array, 
         sharingStructure: Array,
-        sharingDataTypes: Array,
-        
+        sharingDataTypes: Schema.Types.Object,
+
         stt: Number
       }
     ],

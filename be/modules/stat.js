@@ -508,7 +508,7 @@ async function step2() {
 		console.log(`Running ${i+ 1}/${commentChunks.length}`) 
 		const chunk = commentChunks[i];
 		
-		await Promiss.all(chunk.map(step2ByApp))
+		await Promise.all(chunk.map(step2ByApp))
 	}
 }
 main()
