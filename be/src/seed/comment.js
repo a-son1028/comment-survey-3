@@ -7,7 +7,7 @@ import _ from "lodash";
 main()
 async function main() {
     // await initCommentCollection()
-    // await initCommentSurveyCollection()
+    await initCommentSurveyCollection()
 
     resetCommentSurveyCollection()
 }
@@ -19,7 +19,7 @@ async function initCommentSurveyCollection() {
      await Models.CommentSurvey.deleteMany()
     const comments = await Models.Comment.find()
 
-    const commentChunks = _.chunk(comments, 50);
+    const commentChunks = _.chunk(comments, 100);
 
     await Promise.all(
         commentChunks.map(comments => {

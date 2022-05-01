@@ -21,14 +21,14 @@ const dataTypes = {
     'URI',                 'VPN',
     'HTTP',                'NSD',
     'RTP',                 'SIP',
-    'Wifi',                '',
+    'Wifi',               
     'NFC',                 'URL',
     'Cookie',              'Authenticator',
     'IDN',                 'Cache'
   ],
   Hardware: [
     'Camera',               'Flash',
-    'Buffer',               '',
+    'Buffer',              
     'Accelerometer sensor', 'Temperature sensor',
     'Other sensors',        'Gyroscope sensor',
     'Heart beat sensor',    'Heart rate sensor',
@@ -48,12 +48,12 @@ const dataTypes = {
     'Cervical',         'Meal',
     'Menstrual flow',   'Ovulation',
     'Oxygen',           'Sleep',
-    ''
+  
   ],
   Location: [
     'Latitude',            'Longitude',
     'Address',             'Country',
-    '',                    'Local name',
+                  'Local name',
     'Locale',              'Postal code',
     'Criteria',            'Geographic',
     'Local time',          'Measurement',
@@ -75,7 +75,7 @@ const dataTypes = {
     'Music',         'Channels',          'Volume',
     'Device info',   'Audio manager',     'HDMI',
     'Sound',         'Playback',          'Headphone',
-    'Presentation',  '',                  'Media type',
+    'Presentation',                  'Media type',
     'Timestamp',     'Audio track',       'Video quality',
     'Camera',        'Interface',         'Length',
     'Face detector', 'Media Cas',         'Session',
@@ -103,7 +103,7 @@ const dataTypes = {
     'Cell',              'ICC',
     'Session',           'Phone number',
     'Phone status',      'Subscription',
-    'Telephony manager', '',
+    'Telephony manager', 
     'Callback',          'UICC',
     'Voicemail',         'APN',
     'EUICC',             'Download',
@@ -161,21 +161,27 @@ function getStructureBySimiWords(securityKeyWords, structure) {
 	for(let i = 0; i < securityKeyWords.length; i++) {
 		const keyword = securityKeyWords[i];
 
-		const mostSimilarWords = w2vModel.mostSimilar( keyword, 20 )
+		const mostSimilarWords = w2vModel.mostSimilar( keyword, 40 )
 		securitySimiWords[keyword] = mostSimilarWords
 	}
-	console.log(3, securitySimiWords)
-	
 	const words = Object.entries(securitySimiWords).reduce((acc, [, wordsByKey]) => {
 		acc = [...acc, ..._.map(wordsByKey, 'word').map(item => item.toLowerCase())]
 		return acc
 	}, []) 
-	
+
+	const simiWordsSelected = []
 	const result = structure.filter(item => {
-		return words.includes(item.governorGloss) || words.includes(item.dependentGloss)
+		const isBoolean = words.includes(item.governorGloss) || words.includes(item.dependentGloss)
+
+		words.forEach(item2 => {
+			if(item2 === item.governorGloss) simiWordsSelected.push(item.governorGloss)
+			if(item2 === item.dependentGloss) simiWordsSelected.push(item.dependentGloss)
+		})
+
+		return isBoolean
 	})
 
-	return [securitySimiWords, result]
+	return [securitySimiWords, result, simiWordsSelected]
 }
 
 function getStructureByTypes(types, structure) {
@@ -215,22 +221,66 @@ async function getStructureComment(comment){
 }
 
 async function getStructureBySimis(structure) {
-	const securityKeyWords = ['security', 'good', 'bad']
-	const [securitySimiWords, securityStructure] = getStructureBySimiWords(securityKeyWords, structure)
+	const securityKeyWords = ['security']
+	let [securitySimiWords, securityStructure] = getStructureBySimiWords(securityKeyWords, structure)
+	let [, securityStructureWithKeywords] = getStructureBySimiWords(['bad', 'good'], securityStructure)
 	
-	const privacyKeyWords = ['privacy', 'good', 'bad']
+	const privacyKeyWords = ['privacy']
 	const [privacySimiWords, privacyStructure] = getStructureBySimiWords(privacyKeyWords, structure)
+	let [, privacyStructureWithKeyWords] = getStructureBySimiWords(['bad', 'good'], privacyStructure)
+
+	const permissionKeyWords = ['permission']
+	const [permissionSimiWords, permissionStructure] = getStructureBySimiWords(permissionKeyWords, structure)
+	let [, permissionStructureWithKeyWords] = getStructureBySimiWords(['bad', 'good'], permissionStructure)
 
 	const collectionKeyWords = ['collection']
 	const [collectionSimiWords, collectionStructure] = getStructureBySimiWords(collectionKeyWords, structure)
+	const collectionDataTypes = {}
+
+	for(let typeName in dataTypes) {
+		const subItems = dataTypes[typeName]
+
+	
+		subItems.forEach(item => {
+			console.log(0, item)
+			let [, collectionStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], collectionStructure)
+			console.log(1, "simiWordsSelected", simiWordsSelected, collectionStructureWithKeyWords)
+			if(collectionStructureWithKeyWords && collectionStructureWithKeyWords.length) {
+				if(!collectionDataTypes[typeName]) collectionDataTypes[typeName] = []
+
+					
+				simiWordsSelected.forEach(item => collectionDataTypes[typeName].push(item))
+				
+				collectionDataTypes[typeName] = _.uniq(collectionDataTypes[typeName])
+			}
+		})
+	}
 
 	const sharingKeyWords = ['sharing']
 	const [sharingSimiWords, sharingStructure] = getStructureBySimiWords(sharingKeyWords, structure)
+	const sharingDataTypes = {}
+	for(let typeName in dataTypes) {
+		const subItems = dataTypes[typeName]
+
+		subItems.forEach(item => {
+			let [, sharingStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], sharingStructure)
+
+			if(sharingStructureWithKeyWords && sharingStructureWithKeyWords.length) {
+				if(!sharingDataTypes[typeName]) sharingDataTypes[typeName] = []
+
+
+				simiWordsSelected.forEach(item => sharingDataTypes[typeName].push(item))
+				
+				sharingDataTypes[typeName] = _.uniq(sharingDataTypes[typeName])
+			}
+		})
+	}
 	return [
-		securityKeyWords, securitySimiWords, securityStructure,
-		privacyKeyWords, privacySimiWords, privacyStructure,
-		collectionKeyWords, collectionSimiWords, collectionStructure,
-		sharingKeyWords, sharingSimiWords, sharingStructure
+		securityKeyWords, securitySimiWords, securityStructure, securityStructureWithKeywords,
+		privacyKeyWords, privacySimiWords, privacyStructure, privacyStructureWithKeyWords,
+		permissionKeyWords, permissionSimiWords, permissionStructure, permissionStructureWithKeyWords,
+		collectionKeyWords, collectionSimiWords, collectionStructure, collectionDataTypes,
+		sharingKeyWords, sharingSimiWords, sharingStructure, sharingDataTypes
 	]
 }
 
@@ -303,19 +353,21 @@ async function step2() {
 		})
 		structure = JSON.parse(structure.value)
 		
-		const [ securityKeyWords, securitySimiWords, securityStructure,
-		privacyKeyWords, privacySimiWords, privacyStructure,
-		collectionKeyWords, collectionSimiWords, collectionStructure,
-		sharingKeyWords, sharingSimiWords, sharingStructure
+		const [ securityKeyWords, securitySimiWords, securityStructure, securityStructureWithKeywords,
+			privacyKeyWords, privacySimiWords, privacyStructure, privacyStructureWithKeyWords,
+			permissionKeyWords, permissionSimiWords, permissionStructure, permissionStructureWithKeyWords,
+			collectionKeyWords, collectionSimiWords, collectionStructure, collectionDataTypes,
+			sharingKeyWords, sharingSimiWords, sharingStructure, sharingDataTypes
 		] = await getStructureBySimis(structure)
 		
 		await Models.Comment.updateOne({
 			_id: comment.id
 		}, {
-			securityKeyWords, securitySimiWords, securityStructure,
-			privacyKeyWords, privacySimiWords, privacyStructure,
-			collectionKeyWords, collectionSimiWords, collectionStructure,
-			sharingKeyWords, sharingSimiWords, sharingStructure
+			securityKeyWords, securitySimiWords, securityStructure, securityStructureWithKeywords,
+			privacyKeyWords, privacySimiWords, privacyStructure, privacyStructureWithKeyWords,
+			permissionKeyWords, permissionSimiWords, permissionStructure, permissionStructureWithKeyWords,
+			collectionKeyWords, collectionSimiWords, collectionStructure, collectionDataTypes,
+			sharingKeyWords, sharingSimiWords, sharingStructure, sharingDataTypes
 			// isAnalyzed: true
 		})
 
@@ -323,18 +375,27 @@ async function step2() {
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'securityKeyWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'securitySimiWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'securityStructure'});
+		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'securityStructureWithKeywords'});
 
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'privacyKeyWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'privacySimiWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'privacyStructure'});
+		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'privacyStructureWithKeyWords'});
+
+		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'permissionKeyWords'});
+		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'permissionSimiWords'});
+		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'permissionStructure'});
+		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'permissionStructureWithKeyWords'});
 
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'collectionKeyWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'collectionSimiWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'collectionStructure'});
+		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'collectionDataTypes'});
 
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'sharingKeyWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'sharingSimiWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'sharingStructure'});
+		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'sharingDataTypes'});
 
 		await Models.CommentMeta.insertMany([
 			{
@@ -352,6 +413,11 @@ async function step2() {
 				key: 'securityStructure',
 				value: JSON.stringify(securityStructure)
 			},
+			{
+				commentId: comment.id,
+				key: 'securityStructureWithKeywords',
+				value: JSON.stringify(securityStructureWithKeywords)
+			},
 
 			{
 				commentId: comment.id,
@@ -368,6 +434,33 @@ async function step2() {
 				key: 'privacyStructure',
 				value: JSON.stringify(privacyStructure)
 			},
+			{
+				commentId: comment.id,
+				key: 'privacyStructureWithKeyWords',
+				value: JSON.stringify(privacyStructureWithKeyWords)
+			},
+
+			{
+				commentId: comment.id,
+				key: 'permissionKeyWords',
+				value: JSON.stringify(permissionKeyWords)
+			},
+			{
+				commentId: comment.id,
+				key: 'permissionSimiWords',
+				value: JSON.stringify(permissionSimiWords)
+			},
+			{
+				commentId: comment.id,
+				key: 'permissionStructure',
+				value: JSON.stringify(permissionStructure)
+			},
+			{
+				commentId: comment.id,
+				key: 'permissionStructureWithKeyWords',
+				value: JSON.stringify(permissionStructureWithKeyWords)
+			},
+
 
 			{
 				commentId: comment.id,
@@ -384,6 +477,11 @@ async function step2() {
 				key: 'collectionStructure',
 				value: JSON.stringify(collectionStructure)
 			},
+			{
+				commentId: comment.id,
+				key: 'collectionDataTypes',
+				value: JSON.stringify(collectionDataTypes)
+			},
 
 			{
 				commentId: comment.id,
@@ -399,6 +497,11 @@ async function step2() {
 				commentId: comment.id,
 				key: 'sharingStructure',
 				value: JSON.stringify(sharingStructure)
+			},
+			{
+				commentId: comment.id,
+				key: 'sharingDataTypes',
+				value: JSON.stringify(sharingDataTypes)
 			},
 		])
 	}

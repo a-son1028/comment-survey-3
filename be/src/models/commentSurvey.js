@@ -11,6 +11,30 @@ var groupSchema = new Schema(
         appName: String,
         rating: String,
         thumbsUp: String,
+        isAnalyzed: {
+          type: Boolean,
+          default: false,
+        },
+        isGetStructure: {
+          type: Boolean,
+          default: false,
+        },
+        securityKeyWords: Array, 
+        securitySimiWords: Array, 
+        securityStructure: Array,
+
+        privacyKeyWords: Array, 
+        privacySimiWords: Array, 
+        privacyStructure: Array, 
+
+        collectionKeyWords: Array, 
+        collectionSimiWords: Array, 
+        collectionStructure: Array, 
+        
+
+        sharingKeyWords: Array, 
+        sharingSimiWords: Array, 
+        sharingStructure: Array,
         stt: Number
       }
     ],
@@ -29,4 +53,4 @@ var groupSchema = new Schema(
   }
 );
 
-export default mongoose.model("commentSurvey", groupSchema);
+export default mongoose.model("commentSurvey2", groupSchema);

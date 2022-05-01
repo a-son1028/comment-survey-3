@@ -74,4 +74,4 @@ answerSchema.virtual("user", {
   foreignField: "userId"
 });
 
-export default mongoose.model("answer", answerSchema);
+export default mongoose.model("answer2", answerSchema);

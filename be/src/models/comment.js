@@ -20,19 +20,27 @@ var groupSchema = new Schema(
     securityKeyWords: Array, 
     securitySimiWords: Array, 
     securityStructure: Array,
+    securityStructureWithKeywords: Array,
 
     privacyKeyWords: Array, 
     privacySimiWords: Array, 
     privacyStructure: Array, 
+    privacyStructureWithKeyWords: Array,
+
+    permissionKeyWords: Array, 
+    permissionSimiWords: Array, 
+    permissionStructure: Array, 
+    permissionStructureWithKeyWords: Array,
 
     collectionKeyWords: Array, 
     collectionSimiWords: Array, 
     collectionStructure: Array, 
-    
+    collectionDataTypes: Array,
 
     sharingKeyWords: Array, 
     sharingSimiWords: Array, 
     sharingStructure: Array,
+    sharingDataTypes: Array,
 },
   {
     timestamps: true,

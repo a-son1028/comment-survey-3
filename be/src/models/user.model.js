@@ -53,4 +53,4 @@ userSchema.virtual("answers", {
 
 userSchema.plugin(findOrCreate);
 
-export default mongoose.model("user", userSchema);
+export default mongoose.model("user2", userSchema);
