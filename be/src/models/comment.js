@@ -17,8 +17,23 @@ var groupSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    securityStructure: Array
-  },
+    securityKeyWords: Array, 
+    securitySimiWords: Array, 
+    securityStructure: Array,
+
+    privacyKeyWords: Array, 
+    privacySimiWords: Array, 
+    privacyStructure: Array, 
+
+    collectionKeyWords: Array, 
+    collectionSimiWords: Array, 
+    collectionStructure: Array, 
+    
+
+    sharingKeyWords: Array, 
+    sharingSimiWords: Array, 
+    sharingStructure: Array,
+},
   {
     timestamps: true,
     toJSON: { virtuals: true }
