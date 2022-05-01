@@ -35,12 +35,12 @@ var groupSchema = new Schema(
     collectionKeyWords: Array, 
     collectionSimiWords: Array, 
     collectionStructure: Array, 
-    collectionDataTypes: Schema.Types.Object,,
+    collectionDataTypes: Schema.Types.Object,
 
     sharingKeyWords: Array, 
     sharingSimiWords: Array, 
     sharingStructure: Array,
-    sharingDataTypes: Schema.Types.Object,,
+    sharingDataTypes: Schema.Types.Object,
 },
   {
     timestamps: true,
