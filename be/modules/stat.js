@@ -111,7 +111,7 @@ async function main() {
 		const structure = await retry(getStructureComment(comment.comment), 10)
 
 		await Models.Comment.updateOne({
-			id: comment.id
+			_id: comment.id
 		}, {
 			isGetStructure: true
 		})
