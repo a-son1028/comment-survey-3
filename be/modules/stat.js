@@ -343,10 +343,7 @@ async function step2() {
 		isGetStructure: true
 	})
 
-	for(let i = 0; i < comments.length; i++) {
-		console.log(`Running ${i+ 1}/${comments.length}`) 
-		const comment = comments[i];
-
+	const step2ByApp = async(comment) => {
 		let structure = await Models.CommentMeta.findOne({
 			commentId: comment.id,
 			key: 'structure'
@@ -504,6 +501,14 @@ async function step2() {
 				value: JSON.stringify(sharingDataTypes)
 			},
 		])
+	}
+
+	const commentChunks = _.chunk(comments, 30)
+	for(let i = 0; i < commentChunks.length; i++) {
+		console.log(`Running ${i+ 1}/${commentChunks.length}`) 
+		const chunk = commentChunks[i];
+		
+		await Promiss.all(chunk.map(step2ByApp))
 	}
 }
 main()
