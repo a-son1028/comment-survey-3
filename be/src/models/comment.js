@@ -9,6 +9,15 @@ var groupSchema = new Schema(
     appName: String,
     rating: String,
     thumbsUp: String,
+    isAnalyzed: {
+      type: Boolean,
+      default: false,
+    },
+    isGetStructure: {
+      type: Boolean,
+      default: false,
+    },
+    securityStructure: Array
   },
   {
     timestamps: true,
