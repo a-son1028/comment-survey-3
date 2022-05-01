@@ -100,10 +100,10 @@ async function main() {
 
 	const comments = await Models.Comment.find({
 		isGetStructure: {$ne: true}
-	}).limit(1)
-
-	console.log(comments)
+	})
+	
 	for(let i = 0; i < comments.length; i++) {
+		console.log(`Running ${i+ 1}/${comments.length}`)
 		const comment = comments[i];
 
 
