@@ -506,7 +506,7 @@ async function step2() {
 		])
 	}
 
-	const commentChunks = _.chunk(comments, 30)
+	const commentChunks = _.chunk(comments, 100)
 	for(let i = 0; i < commentChunks.length; i++) {
 		console.log(`Running ${i+ 1}/${commentChunks.length}`) 
 		const chunk = commentChunks[i];
