@@ -6,7 +6,7 @@
       <h5
         class="text-center"
         style="text-transform: capitalize;"
-      > <span class="pagingInfo"> <span style="color: #FF9800; font-size: 30px">{{ questionId }}</span> / {{ 100 }}</span></h5>
+      > <span class="pagingInfo"> <span style="color: #FF9800; font-size: 30px">{{ questionId }}</span> / {{ 50 }}</span></h5>
       <h3
         class="text-center"
         style="text-transform: capitalize;"
@@ -365,7 +365,7 @@ export default {
       this.$store.dispatch(STORE_ANSWER, data)
       .then(() => {
 
-        if(this.questionId == 100) {
+        if(this.questionId == 50) {
           this.$router.push('/success')
         } else {
           this.$store.commit('setQuestionId', this.questionId + 1)

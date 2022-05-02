@@ -20,7 +20,7 @@ async function initCommentSurveyCollection() {
 			isLabeled: true
 		})
 
-    const commentChunks = _.chunk(comments, 100);
+    const commentChunks = _.chunk(comments, 50);
 
     await Promise.all(
         commentChunks.map(comments => {
