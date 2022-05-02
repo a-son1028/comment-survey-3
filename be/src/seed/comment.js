@@ -22,17 +22,37 @@ async function initCommentSurveyCollection() {
 
     const commentChunks = _.chunk(comments, 50);
 
+		// for(let i = 0; i < commentChunks.length; i++) {
+		// 	const comments = commentChunks[i];
+
+		// 	comments = comments.map((comment, stt) => {
+		// 		comment = comment.toJSON()
+		// 		comment.stt = stt + 1;
+		// 		return {
+		// 			_id: comment._id,
+		// 			commentId: comment.commentId,
+		// 			stt: comment.stt,
+		// 		}
+		// 	})
+		// 	if(comments.length < 50) return
+		// 	return Models.CommentSurvey.create({comments})
+		// }
     await Promise.all(
         commentChunks.map(comments => {
             comments = comments.map((comment, stt) => {
                 comment = comment.toJSON()
                 comment.stt = stt + 1;
-                return comment
+                return {
+									_id: comment._id,
+									commentId: comment.commentId,
+									stt: comment.stt,
+								}
             })
             if(comments.length < 50) return
             return Models.CommentSurvey.create({comments})
         })
     )
+		console.log("DONE")
 }
 async function initCommentCollection() {
     const data = await csv({

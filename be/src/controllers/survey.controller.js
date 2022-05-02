@@ -53,7 +53,7 @@ class SurveyController {
     try {
       const user = req.user;
       const { commentSurveyId } = user
-      const commentSurvey = await Models.CommentSurvey.findOne({
+      let commentSurvey = await Models.CommentSurvey.findOne({
         ...(commentSurveyId 
           ? {
               _id: commentSurveyId
@@ -75,7 +75,16 @@ class SurveyController {
           })
       }
 
-      res.json(_.sortBy(commentSurvey.comments, "stt"))
+      commentSurvey.comments = _.sortBy(commentSurvey.comments, "stt")
+      commentSurvey.comments = await Promise.all(
+        commentSurvey.comments.map(comment => {
+          return Models.Comment.findById(comment._id).then(commentData => {
+            return {...commentData, ...comment}
+          })
+        })
+      )
+
+      res.json(commentSurvey.comments)
     } catch (error) {
       next(error);
     }

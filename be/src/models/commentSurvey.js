@@ -6,45 +6,6 @@ var groupSchema = new Schema(
     comments: [
       {
         commentId: String,
-        userName: String,
-        comment: String,
-        appName: String,
-        rating: String,
-        thumbsUp: String,
-        isLabeled: Boolean,
-        isAnalyzed: {
-          type: Boolean,
-          default: false,
-        },
-        isGetStructure: {
-          type: Boolean,
-          default: false,
-        },
-        securityKeyWords: Array, 
-        securitySimiWords: Array, 
-        securityStructure: Array,
-        securityStructureWithKeywords: Array,
-
-        privacyKeyWords: Array, 
-        privacySimiWords: Array, 
-        privacyStructure: Array, 
-        privacyStructureWithKeyWords: Array,
-
-        permissionKeyWords: Array, 
-        permissionSimiWords: Array, 
-        permissionStructure: Array, 
-        permissionStructureWithKeyWords: Array,
-
-        collectionKeyWords: Array, 
-        collectionSimiWords: Array, 
-        collectionStructure: Array, 
-        collectionDataTypes: Schema.Types.Mixed,
-
-        sharingKeyWords: Array, 
-        sharingSimiWords: Array, 
-        sharingStructure: Array,
-        sharingDataTypes: Schema.Types.Mixed,
-
         stt: Number
       }
     ],
