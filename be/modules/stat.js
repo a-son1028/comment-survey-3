@@ -174,8 +174,8 @@ function getStructureBySimiWords(securityKeyWords, structure) {
 		const isBoolean = words.includes(item.governorGloss) || words.includes(item.dependentGloss)
 
 		words.forEach(item2 => {
-			if(item2 === item.governorGloss) simiWordsSelected.push(item.governorGloss)
-			if(item2 === item.dependentGloss) simiWordsSelected.push(item.dependentGloss)
+			if(item2.toLowerCase() === item.governorGloss.toLowerCase()) simiWordsSelected.push(item.governorGloss)
+			if(item2.toLowerCase() === item.dependentGloss.toLowerCase()) simiWordsSelected.push(item.dependentGloss)
 		})
 
 		return isBoolean
@@ -242,9 +242,9 @@ async function getStructureBySimis(structure) {
 
 	
 		subItems.forEach(item => {
-			console.log(0, item)
-			let [, collectionStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], collectionStructure)
-			console.log(1, "simiWordsSelected", simiWordsSelected, collectionStructureWithKeyWords)
+			let [simiWordsByItem, collectionStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], collectionStructure)
+			collectionSimiWords[item] = simiWordsByItem
+
 			if(collectionStructureWithKeyWords && collectionStructureWithKeyWords.length) {
 				if(!collectionDataTypes[typeName]) collectionDataTypes[typeName] = []
 
@@ -263,7 +263,8 @@ async function getStructureBySimis(structure) {
 		const subItems = dataTypes[typeName]
 
 		subItems.forEach(item => {
-			let [, sharingStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], sharingStructure)
+			let [simiWordsByItem, sharingStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], sharingStructure)
+			sharingSimiWords[item] = simiWordsByItem
 
 			if(sharingStructureWithKeyWords && sharingStructureWithKeyWords.length) {
 				if(!sharingDataTypes[typeName]) sharingDataTypes[typeName] = []
@@ -341,6 +342,9 @@ async function step2() {
 
 	const comments = await Models.Comment.find({
 		isGetStructure: true
+		isAnalyzed: {
+			$ne: true
+		}
 	})
 
 	const step2ByApp = async(comment) => {
@@ -365,14 +369,8 @@ async function step2() {
 			permissionKeyWords, permissionSimiWords, permissionStructure, permissionStructureWithKeyWords,
 			collectionKeyWords, collectionSimiWords, collectionStructure, collectionDataTypes,
 			sharingKeyWords, sharingSimiWords, sharingStructure, sharingDataTypes
-			// isAnalyzed: true
+			isAnalyzed: true
 		})
-
-		console.log(JSON.stringify({ securityKeyWords, securitySimiWords, securityStructure, securityStructureWithKeywords,
-		privacyKeyWords, privacySimiWords, privacyStructure, privacyStructureWithKeyWords,
-		permissionKeyWords, permissionSimiWords, permissionStructure, permissionStructureWithKeyWords,
-		collectionKeyWords, collectionSimiWords, collectionStructure, collectionDataTypes,
-		sharingKeyWords, sharingSimiWords, sharingStructure, sharingDataTypes}, null, 2))
 
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'securityKeyWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'securitySimiWords'});
