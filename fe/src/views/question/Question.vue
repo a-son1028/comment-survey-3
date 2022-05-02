@@ -353,6 +353,21 @@ export default {
     clearFormData() {
       this.question1.value=null
       this.question1.comment1=''
+
+      this.question11.value=null
+      this.question11.reason=''
+
+      this.question12.value=null
+      this.question12.reason=''
+
+      this.question13.value=null
+      this.question13.reason=''
+
+      this.question14.value=null
+      this.question14.reason=''
+
+      this.question15.value=null
+      this.question15.reason=''
     },
     next(e) {
       e.preventDefault();
