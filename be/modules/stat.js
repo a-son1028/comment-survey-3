@@ -368,6 +368,11 @@ async function step2() {
 			// isAnalyzed: true
 		})
 
+		console.log(JSON.stringify({ securityKeyWords, securitySimiWords, securityStructure, securityStructureWithKeywords,
+		privacyKeyWords, privacySimiWords, privacyStructure, privacyStructureWithKeyWords,
+		permissionKeyWords, permissionSimiWords, permissionStructure, permissionStructureWithKeyWords,
+		collectionKeyWords, collectionSimiWords, collectionStructure, collectionDataTypes,
+		sharingKeyWords, sharingSimiWords, sharingStructure, sharingDataTypes}, null, 2))
 
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'securityKeyWords'});
 		await Models.CommentMeta.deleteMany({commentId: comment.id, key: 'securitySimiWords'});
