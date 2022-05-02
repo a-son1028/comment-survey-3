@@ -161,7 +161,7 @@ function getStructureBySimiWords(securityKeyWords, structure) {
 	for(let i = 0; i < securityKeyWords.length; i++) {
 		const keyword = securityKeyWords[i];
 
-		const mostSimilarWords = w2vModel.mostSimilar( keyword, 40 )
+		const mostSimilarWords = w2vModel.mostSimilar( keyword, 20 )
 		securitySimiWords[keyword] = mostSimilarWords
 	}
 	const words = Object.entries(securitySimiWords).reduce((acc, [, wordsByKey]) => {
