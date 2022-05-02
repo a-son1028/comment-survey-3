@@ -61,13 +61,13 @@ services:
         - "traefik.enable=true"
         - traefik.docker.network=traefik-public
         - traefik.constraint-label=traefik-public
-        - "traefik.http.routers.comment-survey-be.rule=Host(`rais2.dista.uninsubria.it`) && PathPrefix(`/comment-api/`)"
-        - "traefik.http.routers.comment-survey-be.entrypoints=https"
-        - traefik.http.routers.comment-survey-be.tls=true
-        - "traefik.http.services.comment-survey-be.loadbalancer.server.port=3333"
-        - "traefik.http.routers.comment-survey-be.service=comment-survey-be"
-        - traefik.http.routers.comment-survey-be.middlewares=comment-survey-strip-prefix
-        - traefik.http.middlewares.comment-survey-strip-prefix.stripprefix.prefixes=/comment-api
+        - "traefik.http.routers.comment-survey-be-2.rule=Host(`rais2.dista.uninsubria.it`) && PathPrefix(`/comment-api/`)"
+        - "traefik.http.routers.comment-survey-be-2.entrypoints=https"
+        - traefik.http.routers.comment-survey-be-2.tls=true
+        - "traefik.http.services.comment-survey-be-2.loadbalancer.server.port=3333"
+        - "traefik.http.routers.comment-survey-be-2.service=comment-survey-be-2"
+        - traefik.http.routers.comment-survey-be-2.middlewares=comment-survey-strip-prefix-2
+        - traefik.http.middlewares.comment-survey-strip-prefix-2.stripprefix.prefixes=/comment-api
 networks:
   traefik-public:
     external: true
