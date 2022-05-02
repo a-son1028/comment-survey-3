@@ -76,15 +76,18 @@ class SurveyController {
       }
 
       commentSurvey.comments = _.sortBy(commentSurvey.comments, "stt")
-      commentSurvey.comments = await Promise.all(
+      
+      const result = await Promise.all(
         commentSurvey.comments.map(comment => {
-          return Models.Comment.findById(comment._id).then(commentData => {
-            return {...commentData, ...comment}
+          return Models.Comment.findById(comment._id)
+          .then(commentData => {
+        
+            return {...commentData.toJSON(), ...comment.toJSON()}
           })
         })
       )
 
-      res.json(commentSurvey.comments)
+      res.json(result)
     } catch (error) {
       next(error);
     }
