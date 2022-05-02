@@ -11,6 +11,7 @@ var groupSchema = new Schema(
         appName: String,
         rating: String,
         thumbsUp: String,
+        isLabeled: Boolean,
         isAnalyzed: {
           type: Boolean,
           default: false,

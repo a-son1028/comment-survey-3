@@ -341,10 +341,10 @@ async function step2() {
 	})
 
 	const comments = await Models.Comment.find({
-		isGetStructure: true,
 		isAnalyzed: {
 			$ne: true
-		}
+		},
+		isLabeled: true,
 	})
 
 	const step2ByApp = async(comment) => {
@@ -536,6 +536,7 @@ async function file2(){
 
 	console.log(result)
 }
+
 async function retry (promise, time) {
   let counter = 1
   let status = false

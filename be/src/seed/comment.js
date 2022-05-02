@@ -7,17 +7,18 @@ import _ from "lodash";
 main()
 async function main() {
     // await initCommentCollection()
-    await initCommentSurveyCollection()
 
+    await initCommentSurveyCollection()
     resetCommentSurveyCollection()
 }
-
 async function resetCommentSurveyCollection() {
      await Models.CommentSurvey.updateMany({}, { isDone: false, isSelected: false })
 }
 async function initCommentSurveyCollection() {
      await Models.CommentSurvey.deleteMany()
-    const comments = await Models.Comment.find()
+    const comments = await Models.Comment.find({
+			isLabeled: true
+		})
 
     const commentChunks = _.chunk(comments, 100);
 
