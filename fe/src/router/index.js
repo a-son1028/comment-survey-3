@@ -21,11 +21,10 @@ const routes = [
   }, {
     path: '/',
     component: DefaultLayout,
-   
+    beforeEnter: checkAuth,
     children: [
       {
         path: '',
-        beforeEnter: checkAuth,
         component: Introduce,
       },
       {

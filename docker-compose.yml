@@ -4,6 +4,8 @@ services:
     image: untadee/comment-survey-fe-2:latest
     networks:
       - traefik-public
+    environment:
+      - VUE_APP_API_URL=https://rais2.dista.uninsubria.it/comment-api
     deploy:
       # service resource management
       # resources:
@@ -45,6 +47,27 @@ services:
         - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
 
         - traefik.http.routers.comment-survey-fe-2.tls.certresolver=le
+
+  be:
+    image: untadee/comment-survey-be-2:latest
+    networks:
+      - mongodb_net
+      - traefik-public
+    environment:
+      - MONGODB_URL=mongodb://admin:123123@mongodb_container:27017/comment-survey?authSource=admin
+    deploy:
+      labels:
+        # Frontend
+        - "traefik.enable=true"
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+        - "traefik.http.routers.comment-survey-be.rule=Host(`rais2.dista.uninsubria.it`) && PathPrefix(`/comment-api/`)"
+        - "traefik.http.routers.comment-survey-be.entrypoints=https"
+        - traefik.http.routers.comment-survey-be.tls=true
+        - "traefik.http.services.comment-survey-be.loadbalancer.server.port=3333"
+        - "traefik.http.routers.comment-survey-be.service=comment-survey-be"
+        - traefik.http.routers.comment-survey-be.middlewares=comment-survey-strip-prefix
+        - traefik.http.middlewares.comment-survey-strip-prefix.stripprefix.prefixes=/comment-api
 networks:
   traefik-public:
     external: true
