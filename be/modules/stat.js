@@ -341,7 +341,7 @@ async function step2() {
 	})
 
 	const comments = await Models.Comment.find({
-		isGetStructure: true
+		isGetStructure: true,
 		isAnalyzed: {
 			$ne: true
 		}
@@ -368,7 +368,7 @@ async function step2() {
 			privacyKeyWords, privacySimiWords, privacyStructure, privacyStructureWithKeyWords,
 			permissionKeyWords, permissionSimiWords, permissionStructure, permissionStructureWithKeyWords,
 			collectionKeyWords, collectionSimiWords, collectionStructure, collectionDataTypes,
-			sharingKeyWords, sharingSimiWords, sharingStructure, sharingDataTypes
+			sharingKeyWords, sharingSimiWords, sharingStructure, sharingDataTypes,
 			isAnalyzed: true
 		})
 
