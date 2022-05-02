@@ -8,6 +8,7 @@ import CoreNLP, { Properties, Pipeline } from 'corenlp';
 import _ from 'lodash';
 var w2v = require('word2vec');
 var w2vModel;
+var w2vModelData = {}
 const comment = 'Do not use this app, it is full of scammers. All they want you to do is take their word for how great the room is send you some generic pictures and ask for your security deposit without getting to see the room.'
 const dataTypes = {
   Connection: [
@@ -153,7 +154,6 @@ async function getSentenceStructure(comment) {
 
 	return result
 }
-
 function getStructureBySimiWords(securityKeyWords, structure) {
 	// get most similar words
 	let securitySimiWords = {}
@@ -161,7 +161,13 @@ function getStructureBySimiWords(securityKeyWords, structure) {
 	for(let i = 0; i < securityKeyWords.length; i++) {
 		const keyword = securityKeyWords[i];
 
-		const mostSimilarWords = w2vModel.mostSimilar( keyword, 20 )
+		let mostSimilarWords
+		if(w2vModelData[keyword]) mostSimilarWords = w2vModelData[keyword]
+		else {
+			mostSimilarWords = w2vModel.mostSimilar( keyword, 20 )
+
+			w2vModelData[keyword] = mostSimilarWords
+		}
 		securitySimiWords[keyword] = mostSimilarWords
 	}
 	const words = Object.entries(securitySimiWords).reduce((acc, [, wordsByKey]) => {
@@ -237,45 +243,45 @@ async function getStructureBySimis(structure) {
 	const [collectionSimiWords, collectionStructure] = getStructureBySimiWords(collectionKeyWords, structure)
 	const collectionDataTypes = {}
 
-	// for(let typeName in dataTypes) {
-	// 	const subItems = dataTypes[typeName]
+	for(let typeName in dataTypes) {
+		const subItems = dataTypes[typeName]
 
 	
-	// 	subItems.forEach(item => {
-	// 		let [simiWordsByItem, collectionStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], collectionStructure)
-	// 		collectionSimiWords[item] = simiWordsByItem
+		subItems.forEach(item => {
+			let [simiWordsByItem, collectionStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], collectionStructure)
+			collectionSimiWords[item] = simiWordsByItem
 
-	// 		if(collectionStructureWithKeyWords && collectionStructureWithKeyWords.length) {
-	// 			if(!collectionDataTypes[typeName]) collectionDataTypes[typeName] = []
+			if(collectionStructureWithKeyWords && collectionStructureWithKeyWords.length) {
+				if(!collectionDataTypes[typeName]) collectionDataTypes[typeName] = []
 
 					
-	// 			simiWordsSelected.forEach(item => collectionDataTypes[typeName].push(item))
+				simiWordsSelected.forEach(item => collectionDataTypes[typeName].push(item))
 				
-	// 			collectionDataTypes[typeName] = _.uniq(collectionDataTypes[typeName])
-	// 		}
-	// 	})
-	// }
+				collectionDataTypes[typeName] = _.uniq(collectionDataTypes[typeName])
+			}
+		})
+	}
 
 	const sharingKeyWords = ['sharing']
 	const [sharingSimiWords, sharingStructure] = getStructureBySimiWords(sharingKeyWords, structure)
 	const sharingDataTypes = {}
-	// for(let typeName in dataTypes) {
-	// 	const subItems = dataTypes[typeName]
+	for(let typeName in dataTypes) {
+		const subItems = dataTypes[typeName]
 
-	// 	subItems.forEach(item => {
-	// 		let [simiWordsByItem, sharingStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], sharingStructure)
-	// 		sharingSimiWords[item] = simiWordsByItem
+		subItems.forEach(item => {
+			let [simiWordsByItem, sharingStructureWithKeyWords, simiWordsSelected] = getStructureBySimiWords([item], sharingStructure)
+			sharingSimiWords[item] = simiWordsByItem
 
-	// 		if(sharingStructureWithKeyWords && sharingStructureWithKeyWords.length) {
-	// 			if(!sharingDataTypes[typeName]) sharingDataTypes[typeName] = []
+			if(sharingStructureWithKeyWords && sharingStructureWithKeyWords.length) {
+				if(!sharingDataTypes[typeName]) sharingDataTypes[typeName] = []
 
 
-	// 			simiWordsSelected.forEach(item => sharingDataTypes[typeName].push(item))
+				simiWordsSelected.forEach(item => sharingDataTypes[typeName].push(item))
 				
-	// 			sharingDataTypes[typeName] = _.uniq(sharingDataTypes[typeName])
-	// 		}
-	// 	})
-	// }
+				sharingDataTypes[typeName] = _.uniq(sharingDataTypes[typeName])
+			}
+		})
+	}
 	return [
 		securityKeyWords, securitySimiWords, securityStructure, securityStructureWithKeywords,
 		privacyKeyWords, privacySimiWords, privacyStructure, privacyStructureWithKeyWords,
