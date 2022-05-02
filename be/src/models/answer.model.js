@@ -53,9 +53,7 @@ var answerSchema = new Schema(
             reason: {
               type: String, 
             },
-            others: {
-              type: String, 
-            },
+            others: Schema.Types.Mixed
          }
         ]
       }
