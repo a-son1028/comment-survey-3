@@ -123,6 +123,11 @@ const dataTypes = {
     'URL'
   ]
 }
+const DATA_TYPES = ["Bluetooth","Companion devices","Connectivity status","DNS","Inet","IP","Link","Socket","MAC","Mailto","Network type","Proxy","Route","SSL","URI","VPN","HTTP","NSD","RTP","SIP","Wifi","NFC","URL","Cookie","Authenticator","IDN","Cache","Camera","Flash","Buffer","Accelerometer sensor","Temperature sensor","Other sensors","Gyroscope sensor","Heart beat sensor","Heart rate sensor","Light sensor","Acceleration sensor","Location sensor","Biometric","Device model","Lens","Screen","Display","Fingerprint","Hardware type","Keyboard","USB","IMEI","Bluetooth device","Google Fit","Fitness activity","Time","Glucose","Blood pressure","Body position","Body tempurature","Cervical","Meal","Menstrual flow","Ovulation","Oxygen","Sleep","Latitude","Longitude","Address","Country","Local name","Locale","Postal code","Criteria","Geographic","Local time","Measurement","Navigation","GPS","Longitude, Latitude","Destination","Location type","Distance","Accuracy","Speed","Altitude","Bearing","NMEA","Locale name","Position","Location activity","Vehicle","Duration","Maps","Places","Location name","Phone number","Audio","Image","Player","Video","Recorder","Scanner","Microphone","Remote","Movie","Music","Channels","Volume","Device info","Audio manager","HDMI","Sound","Playback","Headphone","Presentation","Media type","Timestamp","Audio track","Video quality","Interface","Length","Face detector","Media Cas","Session","Codec","Callback","Color","Feature","Profile","Encoder","Controller","Media description","Media ID","Media name","DRM","Key","Media format","Metadata","Muxer","Players","Voice","Router","Media connection","Sync","Rating","Ringtone","TONE","Processing","Environtmental","Equalizer","Virtualizer","Browser","Effect","Midi","Projection","TV","Preview","Program","Light","Adapter","Sensor","Widget","MMS","SMS","ThreadsColumns","Carrier","Service","MNC","Roaming","Cell","ICC","Phone status","Subscription","Telephony manager","UICC","Voicemail","APN","EUICC","Download","File info","Group call","MBMS","Account","Name","Contact","User profile","Age","Bigraphy","Birthdays","Email","Gender","Organizations","Bigraphic","Nickname","Occupation"]
+const PERMISSIONS = ["Calendar","Connection","Media","Storage","Telephony"]
+const THIRD_PARTIES = ["a.applovin.com","aarki.net","active.mobi","adactioninteractive.com","Adcolony","addthis.com","adfalcon.com","adjust.com","admin.appnext.com","admixer.co.kr","admobgeek.com","Adobe","adroll.com","adrta.com","Ads Moloco","Ads Server","Ads Symptotic","AdSafeProtected","agkn.com","airpush.com","akamaihd.net","algovid.com","Altitude-arena","altrooz.com","Amazon","api reporting review mobile ads","api.pingstart.com","App Adsp","app.appsflyer.com","apperol.com","applovin.com","appmakertw","appnext.com","appsflyer.com","AppsGeyser","apptrknow.com","appwalls.mobi","apsalar.com","aptrk.com","Avocarrot","Baidu","beacon.krxd.net","beaconsinspace.com","bidswitch.net","Bluekai.com","bttrack.com","casalemedia.com","cauly.co","chartbeat.net","choices.truste.com","clinkadtracking.com","control.kochava.com","cootek.com","criteo.com","cs.gssprt.jp","cs.nend.net","DoubleVerify","dpm.demdex.net","Dribbble","everesttech.net","Facebook","feedmob.com","Google Ads","Google Analytics","Google Data API","Google Doc","Google Firebase","Google Fonts","Google Map","Google Play","Google Tag Manager","Google Video","Google Vision","Google Youtube","gstatic.com","guest.wireless.cmu.edu","haloapps.com","Heyzap","http://timmystudios.com/","i-mobile.co.jp","impact.applifier.com","inmobi.com","inmobicdn.net","Instagram","intentiq.com","jennywsplash.com","Kakao","kika-backend.com","kikakeyboard.com","Kiosked","Leadbolt Ads","leadboltapps.net","lenzmx.com","lfstmedia.com","liftoff.io","lkqd.net","ludei.com","Microsoft","mixpanel.com","Moat Ads","mobile-up-date.com","mobile.btrll.com","mobilecore.com","Mobincube","mookie1.com","MoPub","mxptint.net","Mydas Mobi","Myi Ads","mysearch-online.com","Native Ads","nend.net","newoffer2017.com","nexac.com","online-metrix.net","paperlit.com","Payco","phonegame.so","play.king.com","Pub Ads","pubmatic.com","quantcount.com","Quiztapp","rayjump.com","sappsuma.com","sc.iasds01.com","Scorecard Research","searchmobileonline.com","Securepub Ads","silvermob.com","simpli.fi","sm-trk.com","smaato","smartadserver","Spotify","Start App Service","stat.appioapp.com","Sticky ads TV","sumatoad.com","SuperSonic Ads","Sync","tapad.com","tapjoy.com","tappx.com","Taptica","Te Ads","theappsgalore.com","tinyhoneybee.com","tlnk.io","turn.com","Twitter","Unity Ads","Unknown","vdopia.com","volo-mobile.com","vungle.com","w55c.net","www.appyet.com","www.blogger.com","www.cdnstabletransit.com","www.cmu.edu","www.gamefeat.net","www.nexogen.in","www.searchmobileonline.com","www.ssacdn.com","www.startappexchange.com","Yahoo","Yandex","ymtracking.com","yyapi.net"]
+const PURPOSES = ["Advertisements","Analysis","Authentication","Authorization","Communicating with malware","Connection","Maintenance","Management","Marketing","Remote","Statistical","Storage","Tracking"]
+
 async function getSentenceStructure(comment) {
 	const selectedKeys = ["dobj","compound","case","obl","amod","nsubj","nmod"]
 	const result = []
@@ -520,10 +525,124 @@ async function step2() {
 		await Promise.all(chunk.map(step2ByApp))
 	}
 }
+
+
+async function step22() {
+	console.log("Load model")
+	// https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?resourcekey=0-wjGZdNAUop6WykTtMip30g
+	w2vModel  = await new Promise((resolve, reject) => {
+		w2v.loadModel( process.env.W2V_MODEL, function( error, model ) {
+			if(error) reject(error)
+			
+			resolve(model)
+		});
+	})
+	
+	const getSimiWord = (keyword) => {
+		let mostSimilarWords
+		if(w2vModelData[keyword]) mostSimilarWords = w2vModelData[keyword]
+		else {
+			mostSimilarWords = w2vModel.mostSimilar( keyword, 20 )
+			w2vModelData[keyword] = mostSimilarWords
+		}
+
+		const words = mostSimilarWords ? _.map(mostSimilarWords, 'word').map(item => item.toLowerCase()) : []
+		return words
+	}
+
+	const getData = async (comment) => {
+		const commentText = comment.comment
+		const subComments = commentText.split(".").map(item => item.trim()).filter(item => !!item)
+		
+		// 
+		const simiSecurity = getSimiWord('security')
+		let securitySentences = subComments.filter(subComment => {
+			return simiSecurity.some(word => subComment.toLowerCase().includes(word.toLowerCase()))
+		})
+		securitySentences = _.uniq(securitySentences)
+
+		// 
+		const simiPrivacy = getSimiWord('privacy')
+		let privacySentences = subComments.filter(subComment => {
+			return simiPrivacy.some(word => subComment.toLowerCase().includes(word.toLowerCase()))
+		})
+		privacySentences = _.uniq(privacySentences)
+
+		// 
+		const simiPermission = getSimiWord('permission')
+		const hasPermission = simiPermission.some(word => commentText.toLowerCase().includes(word.toLowerCase()))
+		let permissionSentences = []
+		if(hasPermission) {
+			const simiPermissionItems = PERMISSIONS.reduce((acc, item) => {
+				return acc = [...acc, ...getSimiWord(item)]
+			}, [])
+			permissionSentences = subComments.filter(subComment => {
+				return simiPermissionItems.some(word => subComment.toLowerCase().includes(word.toLowerCase()))
+			})
+		}
+		
+		// 
+		const simiCollection = getSimiWord('collection')
+		const hasCollection = simiCollection.some(word => commentText.toLowerCase().includes(word.toLowerCase()))
+		let collectionSentences = []
+		if(hasCollection) {
+			const simiItems = [...DATA_TYPES, ...PURPOSES].reduce((acc, item) => {
+				return acc = [...acc, ...getSimiWord(item)]
+			}, [])
+
+			collectionSentences = subComments.filter(subComment => {
+				return simiItems.some(word => subComment.toLowerCase().includes(word.toLowerCase()))
+			})
+		}
+		collectionSentences = _.uniq(collectionSentences)
+
+		// 
+		const simiSharing = getSimiWord('sharing')
+		const hasSharing = simiSharing.some(word => commentText.toLowerCase().includes(word.toLowerCase()))
+		let sharingSentences = []
+		if(hasSharing) {
+			const simiItems = [...DATA_TYPES, ...PURPOSES, ...THIRD_PARTIES].reduce((acc, item) => {
+				return acc = [...acc, ...getSimiWord(item)]
+			}, [])
+
+			sharingSentences = subComments.filter(subComment => {
+				return simiItems.some(word => subComment.toLowerCase().includes(word.toLowerCase()))
+			})
+		}
+		sharingSentences = _.uniq(sharingSentences)
+
+		const result = { securitySentences, privacySentences, permissionSentences, collectionSentences, sharingSentences }
+
+		await Models.Comment.updateOne({
+			_id: comment.id
+		}, result)
+		return 
+	}
+
+	const comments = await Models.Comment.find({
+		isLabeled: true,
+	})
+
+
+	// for(let i = 0; i < comments.length; i++) {
+	// 	const comment = comments[i]
+
+	// 	await getData(comment.comment)
+	// }
+
+	const commentChunks = _.chunk(comments, 100)
+	for(let i = 0; i < commentChunks.length; i++) {
+		console.log(`Running ${i+ 1}/${commentChunks.length}`) 
+		const chunk = commentChunks[i];
+		
+		await Promise.all(chunk.map(getData))
+	}
+}
 main()
 async function main() {
 	// await step1()
-	await step2()
+	// await step2()
+	await step22()
 }
 
 // file2()

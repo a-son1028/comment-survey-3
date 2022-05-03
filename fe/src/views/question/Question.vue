@@ -30,17 +30,17 @@
             ><b>The above comment discusses:</b></div>
             
             <div
-              v-if="question.securityStructure.length"
+              v-if="question.securitySentences.length"
               class="ml-3"
             >
               Some positive/negative aspects of <b>security mechanisms</b> adopted the target app. namely:<br>
               <div class="ml-10">
                 <div
-                  v-for="(item, index) in question.securityStructure"
+                  v-for="(item, index) in question.securitySentences"
                   :key="index"
                   style="text-transform: capitalize;"
                 >
-                  + {{ item.dependentGloss }} {{ item.governorGloss }}
+                  + {{ item }}
                 </div>  
               </div>
               <br>
@@ -48,17 +48,17 @@
 
 
             <div 
-              v-if="question.privacyStructure.length"
+              v-if="question.privacySentences.length"
               class="ml-3"
             >
               Some positive/negative aspects of the <b>privacy management</b> adopted the target app. namely:<br>
               <div class="ml-10">
                 <div
-                  v-for="(item, index) in question.privacyStructure"
+                  v-for="(item, index) in question.privacySentences"
                   :key="index"
                   style="text-transform: capitalize;"
                 >
-                  + {{ item.dependentGloss }} {{ item.governorGloss }}
+                  + {{ item }}
                 </div>  
               </div>
               <br>
@@ -66,24 +66,24 @@
 
 
             <div 
-              v-if="question.permissionStructure && question.permissionStructure.length"
+              v-if="question.permissionSentences && question.permissionSentences.length"
               class="ml-3"
             >
               The <b>permissions</b> used by the target app. namely:<br>
               <div class="ml-10">
                 <div
-                  v-for="(item, index) in question.permissionStructure"
+                  v-for="(item, index) in question.permissionSentences"
                   :key="index"
                   style="text-transform: capitalize;"
                 >
-                  + {{ item.dependentGloss }} {{ item.governorGloss }}
+                  + {{ item }}
                 </div>  
               </div>
               <br>
             </div>
 
             <div
-              v-if="question.collectionStructure && question.collectionStructure.length"
+              v-if="question.collectionSentences && question.collectionSentences.length"
               class="ml-3"
             >
               The <b>data collection procedure</b> adopted by the target app<span>, namely:</span><br>
@@ -91,18 +91,18 @@
                 class="ml-10"
               >
                 <div
-                  v-for="(item, index) in question.collectionStructure"
+                  v-for="(item, index) in question.collectionSentences"
                   :key="index"
                   style="text-transform: capitalize;"
                 >
-                  + {{ item.dependentGloss }} {{ item.governorGloss }}
+                  + {{ item }}
                 </div>
               </div>
               <br>
             </div>
 
             <div
-              v-if="question.sharingStructure && question.sharingStructure.length"
+              v-if="question.sharingSentences && question.sharingSentences.length"
               class="ml-3"
             >
               The <b>data sharing procedure</b> adopted by the target app<span>, namely:</span><br>
@@ -110,11 +110,11 @@
                 class="ml-10"
               >
                 <div
-                  v-for="(item, index) in question.sharingStructure"
+                  v-for="(item, index) in question.sharingSentences"
                   :key="index"
                   style="text-transform: capitalize;"
                 >
-                  + {{ item.dependentGloss }} {{ item.governorGloss }}
+                  + {{ item }}
                 </div>
               </div>
               <br>
@@ -135,7 +135,7 @@
 
                 <!-- 1.1 -->
                 <div
-                  v-if="question.securityStructureWithKeywords.length"
+                  v-if="question.securitySentences.length"
                   class="ml-3 mt-3"
                 >
                   Some positive/negative aspects of <b>security mechanisms</b> adopted the target app.
@@ -156,7 +156,7 @@
                 
                 <!-- 1.2 -->
                 <div
-                  v-if="question.privacyStructureWithKeyWords.length"
+                  v-if="question.privacySentences.length"
                   class="ml-3 mt-3"
                 >
                   Some positive/negative aspects of the <b>privacy management</b> adopted the target app.
@@ -177,7 +177,7 @@
 
                 <!-- 1.3 -->
                 <div
-                  v-if="question.permissionStructureWithKeyWords.length"
+                  v-if="question.permissionSentences.length"
                   class="ml-3 mt-3"
                 >
                   The <b>permissions</b> used by the target app.
@@ -198,7 +198,7 @@
 
                 <!-- 1.4 -->
                 <div
-                  v-if="question.collectionDataTypes"
+                  v-if="question.collectionSentences"
                   class="ml-3 mt-3"
                 >
                   The <b>data collection procedure</b> adopted by the target app.
@@ -220,7 +220,7 @@
 
                 <!-- 1.5 -->
                 <div
-                  v-if="question.sharingStructure"
+                  v-if="question.sharingSentences"
                   class="ml-3 mt-3"
                 >
                   The <b>data sharing procedure</b> adopted by the target app.

@@ -42,6 +42,13 @@ var groupSchema = new Schema(
     sharingSimiWords: Schema.Types.Mixed, 
     sharingStructure: Array,
     sharingDataTypes: Schema.Types.Mixed,
+
+
+    securitySentences: Array, 
+    privacySentences: Array, 
+    permissionSentences: Array, 
+    collectionSentences: Array, 
+    sharingSentences: Array, 
 },
   {
     timestamps: true,
