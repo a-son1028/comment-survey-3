@@ -198,7 +198,7 @@
 
                 <!-- 1.4 -->
                 <div
-                  v-if="question.collectionSentences"
+                  v-if="question.collectionSentences.length"
                   class="ml-3 mt-3"
                 >
                   The <b>data collection procedure</b> adopted by the target app.
@@ -220,7 +220,7 @@
 
                 <!-- 1.5 -->
                 <div
-                  v-if="question.sharingSentences"
+                  v-if="question.sharingSentences.length"
                   class="ml-3 mt-3"
                 >
                   The <b>data sharing procedure</b> adopted by the target app.
