@@ -19,8 +19,14 @@ router.get(
 );
 router.post(
   "/questions",
-  [Middlewares.Auth.isUser],
+  // [Middlewares.Auth.isUser],
   Controllers.Survey.getQuestions
+);
+
+router.get(
+  "/comments/:appName",
+  // [Middlewares.Auth.isUser],
+  Controllers.Survey.getComments
 );
 
 router.put(

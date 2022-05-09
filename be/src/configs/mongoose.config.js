@@ -16,6 +16,6 @@ mongoose.connection.on("error", err => {
   Utils.Logger.error(err);
 });
 
-mongoose.set("debug", false);
+mongoose.set("debug", true);
 
 

@@ -11,7 +11,7 @@ import Success from '@/views/Success.vue'
 // midlewares
 
 Vue.use(VueRouter)
-import checkAuth from '@/middleware/auth.js';
+// import checkAuth from '@/middleware/auth.js';
 
 const routes = [
   {
@@ -21,7 +21,7 @@ const routes = [
   }, {
     path: '/',
     component: DefaultLayout,
-    beforeEnter: checkAuth,
+    // beforeEnter: checkAuth,
     children: [
       {
         path: '',

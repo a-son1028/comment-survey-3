@@ -19,7 +19,7 @@
 
 <script>
 import UINextButton from '@/components/UINextButton.vue'
-import { UPDATE_INSTRUCTION } from '@/store/modules/user/action.type.js'
+// import { UPDATE_INSTRUCTION } from '@/store/modules/user/action.type.js'
 
 export default {
   components: {
@@ -31,10 +31,10 @@ export default {
   },
   methods: {
     next() {
-      this.$store.dispatch(UPDATE_INSTRUCTION)
-        .then(() => {
+      // this.$store.dispatch(UPDATE_INSTRUCTION)
+      //   .then(() => {
           this.$router.push('/questions')
-        })
+        // })
     },
   }
 };

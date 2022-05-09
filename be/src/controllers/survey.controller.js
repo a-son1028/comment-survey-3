@@ -51,43 +51,35 @@ class SurveyController {
   }
   async getQuestions(req, res, next) {
     try {
-      const user = req.user;
-      const { commentSurveyId } = user
-      let commentSurvey = await Models.CommentSurvey.findOne({
-        ...(commentSurveyId 
-          ? {
-              _id: commentSurveyId
-            } 
-          : { isSelected: false })
+      let apps = await Models.App.find({}).limit(1)
+
+      // apps = await Promise.all(apps.map(app => {
+      //   return Models.Comment.find({
+      //     appName: app.appName
+      //   }).then(comments => {
+      //     return {
+      //       ...app.toJSON(),
+      //       comments
+      //     }
+      //   })
+      // }))
+
+      res.json(apps)
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getComments(req, res, next) {
+    try {
+      const { appName } = req.params;
+
+      let comments = await Models.Comment.find({
+        appName,
+        isLabeled: true,
       })
 
-      await commentSurvey.updateOne({
-        isSelected: true
-      })
-
-      if(!commentSurveyId) {
-        await Models.User.updateOne({
-        _id: user.id
-        }, {
-            $set: {
-              commentSurveyId: commentSurvey.id
-            }
-          })
-      }
-
-      commentSurvey.comments = _.sortBy(commentSurvey.comments, "stt")
-      
-      const result = await Promise.all(
-        commentSurvey.comments.map(comment => {
-          return Models.Comment.findById(comment._id)
-          .then(commentData => {
-        
-            return {...commentData.toJSON(), ...comment.toJSON()}
-          })
-        })
-      )
-
-      res.json(result)
+      res.json(comments)
     } catch (error) {
       next(error);
     }

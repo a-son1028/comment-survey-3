@@ -5,6 +5,7 @@ import getters from './getters';
 export function initialState() {
   return {
     questions: [],
+    comments: null,
     questionId: 1,
     answer: {}
   };

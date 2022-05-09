@@ -2,6 +2,9 @@ export default {
   getQuestions(state) {
     return state.questions;
   },
+  getComments(state) {
+    return state.comments;
+  },
   getAnswer(state) {
     return state.answer;
   },

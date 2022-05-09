@@ -2,6 +2,7 @@ import path from 'path';
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 import "../src/configs/mongoose.config";
 import Models from "../src/models";
+import fs from "fs"
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 const csv = require("csvtojson");
 import CoreNLP, { Properties, Pipeline } from 'corenlp';
@@ -642,7 +643,218 @@ main()
 async function main() {
 	// await step1()
 	// await step2()
-	await step22()
+	// await step22()
+
+
+	await Promise.all([
+		// reportSurvey2(),
+		explanationReport(),
+		// getUserEmail(),
+		// getUserDone()
+	])
+}
+async function getUserDone() {
+	const header = [
+    {
+      id: "stt",
+      title: "#",
+    },
+		{
+      id: "id",
+      title: "ID of microworker",
+    },
+		{
+      id: "email",
+      title: "Email",
+    },
+	{
+      id: "time",
+      title: "time",
+    },
+	{
+      id: "num",
+      title: "Total questions did",
+    },
+  ];
+	const rows = []
+	const dataFromMicro = await csv({
+		noheader: true,
+		output: "csv",
+	}).fromFile("/Users/a1234/individual/abc/comment-survey2/be/CSVReport_8b367f03819a_B_Page#1_With_PageSize#5000.csv");
+	
+	const answers = await Models.Answer.find()
+
+	for(let i = 0; i < answers.length; i++) {
+		const answer = answers[i];
+		const user = await Models.User.findById(answer.userId)
+
+		const resultInMicro = dataFromMicro.find(item => item[2].trim() === user.email)
+
+		rows.push({
+			stt: i + 1,
+			id: resultInMicro ? resultInMicro[0] : '',
+			email: user.email,
+			time: resultInMicro ? resultInMicro[1] : '',
+			num: `${answer.questions.length.toString()}`
+		})
+	}
+
+
+	const csvWriter = createCsvWriter({
+    	path: "./report-user(done-undone)(rais2).csv",
+		header,
+	});
+	await csvWriter.writeRecords(rows);
+	console.log("DONE")
+}
+async function getUserEmail() {
+	const users = await Models.User.find()
+	const emails = _.map(users, 'email').join("\n")
+
+	fs.writeFileSync('./email(rais2).txt', emails, 'utf-8')
+}
+async function explanationReport() {
+	const header = [
+    {
+      id: "stt",
+      title: "#",
+    },
+		{
+      id: "email",
+      title: "Email",
+    },
+		{
+      id: "numberOfNumber",
+      title: "Number of comment",
+    },
+		{
+      id: "comment",
+      title: "Comment",
+    },
+		{
+      id: "agree",
+      title: "Agree",
+    },
+		{
+      id: "security",
+      title: "Security",
+    },
+		{
+      id: "privacy",
+      title: "Privacy",
+    },
+		{
+      id: "permission",
+      title: "Permission",
+    },
+		{
+      id: "collection",
+      title: "Collection",
+    },
+		{
+      id: "sharing",
+      title: "Sharing",
+    },
+	]
+	const rows = []
+	let stt = 1
+
+	const [answers, comments] = await Promise.all([
+		Models.Answer.find(),
+		Models.Comment.find()
+	])
+
+	for (let i = 0; i < answers.length; i++) {
+		const answer = answers[i];
+		const user = await Models.User.findById(answer.userId)
+
+		for (let j = 0; j < answer.questions.length; j++) {
+			const question = answer.questions[j];
+			const comment = comments.find(comment => comment.commentId === question.commentId)
+			const [firstRes, ...explainationRes] = question.responses
+			let row = {}
+
+			row.agree = firstRes.value === '1' ? "Yes" : (firstRes.value === '2' ? "Partially" : "No")
+			if(firstRes.value === '0') {
+				const security = explainationRes.find(item => item.name === 'question11')
+				if(security && security.value !== null) {
+					row.security = security.value === '1' ? `Yes - ${security.reason}` : "No"
+					console.log("security", security)
+				}
+				
+				const privacy = explainationRes.find(item => item.name === 'question12')
+				if(privacy && privacy.value !== null) {
+					console.log("privacy", privacy)
+					row.privacy = privacy.value === '1' ? `Yes - ${privacy.reason}` : "No"
+				}
+
+				const permission = explainationRes.find(item => item.name === 'question13')
+				if(permission && permission.value !== null) {
+					console.log("permission", permission)
+					row.permission = permission.value === '1' ? `Yes - ${permission.reason}` : "No"
+				}
+
+				const collection = explainationRes.find(item => item.name === 'question14')
+				if(collection && collection.value !== null) {
+					console.log("collection", collection)
+					row.collection = collection.value === '1' ? `Yes - ${collection.reason}` : "No"
+				}
+
+				const sharing = explainationRes.find(item => item.name === 'question15')
+				if(sharing && sharing.value !== null) {
+					console.log("sharing", sharing)
+					row.sharing = sharing.value === '1' ? `Yes - ${sharing.reason}` : "No"
+				}
+			}
+
+			rows.push({
+				stt: stt++,
+				email: user.email,
+				numberOfNumber: j + 1,
+				comment: comment.comment,
+				...row
+			})
+
+		}
+	}
+
+	const csvWriter = createCsvWriter({
+		path: "./explaination(rais2).csv",
+		header,
+	});
+	await csvWriter.writeRecords(rows);
+
+	console.log("DONE")
+}
+async function reportSurvey2() {
+	const answers = await Models.Answer.find()
+
+	
+	const result = {
+		0: 0,
+		1: 0,
+		2: 0
+	}
+	for (let i = 0; i < answers.length; i++) {
+		const answer = answers[i];
+
+		for (let j = 0; j < answer.questions.length; j++) {
+			const question = answer.questions[j];
+			
+			const firstRes = question.responses[0]
+
+			result[firstRes.value]++
+		}
+	}
+
+	const total = _.sum(Object.values(result))
+	const content = `
+Yes: ${result[1]} (${((result[1]/total) * 100).toFixed(2)}%)
+Partially: ${result[2]} (${((result[2]/total) * 100).toFixed(2)}%)
+No: ${result[0]} (${((result[0]/total) * 100).toFixed(2)}%)
+Total of comment: ${total}
+		`
+	fs.writeFileSync('./report(rais2).txt', content, 'utf-8')
 }
 
 // file2()
