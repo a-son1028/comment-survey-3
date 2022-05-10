@@ -77,7 +77,7 @@ class SurveyController {
       let comments = await Models.Comment.find({
         appName,
         isLabeled: true,
-      })
+      }).limit(10)
 
       res.json(comments)
     } catch (error) {

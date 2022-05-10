@@ -20,10 +20,9 @@
         <span v-html="question.description" />
         <!--eslint-enable-->
       </div>
-
-      <div
-        class="mt-4"
-      >
+      <hr>
+      <div style="font-size: 21px"><b>Our analysis</b></div>
+      <div>
         <b style="text-decoration: underline;">Permissions:</b> 
         <div>+ Permissions: Permission 1, Permission 2, Permission 3, Permission 4.</div> 
       </div>
@@ -78,11 +77,19 @@
         >{{ item }}{{ index === question.thirdPartiesHP.length - 1 ? "." : ", " }}</span></div> 
       </div>
 
-      <!-- Comment -->
       <div
         class="mt-2"
       >
-        <b style="text-decoration: underline;">Comments:</b> 
+        <b style="text-decoration: underline;">Security and privacy assessment:</b> 
+        <div>High</div>
+      </div>
+        
+
+
+      <!-- Comment -->
+      <hr>
+      <div>
+        <b style="text-decoration: underline;font-size: 21px">Android user comments :</b> 
         
         <div v-if="comments && comments.length === 0">No data</div>
         <div v-else>
@@ -90,7 +97,78 @@
             v-for="(comment, index) in comments"
             :key="index"
           >
-            + {{ comment.comment }}
+            <b>Comment {{ index + 1 }}: </b>{{ comment.comment }}
+
+            <!-- security -->
+            <ul style="list-style-type:disc">
+              <li
+                v-if="comment.securitySentences.length"
+                class="ml-3"
+              >
+                Security 
+                <ul
+                  class="ml-10"
+                  style="list-style-type:circle"
+                >
+                  <li
+                    v-for="(item, indexse) in comment.securitySentences"
+                    :key="indexse"
+                    style="text-transform: capitalize;"
+                  >
+                    {{ item }}
+                  </li>  
+                  <li>Result: 0.25</li>
+                </ul>
+                <br>
+              </li>
+            </ul>
+
+            <!-- privacy -->
+            <ul style="list-style-type:disc">
+              <li
+                v-if="comment.privacySentences.length"
+                class="ml-3"
+              >
+                Privacy 
+                <ul
+                  class="ml-10"
+                  style="list-style-type:circle"
+                >
+                  <li
+                    v-for="(item, indexse) in comment.privacySentences"
+                    :key="indexse"
+                    style="text-transform: capitalize;"
+                  >
+                    {{ item }}
+                  </li>  
+                  <li>Result: 0.5</li>
+                </ul>
+                <br>
+              </li>
+            </ul>
+
+            <!-- permission -->
+            <ul style="list-style-type:disc">
+              <li
+                v-if="comment.permissionSentences.length"
+                class="ml-3"
+              >
+                Permission 
+                <ul
+                  class="ml-10"
+                  style="list-style-type:circle"
+                >
+                  <li
+                    v-for="(item, indexse) in comment.permissionSentences"
+                    :key="indexse"
+                    style="text-transform: capitalize;"
+                  >
+                    {{ item }}
+                  </li>  
+                </ul>
+                <br>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
