@@ -21,7 +21,7 @@
         <!--eslint-enable-->
       </div>
       <hr>
-      <div style="font-size: 21px"><b>Our analysis</b></div>
+      <div style="font-size: 21px"><b>Our analysis:</b></div>
       <div>
         <b style="text-decoration: underline;">Permissions:</b> 
         <div>+ Permissions: Permission 1, Permission 2, Permission 3, Permission 4.</div> 
@@ -89,7 +89,7 @@
       <!-- Comment -->
       <hr>
       <div>
-        <b style="text-decoration: underline;font-size: 21px">Android user comments :</b> 
+        <b style="text-decoration: underline;font-size: 21px">Android user comments:</b> 
         
         <div v-if="comments && comments.length === 0">No data</div>
         <div v-else>
@@ -102,7 +102,6 @@
             <!-- security -->
             <ul style="list-style-type:disc">
               <li
-                v-if="comment.securitySentences.length"
                 class="ml-3"
               >
                 Security 
@@ -111,11 +110,9 @@
                   style="list-style-type:circle"
                 >
                   <li
-                    v-for="(item, indexse) in comment.securitySentences"
-                    :key="indexse"
                     style="text-transform: capitalize;"
                   >
-                    {{ item }}
+                    It Is So Easy To Use And A Good Security App
                   </li>  
                   <li>Result: 0.25</li>
                 </ul>
@@ -126,20 +123,22 @@
             <!-- privacy -->
             <ul style="list-style-type:disc">
               <li
-                v-if="comment.privacySentences.length"
                 class="ml-3"
               >
                 Privacy 
                 <ul
                   class="ml-10"
                   style="list-style-type:circle"
-                >
+                > 
+                  <!-- <li
+                      v-for="(item, indexse) in comment.privacySentences"
+                      :key="indexse"
+                      style="text-transform: capitalize;"
+                    > -->
                   <li
-                    v-for="(item, indexse) in comment.privacySentences"
-                    :key="indexse"
                     style="text-transform: capitalize;"
                   >
-                    {{ item }}
+                    I Think That This App Is A Great Way To Have Phone Privacy
                   </li>  
                   <li>Result: 0.5</li>
                 </ul>
@@ -150,7 +149,6 @@
             <!-- permission -->
             <ul style="list-style-type:disc">
               <li
-                v-if="comment.permissionSentences.length"
                 class="ml-3"
               >
                 Permission 
@@ -159,12 +157,74 @@
                   style="list-style-type:circle"
                 >
                   <li
-                    v-for="(item, indexse) in comment.permissionSentences"
-                    :key="indexse"
                     style="text-transform: capitalize;"
                   >
-                    {{ item }}
+                    It Is So Easy To Use And don't require many permissions
                   </li>  
+                </ul>
+                <br>
+              </li>
+            </ul>
+
+            <ul style="list-style-type:disc">
+              <li
+                class="ml-3"
+              >
+                Data collection  
+                <ul
+                  class="ml-10"
+                  style="list-style-type:circle"
+                >
+                  <li
+                    style="text-transform: capitalize;"
+                  >
+                    Data Item
+                  </li>  
+                  <li>Result: 0.5</li>
+
+                  <br>
+                  <li
+                    style="text-transform: capitalize;"
+                  >
+                    Purpose
+                  </li>  
+                  <li>Result: 0.5</li>
+                </ul>
+                <br>
+              </li>
+            </ul>
+
+            <ul style="list-style-type:disc">
+              <li
+                class="ml-3"
+              >
+                Data sharing  
+                <ul
+                  class="ml-10"
+                  style="list-style-type:circle"
+                >
+                  <li
+                    style="text-transform: capitalize;"
+                  >
+                    Data Item
+                  </li>  
+                  <li>Result: 0.5</li>
+
+                  <br>
+                  <li
+                    style="text-transform: capitalize;"
+                  >
+                    Purpose
+                  </li>  
+                  <li>Result: 0.5</li>
+
+                  <br>
+                  <li
+                    style="text-transform: capitalize;"
+                  >
+                    Third party 
+                  </li>  
+                  <li>Result: 0.5</li>
                 </ul>
                 <br>
               </li>
