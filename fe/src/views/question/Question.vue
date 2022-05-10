@@ -5,7 +5,7 @@
       <h5
         class="text-center"
         style="text-transform: capitalize;"
-      > <span class="pagingInfo"> <span style="color: #FF9800; font-size: 30px">1</span> / {{ 50 }}</span></h5>
+      > <span class="pagingInfo"> <span style="color: #FF9800; font-size: 30px">1</span> / {{ 20 }}</span></h5>
       <h3
         class="text-center"
         style="text-transform: capitalize;"
