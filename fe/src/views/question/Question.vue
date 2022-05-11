@@ -252,7 +252,7 @@
             />
             
             <div
-              v-if="question1.value === 0"
+              v-if="question1.value === 2 || question1.value === 0"
             >
               <!-- security -->
               <div style="margin-left: 10px; margin-bottom: 10px">
@@ -261,16 +261,20 @@
                   class="container-checkbox"
                 >Security
                   <input
+                    v-if="question1.value === 2"
                     v-model="question11.value"
                     class="type-question"
                     type="checkbox"
                   >
-                  <span class="checkmark" />
+                  <span
+                    v-if="question1.value === 2"
+                    class="checkmark"
+                  />
                 </label>
                 <div style="margin-left: 35px">
                   Result: 0.5
 
-                  <div v-if="question11.value">
+                  <div v-if="question11.value || question1.value === 0">
                     <div>Can you provide the correct result?</div>
                     <div>Result: <input type="text"></div>
                   </div>
@@ -284,16 +288,20 @@
                   class="container-checkbox"
                 >Privacy
                   <input
+                    v-if="question1.value === 2"
                     v-model="question12.value"
                     class="type-question"
                     type="checkbox"
                   >
-                  <span class="checkmark" />
+                  <span
+                    v-if="question1.value === 2"
+                    class="checkmark"
+                  />
                 </label>
                 <div style="margin-left: 35px">
                   Result: 0.5
 
-                  <div v-if="question12.value">
+                  <div v-if="question12.value || question1.value === 0">
                     <div>Can you provide the correct result?</div>
                     <div>Result: <input type="text"></div>
                   </div>
@@ -307,16 +315,20 @@
                   class="container-checkbox"
                 >Permission
                   <input
+                    v-if="question1.value === 2"
                     v-model="question13.value"
                     class="type-question"
                     type="checkbox"
                   >
-                  <span class="checkmark" />
+                  <span
+                    v-if="question1.value === 2"
+                    class="checkmark"
+                  />
                 </label>
                 <div style="margin-left: 35px">
                   Result: 0.5
 
-                  <div v-if="question13.value">
+                  <div v-if="question13.value || question1.value === 0">
                     <div>Can you provide the correct result?</div>
                     <div>Result: <input type="text"></div>
                   </div>
@@ -330,16 +342,20 @@
                   class="container-checkbox"
                 >Data collection
                   <input
+                    v-if="question1.value === 2"
                     v-model="question14.value"
                     class="type-question"
                     type="checkbox"
                   >
-                  <span class="checkmark" />
+                  <span
+                    v-if="question1.value === 2"
+                    class="checkmark"
+                  />
                 </label>
                 <div style="margin-left: 35px">
                   Result: 0.5
 
-                  <div v-if="question14.value">
+                  <div v-if="question14.value || question1.value === 0">
                     <div>Can you provide the correct result?</div>
                     <div>Result: <input type="text"></div>
                   </div>
@@ -353,16 +369,20 @@
                   class="container-checkbox"
                 >Data sharing
                   <input
+                    v-if="question1.value === 2"
                     v-model="question15.value"
                     class="type-question"
                     type="checkbox"
                   >
-                  <span class="checkmark" />
+                  <span
+                    v-if="question1.value === 2"
+                    class="checkmark"
+                  />
                 </label>
                 <div style="margin-left: 35px">
                   Result: 0.5
 
-                  <div v-if="question15.value">
+                  <div v-if="question15.value || question1.value === 0">
                     <div>Can you provide the correct result?</div>
                     <div>Result: <input type="text"></div>
                   </div>
