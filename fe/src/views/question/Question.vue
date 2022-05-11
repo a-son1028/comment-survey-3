@@ -161,6 +161,7 @@
                   >
                     It Is So Easy To Use And don't require many permissions
                   </li>  
+                  <li>Result: 0.5</li>
                 </ul>
                 <br>
               </li>
@@ -229,6 +230,8 @@
                 <br>
               </li>
             </ul>
+
+            
           </div>
         </div>
       </div>
@@ -237,7 +240,137 @@
         method="POST"
         @submit="next"
       >
-        
+        <div id="questions">
+
+          <div>
+            <div>Do you agree with comment's validation provided above?</div>
+
+            <UIRadioGroup
+              v-model="question1.value"
+              name="question1"
+              :options="questionOptions"
+            />
+            
+            <div
+              v-if="question1.value === 0"
+            >
+              <!-- security -->
+              <div style="margin-left: 10px; margin-bottom: 10px">
+                <label
+                  style="margin-bottom: 0px"
+                  class="container-checkbox"
+                >Security
+                  <input
+                    v-model="question11.value"
+                    class="type-question"
+                    type="checkbox"
+                  >
+                  <span class="checkmark" />
+                </label>
+                <div style="margin-left: 35px">
+                  Result: 0.5
+
+                  <div v-if="question11.value">
+                    <div>Can you provide the correct result?</div>
+                    <div>Result: <input type="text"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Privacy -->
+              <div style="margin-left: 10px; margin-bottom: 10px">
+                <label
+                  style="margin-bottom: 0px"
+                  class="container-checkbox"
+                >Privacy
+                  <input
+                    v-model="question12.value"
+                    class="type-question"
+                    type="checkbox"
+                  >
+                  <span class="checkmark" />
+                </label>
+                <div style="margin-left: 35px">
+                  Result: 0.5
+
+                  <div v-if="question12.value">
+                    <div>Can you provide the correct result?</div>
+                    <div>Result: <input type="text"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Permission -->
+              <div style="margin-left: 10px; margin-bottom: 10px">
+                <label
+                  style="margin-bottom: 0px"
+                  class="container-checkbox"
+                >Permission
+                  <input
+                    v-model="question13.value"
+                    class="type-question"
+                    type="checkbox"
+                  >
+                  <span class="checkmark" />
+                </label>
+                <div style="margin-left: 35px">
+                  Result: 0.5
+
+                  <div v-if="question13.value">
+                    <div>Can you provide the correct result?</div>
+                    <div>Result: <input type="text"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Data collection -->
+              <div style="margin-left: 10px; margin-bottom: 10px">
+                <label
+                  style="margin-bottom: 0px"
+                  class="container-checkbox"
+                >Data collection
+                  <input
+                    v-model="question14.value"
+                    class="type-question"
+                    type="checkbox"
+                  >
+                  <span class="checkmark" />
+                </label>
+                <div style="margin-left: 35px">
+                  Result: 0.5
+
+                  <div v-if="question14.value">
+                    <div>Can you provide the correct result?</div>
+                    <div>Result: <input type="text"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Data sharing -->
+              <div style="margin-left: 10px; margin-bottom: 10px">
+                <label
+                  style="margin-bottom: 0px"
+                  class="container-checkbox"
+                >Data sharing
+                  <input
+                    v-model="question15.value"
+                    class="type-question"
+                    type="checkbox"
+                  >
+                  <span class="checkmark" />
+                </label>
+                <div style="margin-left: 35px">
+                  Result: 0.5
+
+                  <div v-if="question15.value">
+                    <div>Can you provide the correct result?</div>
+                    <div>Result: <input type="text"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div style="position: relative">
           <UINextButton />
 
@@ -260,7 +393,7 @@
 import { mapGetters } from 'vuex';
 import UINextButton from '@/components/UINextButton.vue'
 import UILoader from '@/components/UILoader.vue'
-// import UIRadioGroup from '@/components/UIRadioGroup.vue'
+import UIRadioGroup from '@/components/UIRadioGroup.vue'
 // import UITextarea from '@/components/UITextarea.vue'
 import { GET_QUESTIONS, GET_COMMENTS } from '@/store/modules/question/action.type.js'
 // import { GET_QUESTIONS, GET_ANSWER, STORE_ANSWER } from '@/store/modules/question/action.type.js'
@@ -273,7 +406,7 @@ export default {
   components: {
     UINextButton,
     UILoader,
-    // UIRadioGroup,
+    UIRadioGroup,
     // UITextarea,
   },
   data: () => ({
