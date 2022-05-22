@@ -227,12 +227,12 @@ async function updateData() {
 			getCommentThirdParty(comment.comment)
 		])
 		
-		console.log(permissions, dataTypes, purposes, thirdParties)
-		// await Models.Comment.updateOne({
-		// 	_id: comment.id
-		// }, {
-		// 	perissionType, dataItemType, purposeType, thirdPartyType
-		// })
+		// console.log(permissions, dataTypes, purposes, thirdParties)
+		await Models.Comment.updateOne({
+			_id: comment.id
+		}, {
+			perissionType, dataItemType, purposeType, thirdPartyType
+		})
 	}
 }
 function getCommentPermission(comment) {
