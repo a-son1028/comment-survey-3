@@ -42,6 +42,7 @@ var schema = new Schema(
     collectionData: String,
     thirdPartyData: String,
     retentionData: String,
+    permissions: [String], // get from mainfest file
   },
   {
     timestamps: true,

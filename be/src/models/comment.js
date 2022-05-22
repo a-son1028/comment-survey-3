@@ -49,6 +49,17 @@ var groupSchema = new Schema(
     permissionSentences: Array, 
     collectionSentences: Array, 
     sharingSentences: Array, 
+
+    perissionType: String, // all, specific, none
+    dataItemType: String, // all, specific, none
+    purposeType: String, // all, specific, none
+    thirdPartyType: String, // all, specific, none
+
+
+    permissions: [String],
+    dataTypes: [String],
+    purposes: [String],
+    thirdParties: Schema.Types.Mixed
 },
   {
     timestamps: true,

@@ -3,6 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, "../.env") });
 import "../src/configs/mongoose.config";
 import Models from "../src/models";
 import fs from "fs"
+import axios from 'axios'
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 const csv = require("csvtojson");
 import CoreNLP, { Properties, Pipeline } from 'corenlp';
@@ -648,10 +649,160 @@ async function main() {
 
 	await Promise.all([
 		// reportSurvey2(),
-		explanationReport(),
+		// explanationReport(),
 		// getUserEmail(),
 		// getUserDone()
 	])
+
+	
+
+	let dataURLFile = fs.readFileSync("./dataURL.json", "utf-8")
+	dataURLFile = JSON.parse(dataURLFile)
+
+	let dataCSV = await csv({
+		noheader: false,
+		output: "csv",
+	}).fromFile("./urls.csv");
+	const header = [
+    {
+      id: "stt",
+      title: "#",
+    },
+		{
+      id: "url",
+      title: "Url",
+    },
+		{
+      id: "total",
+      title: "Total apps",
+    },
+		{
+      id: "malware",
+      title: "Malware",
+    },
+  ];
+	const rows = []
+	for(let i = 0; i < dataCSV.length; i++) {
+		console.log(`Running ${i + 1}/${dataCSV.length}`)
+		const [stt, url, total] = dataCSV[i]
+
+		let maliApp = dataURLFile.find(item => item.url === url)
+		if(!maliApp) {
+			const requestURl = `https://ipqualityscore.com/api/json/url/pdsizCQXtcP9NK0A4luZsC7YSatUHcgk/${encodeURIComponent(url)}`
+
+			try {
+				const res = await axios.get(requestURl)
+				maliApp = res.data
+			} catch(err){
+				maliApp = {
+					malware: null
+				}
+			}
+
+			
+			maliApp.url = url
+			dataURLFile.push(maliApp)
+			fs.writeFileSync("./dataURL.json", JSON.stringify(dataURLFile, null, 2),"utf-8")
+		}
+
+		rows.push({
+			stt,
+			url,
+			total,
+			malware: maliApp.malware === null ? "Cannot identify" : (maliApp.malware ? "Yes" : "No")
+		})
+		
+	}
+
+	const csvWriter = createCsvWriter({
+    	path: "./urls(ver2).csv",
+		header,
+	});
+	csvWriter.writeRecords(rows);
+	console.log("DONE");
+	return
+	let appsDB = fs.readFileSync("/Users/a1234/Downloads/Static-DynamicDataOf_1379_TargetApps.json", "utf-8")
+	appsDB = JSON.parse(appsDB)
+	const appIds = appsDB.map(app => app.appIdCHPlay)
+	console.log(appIds)
+	const selectedApps = []
+	const apps = []
+	const urls = {}
+	var readline = require("linebyline"),
+    rl = readline("/Users/a1234/Downloads/data_collect_purpose.json");
+  rl.on("line", function (line, lineCount, byteCount) {
+    // do something with the line of text
+    const app = JSON.parse(line);
+	if(app && app.data && appIds.includes(app.app)) apps.push(app.app)
+
+    if (app && app.data && app.data.url && appIds.includes(app.app)) {
+		let url = app.data.url.split("|")[0].trim()
+     	if(url && url !== "tracking" && url !== "null") {
+		if(!urls[url]) urls[url] = [];
+		
+		urls[url].push(app.app)
+		selectedApps.push(app.app)
+	 }
+    }
+  })
+    .on("error", function (e) {
+      // something went wrong
+    })
+    .on("close", function (e) {
+		console.log(_.uniq(apps))
+		console.log(1, _.uniq(selectedApps).length, _.uniq(apps).length)
+	const header = [
+    {
+      id: "stt",
+      title: "#",
+    },
+		{
+      id: "url",
+      title: "Url",
+    },
+		{
+      id: "total",
+      title: "Total apps",
+    },
+  ];
+  let rows = []
+    //   decodeURI
+//   axios.get('/user?ID=12345')
+const arrayUrls = Object.entries(urls)
+for(let i = 0; i < arrayUrls.length; i++) {
+	const [url, apps] = arrayUrls[i]
+
+	// let maliApp = dataURLFile.find(item => item.url === url)
+
+	// if(!maliApp) {
+	// 	const maliApp = await axios.get(`https://ipqualityscore.com/api/json/url/pdsizCQXtcP9NK0A4luZsC7YSatUHcgk/${decodeURI(url)}`)
+	// 	console.log(1, maliApp)
+	// 	maliApp.url = url
+		
+	// 	dataURLFile.push(maliApp)
+	// 	fs.writeFileSync("./dataURL.json", JSON.stringify(dataURLFile),"utf-8")
+	// }
+	rows.push({
+			stt: i + 1,
+			url,
+			total: _.uniq(apps).length
+		})
+}
+
+  
+  rows = _.orderBy(rows, ['total'], ["desc"])
+  rows = rows.map((item, index) => {
+	item.stt = index + 1
+	return item
+  })
+  const csvWriter = createCsvWriter({
+    	path: "./urls.csv",
+		header,
+	});
+	csvWriter.writeRecords(rows);
+
+      console.log("DONE");
+    });
 }
 async function getUserDone() {
 	const header = [
