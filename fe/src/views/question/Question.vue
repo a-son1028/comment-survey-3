@@ -22,9 +22,12 @@
       </div>
       <hr>
       <div style="font-size: 21px"><b>Our analysis:</b></div>
-      <div>
+      <div v-if="question.permissions && question.permissions.length">
         <b style="text-decoration: underline;">Permissions:</b> 
-        <div>+ Permissions: Permission 1, Permission 2, Permission 3, Permission 4.</div> 
+        <div>+ Permissions: <span
+          v-for="(permission, index) in question.permissions"
+          :key="index"
+        >{{ permission }}{{ index === question.permissions.length - 1 ? "." : ", " }}</span></div> 
       </div>
 
       <!-- Data collection -->

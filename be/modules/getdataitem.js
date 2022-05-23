@@ -231,7 +231,7 @@ async function updateData() {
 		await Models.Comment.updateOne({
 			_id: comment.id
 		}, {
-			perissionType, dataItemType, purposeType, thirdPartyType
+			permissions, dataTypes, purposes, thirdParties
 		})
 	}
 }
