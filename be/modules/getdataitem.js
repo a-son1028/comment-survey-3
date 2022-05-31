@@ -236,7 +236,7 @@ async function updateData() {
 			getCommentThirdParty(comment.comment)
 		])
 		
-		console.log('result', JSON.stringify(permissions, dataTypes, purposes, thirdParties, null, 2))
+		console.log('result', JSON.stringify({permissions, dataTypes, purposes, thirdParties}, null, 2))
 		await Models.Comment.updateOne({
 			_id: comment.id
 		}, {
