@@ -55,11 +55,10 @@ var groupSchema = new Schema(
     purposeType: String, // all, specific, none
     thirdPartyType: String, // all, specific, none
 
-
     permissions: [String],
-    dataTypes: [String],
+    dataTypes: Schema.Types.Mixed,
     purposes: [String],
-    thirdParties: Schema.Types.Mixed
+    thirdParties: [String]
 },
   {
     timestamps: true,
