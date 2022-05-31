@@ -174,7 +174,12 @@ const THIRD_PARTIES = ["a.applovin.com","aarki.net","active.mobi","adactioninter
 
 main()
 async function main() {
-	const comments = await Models.Comment.find({})
+	const comments = await Models.Comment.find({
+		perissionType: {$exists: false},
+		dataItemType: {$exists: false},
+		purposeType: {$exists: false},
+		thirdPartyType: {$exists: false}
+	})
 
 	w2vModel  = await new Promise((resolve, reject) => {
 		w2v.loadModel( process.env.W2V_MODEL, function( error, model ) {
@@ -216,7 +221,12 @@ async function updateData() {
 	// 		resolve(model)
 	// 	});
 	// })
-	const comments = await Models.Comment.find({})
+	const comments = await Models.Comment.find({
+		permissions: {$exists: false},
+		dataTypes: {$exists: false},
+		purposes: {$exists: false},
+		thirdParties: {$exists: false}
+	})
 
 	for(let comment of comments) {
 		console.log(comment)
