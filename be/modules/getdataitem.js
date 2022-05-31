@@ -229,7 +229,6 @@ async function updateData() {
 	})
 
 	for(let comment of comments) {
-		console.log(comment)
 		const [permissions, dataTypes, purposes, thirdParties] = await Promise.all([
 			getCommentPermission(comment.comment),
 			getCommentDataType(comment.comment),
@@ -237,7 +236,7 @@ async function updateData() {
 			getCommentThirdParty(comment.comment)
 		])
 		
-		// console.log(permissions, dataTypes, purposes, thirdParties)
+		console.log('result', JSON.stringify(permissions, dataTypes, purposes, thirdParties, null, 2))
 		await Models.Comment.updateOne({
 			_id: comment.id
 		}, {
@@ -404,7 +403,7 @@ function getMostSimilarWords(keyword) {
 	let mostSimilarWords;
 	if(w2vModelData[keyword]) mostSimilarWords = w2vModelData[keyword]
 	else {
-		mostSimilarWords = w2vModel.mostSimilar( keyword, 20 )
+		mostSimilarWords = w2vModel.mostSimilar( keyword, 20 ) || []
 		w2vModelData[keyword] = mostSimilarWords
 	}
 
