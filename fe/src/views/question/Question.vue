@@ -121,6 +121,18 @@
           </span>
         </b-popover>
 
+        <b-popover
+          target="data-collection-item-popover-2"
+          triggers="hover"
+          placement="right"
+        >
+          According to our analysis based on the static analysis, the app collects
+          <span
+            v-for="(group, index) in question.staticGroup"
+            :key="index"
+          ><b>{{ group.name }}</b>{{ index === question.staticGroup.length - 1 ? "." : ", " }}
+          </span>
+        </b-popover>
 
         <b-popover
           target="purpose-popover"
@@ -129,7 +141,24 @@
         >
           According to our analysis based on the app privacy policy, the app collects user data for <b>Advertisements</b>.
         </b-popover>
+
+        <b-popover
+          target="purpose-popover-2"
+          triggers="hover"
+          placement="right"
+        >
+          According to our analysis based on the app privacy policy, the app collects user data for <b>Advertisements</b>.
+        </b-popover>
         
+        <b-popover
+          target="third-party-popover"
+          triggers="hover"
+          placement="right"
+        >
+          According to our analysis based on the app privacy policy, the app share user data with <b> www.startappexchange.com</b>, <b>Start App Service</b>.
+        </b-popover>
+
+       
       </div>
       <hr>
       <div>
@@ -228,7 +257,7 @@
                   >
                     Data Item
                   </li>  
-                  <li>Result: 0.5</li>
+                  <li><span id="data-collection-item-popover-2">Result: 0.5</span></li>
 
                   <br>
                   <li
@@ -236,7 +265,7 @@
                   >
                     Purpose
                   </li>  
-                  <li>Result: 0.5</li>
+                  <li><span id="purpose-popover-2">Result: 0.5</span></li>
 
                   <br>
                   <li
@@ -244,7 +273,7 @@
                   >
                     Third party 
                   </li>  
-                  <li>Result: 0.5</li>
+                  <li><span id="third-party-popover">Result: 0.5</span></li>
                 </ul>
                 <br>
               </li>
@@ -273,6 +302,7 @@
             <div
               v-if="question1.value === 2 || question1.value === 0"
             >
+              <div class="mb-1"><b>Can you provide the part of the comment justifying your decision?</b></div>
               <!-- security -->
               <div style="margin-left: 10px; margin-bottom: 10px">
                 <label
@@ -291,10 +321,10 @@
                   />
                 </label>
                 <div style="margin-left: 35px">
-                  Result: 0.5
+                  Result: 100% correct
 
                   <div v-if="question11.value || question1.value === 0">
-                    <div>Can you provide the correct result?</div>
+                    <div>Can you provide the related content from the comment?</div>
                     <div>Result: <input type="text"></div>
                   </div>
                 </div>
@@ -318,10 +348,10 @@
                   />
                 </label>
                 <div style="margin-left: 35px">
-                  Result: 0.5
+                  Result: 100% correct
 
                   <div v-if="question12.value || question1.value === 0">
-                    <div>Can you provide the correct result?</div>
+                    <div>Can you provide the related content from the comment?</div>
                     <div>Result: <input type="text"></div>
                   </div>
                 </div>
@@ -348,7 +378,7 @@
                   Result: 0.5
 
                   <div v-if="question13.value || question1.value === 0">
-                    <div>Can you provide the correct result?</div>
+                    <div>Can you provide the related content from the comment?</div>
                     <div>Result: <input type="text"></div>
                   </div>
                 </div>
@@ -375,7 +405,7 @@
                   Result: 0.5
 
                   <div v-if="question14.value || question1.value === 0">
-                    <div>Can you provide the correct result?</div>
+                    <div>Can you provide the related content from the comment?</div>
                     <div>Result: <input type="text"></div>
                   </div>
                 </div>
@@ -402,7 +432,7 @@
                   Result: 0.5
 
                   <div v-if="question15.value || question1.value === 0">
-                    <div>Can you provide the correct result?</div>
+                    <div>Can you provide the related content from the comment?</div>
                     <div>Result: <input type="text"></div>
                   </div>
                 </div>
