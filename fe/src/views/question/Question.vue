@@ -90,40 +90,55 @@
 
 
       <!-- Comment -->
+      <div>
+        <b-popover
+          target="privacy-popover"
+          triggers="hover"
+          placement="right"
+        >
+          According to our analysis based on the app features and its data collection/sharing, the security and privacy assessment is <b>High</b>
+        </b-popover>
+
+        <b-popover
+          target="permission-popover"
+          triggers="hover"
+          placement="right"
+        >
+          According to our analysis based on the static analysis, the app requires <b>Location</b>, <b>Media</b>.
+        </b-popover>
+        
+
+        <b-popover
+          target="data-collection-item-popover"
+          triggers="hover"
+          placement="right"
+        >
+          According to our analysis based on the static analysis, the app collects
+          <span
+            v-for="(group, index) in question.staticGroup"
+            :key="index"
+          ><b>{{ group.name }}</b>{{ index === question.staticGroup.length - 1 ? "." : ", " }}
+          </span>
+        </b-popover>
+
+
+        <b-popover
+          target="purpose-popover"
+          triggers="hover"
+          placement="right"
+        >
+          According to our analysis based on the app privacy policy, the app collects user data for <b>Advertisements</b>.
+        </b-popover>
+        
+      </div>
       <hr>
       <div>
         <b style="text-decoration: underline;font-size: 21px">Android user comments:</b> 
-        
-        <div v-if="comments && comments.length === 0">No data</div>
-        <div v-else>
-          <div 
-            v-for="(comment, index) in comments"
-            :key="index"
-          >
-            <b>Comment {{ index + 1 }}: </b>{{ comment.comment }}
+        <div>
+          <div>
+            <b>Comment 1: </b>Why do you need to know my location when I'm using my headphones? Invading of privacy. Deleting app. Update: emailed support/developers and asked why they needed the location permission. They didn't even bother to answer. That's now almost three weeks ago.
 
             <!-- security -->
-            <ul style="list-style-type:disc">
-              <li
-                class="ml-3"
-              >
-                Security 
-                <ul
-                  class="ml-10"
-                  style="list-style-type:circle"
-                >
-                  <li
-                    style="text-transform: capitalize;"
-                  >
-                    It Is So Easy To Use And A Good Security App
-                  </li>  
-                  <li>Result: 0.25</li>
-                </ul>
-                <br>
-              </li>
-            </ul>
-
-            <!-- privacy -->
             <ul style="list-style-type:disc">
               <li
                 class="ml-3"
@@ -132,18 +147,16 @@
                 <ul
                   class="ml-10"
                   style="list-style-type:circle"
-                > 
-                  <!-- <li
-                      v-for="(item, indexse) in comment.privacySentences"
-                      :key="indexse"
-                      style="text-transform: capitalize;"
-                    > -->
+                >
                   <li
                     style="text-transform: capitalize;"
                   >
-                    I Think That This App Is A Great Way To Have Phone Privacy
+                    Invading of privacy
                   </li>  
-                  <li>Result: 0.5</li>
+                  <li><span 
+                    id="privacy-popover"
+                  >Result: 100% correct</span>
+                  </li>
                 </ul>
                 <br>
               </li>
@@ -162,9 +175,12 @@
                   <li
                     style="text-transform: capitalize;"
                   >
-                    It Is So Easy To Use And don't require many permissions
+                    Update: emailed support/developers and asked why they needed the location permission.
                   </li>  
-                  <li>Result: 0.5</li>
+                  <li><span 
+                    id="permission-popover"
+                  >Result: 100% correct</span>
+                  </li>
                 </ul>
                 <br>
               </li>
@@ -184,7 +200,7 @@
                   >
                     Data Item
                   </li>  
-                  <li>Result: 0.5</li>
+                  <li><span id="data-collection-item-popover">Result: 0.5</span></li>
 
                   <br>
                   <li
@@ -192,7 +208,7 @@
                   >
                     Purpose
                   </li>  
-                  <li>Result: 0.5</li>
+                  <li><span id="purpose-popover">Result: 0.5</span></li>
                 </ul>
                 <br>
               </li>
