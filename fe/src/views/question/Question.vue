@@ -229,7 +229,7 @@
                   >
                     Data Item
                   </li>  
-                  <li><span id="data-collection-item-popover">Result: 0.5</span></li>
+                  <li><span id="data-collection-item-popover">Result: 50% correct</span></li>
 
                   <br>
                   <li
@@ -237,7 +237,7 @@
                   >
                     Purpose
                   </li>  
-                  <li><span id="purpose-popover">Result: 0.5</span></li>
+                  <li><span id="purpose-popover">Result: 50% correct</span></li>
                 </ul>
                 <br>
               </li>
@@ -314,7 +314,7 @@
                 </label>
                 <div style="margin-left: 35px">
                   <div>Update: emailed support/developers and asked why they needed the location permission</div>
-                  Result: 0.5
+                  Result: 50% correct
 
                   <div v-if="question13.value || question1.value === 0">
                     <div>Can you provide the related content from the comment?</div>
@@ -341,7 +341,7 @@
                   />
                 </label>
                 <div style="margin-left: 35px">
-                  Result: 0.5
+                  Result: 50% correct
 
                   <div v-if="question14.value || question1.value === 0">
                     <div>Can you provide the related content from the comment?</div>
