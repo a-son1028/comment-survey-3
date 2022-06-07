@@ -243,43 +243,6 @@
               </li>
             </ul>
 
-            <ul style="list-style-type:disc">
-              <li
-                class="ml-3"
-              >
-                Data sharing  
-                <ul
-                  class="ml-10"
-                  style="list-style-type:circle"
-                >
-                  <li
-                    style="text-transform: capitalize;"
-                  >
-                    Data Item
-                  </li>  
-                  <li><span id="data-collection-item-popover-2">Result: 0.5</span></li>
-
-                  <br>
-                  <li
-                    style="text-transform: capitalize;"
-                  >
-                    Purpose
-                  </li>  
-                  <li><span id="purpose-popover-2">Result: 0.5</span></li>
-
-                  <br>
-                  <li
-                    style="text-transform: capitalize;"
-                  >
-                    Third party 
-                  </li>  
-                  <li><span id="third-party-popover">Result: 0.5</span></li>
-                </ul>
-                <br>
-              </li>
-            </ul>
-
-            
           </div>
         </div>
       </div>
@@ -387,32 +350,6 @@
                 </div>
               </div>
 
-              <!-- Data sharing -->
-              <div style="margin-left: 10px; margin-bottom: 10px">
-                <label
-                  style="margin-bottom: 0px"
-                  class="container-checkbox"
-                >Data sharing
-                  <input
-                    v-if="question1.value === 2"
-                    v-model="question15.value"
-                    class="type-question"
-                    type="checkbox"
-                  >
-                  <span
-                    v-if="question1.value === 2"
-                    class="checkmark"
-                  />
-                </label>
-                <div style="margin-left: 35px">
-                  Result: 0.5
-
-                  <div v-if="question15.value || question1.value === 0">
-                    <div>Can you provide the related content from the comment?</div>
-                    <div style="margin-left: 10px">Result: <input type="text"></div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
