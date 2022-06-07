@@ -303,33 +303,7 @@
               v-if="question1.value === 2 || question1.value === 0"
             >
               <div class="mb-1"><b>Can you provide the part of the comment justifying your decision?</b></div>
-              <!-- security -->
-              <div style="margin-left: 10px; margin-bottom: 10px">
-                <label
-                  style="margin-bottom: 0px"
-                  class="container-checkbox"
-                >Security
-                  <input
-                    v-if="question1.value === 2"
-                    v-model="question11.value"
-                    class="type-question"
-                    type="checkbox"
-                  >
-                  <span
-                    v-if="question1.value === 2"
-                    class="checkmark"
-                  />
-                </label>
-                <div style="margin-left: 35px">
-                  Result: 100% correct
-
-                  <div v-if="question11.value || question1.value === 0">
-                    <div>Can you provide the related content from the comment?</div>
-                    <div>Result: <input type="text"></div>
-                  </div>
-                </div>
-              </div>
-
+           
               <!-- Privacy -->
               <div style="margin-left: 10px; margin-bottom: 10px">
                 <label
@@ -348,11 +322,12 @@
                   />
                 </label>
                 <div style="margin-left: 35px">
+                  <div>Invading Of Privacy</div>
                   Result: 100% correct
 
                   <div v-if="question12.value || question1.value === 0">
                     <div>Can you provide the related content from the comment?</div>
-                    <div>Result: <input type="text"></div>
+                    <div style="margin-left: 10px">Result: <input type="text"></div>
                   </div>
                 </div>
               </div>
@@ -375,11 +350,12 @@
                   />
                 </label>
                 <div style="margin-left: 35px">
+                  <div>Update: emailed support/developers and asked why they needed the location permission</div>
                   Result: 0.5
 
                   <div v-if="question13.value || question1.value === 0">
                     <div>Can you provide the related content from the comment?</div>
-                    <div>Result: <input type="text"></div>
+                    <div style="margin-left: 10px">Result: <input type="text"></div>
                   </div>
                 </div>
               </div>
@@ -406,7 +382,7 @@
 
                   <div v-if="question14.value || question1.value === 0">
                     <div>Can you provide the related content from the comment?</div>
-                    <div>Result: <input type="text"></div>
+                    <div style="margin-left: 10px">Result: <input type="text"></div>
                   </div>
                 </div>
               </div>
@@ -433,7 +409,7 @@
 
                   <div v-if="question15.value || question1.value === 0">
                     <div>Can you provide the related content from the comment?</div>
-                    <div>Result: <input type="text"></div>
+                    <div style="margin-left: 10px">Result: <input type="text"></div>
                   </div>
                 </div>
               </div>
