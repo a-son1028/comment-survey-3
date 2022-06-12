@@ -95,8 +95,8 @@
           target="privacy-popover"
           triggers="hover"
           placement="right"
-        >
-          According to our analysis based on the app features and its data collection/sharing, the security and privacy assessment is <b>High</b>
+        > 
+          According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>High</b>
         </b-popover>
 
         <b-popover
@@ -165,8 +165,9 @@
         <b style="text-decoration: underline;font-size: 21px">Android user comments:</b> 
         <div>
           <div>
-            <b>Comment 1: </b>Why do you need to know my location when I'm using my headphones? Invading of privacy. Deleting app. Update: emailed support/developers and asked why they needed the location permission. They didn't even bother to answer. That's now almost three weeks ago.
-
+            <div style="font-family: American-Typewriter-Regular;font-size: 18px"><b>Comment 1: </b>Why do you need to know my location when I'm using my headphones? Invading of privacy. Deleting app. Update: emailed support/developers and asked why they needed the location permission. They didn't even bother to answer. That's now almost three weeks ago.</div>
+            
+            <div class="mt-3 mb-2">Based on the analysis, we extract from the comments some security- and privacy-related features including privacy, permission, data collection.</div>
             <!-- security -->
             <ul style="list-style-type:disc">
               <li
@@ -180,7 +181,7 @@
                   <li
                     style="text-transform: capitalize;"
                   >
-                    Invading of privacy
+                    ...“Invading of privacy”...
                   </li>  
                   <li><span 
                     id="privacy-popover"
@@ -204,7 +205,7 @@
                   <li
                     style="text-transform: capitalize;"
                   >
-                    Update: emailed support/developers and asked why they needed the location permission.
+                    ...“Update: emailed support/developers and asked why they needed the location permission.”...
                   </li>  
                   <li><span 
                     id="permission-popover"
