@@ -6,6 +6,7 @@ import rq from "request-promise";
 import Utils from "../utils";
 import Services from "../services";
 import constants from "../utils/constants";
+let apps
 class SurveyController {
   async success(req, res, next) {
     try {
@@ -51,8 +52,9 @@ class SurveyController {
   }
   async getQuestions(req, res, next) {
     try {
-      let apps = await Models.App.find({}).limit(1)
-
+      if(!apps) apps = await Models.App.find({}).limit(1)
+      
+      console.log('apps', apps)
       // apps = await Promise.all(apps.map(app => {
       //   return Models.Comment.find({
       //     appName: app.appName

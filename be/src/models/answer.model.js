@@ -37,27 +37,27 @@ var answerSchema = new Schema(
           required: true
         },
         responses: [
-          { 
+          {
             name: {
               type: String,
               required: true
             },
             value: {
-              type: String, 
+              type: String,
               required: true
             },
             coppiedContent: {
-              type: String, 
+              type: String
             },
             selectedContent: Array,
             reason: {
-              type: String, 
+              type: String
             },
             others: Schema.Types.Mixed
-         }
+          }
         ]
       }
-    ],
+    ]
   },
   {
     timestamps: true,
@@ -72,4 +72,4 @@ answerSchema.virtual("user", {
   foreignField: "userId"
 });
 
-export default mongoose.model("answer2", answerSchema);
+export default mongoose.model("answer", answerSchema);
