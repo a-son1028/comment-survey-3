@@ -12,43 +12,42 @@ var groupSchema = new Schema(
     isLabeled: Boolean,
     isAnalyzed: {
       type: Boolean,
-      default: false,
+      default: false
     },
     isGetStructure: {
       type: Boolean,
-      default: false,
+      default: false
     },
-    securityKeyWords: Array, 
-    securitySimiWords: Schema.Types.Mixed, 
+    securityKeyWords: Array,
+    securitySimiWords: Schema.Types.Mixed,
     securityStructure: Array,
     securityStructureWithKeywords: Array,
 
-    privacyKeyWords: Array, 
-    privacySimiWords: Schema.Types.Mixed, 
-    privacyStructure: Array, 
+    privacyKeyWords: Array,
+    privacySimiWords: Schema.Types.Mixed,
+    privacyStructure: Array,
     privacyStructureWithKeyWords: Array,
 
-    permissionKeyWords: Array, 
-    permissionSimiWords: Schema.Types.Mixed, 
-    permissionStructure: Array, 
+    permissionKeyWords: Array,
+    permissionSimiWords: Schema.Types.Mixed,
+    permissionStructure: Array,
     permissionStructureWithKeyWords: Array,
 
-    collectionKeyWords: Array, 
-    collectionSimiWords: Schema.Types.Mixed, 
-    collectionStructure: Array, 
+    collectionKeyWords: Array,
+    collectionSimiWords: Schema.Types.Mixed,
+    collectionStructure: Array,
     collectionDataTypes: Schema.Types.Mixed,
 
-    sharingKeyWords: Array, 
-    sharingSimiWords: Schema.Types.Mixed, 
+    sharingKeyWords: Array,
+    sharingSimiWords: Schema.Types.Mixed,
     sharingStructure: Array,
     sharingDataTypes: Schema.Types.Mixed,
 
-
-    securitySentences: Array, 
-    privacySentences: Array, 
-    permissionSentences: Array, 
-    collectionSentences: Array, 
-    sharingSentences: Array, 
+    securitySentences: Array,
+    privacySentences: Array,
+    permissionSentences: Array,
+    collectionSentences: Array,
+    sharingSentences: Array,
 
     perissionType: String, // all, specific, none
     dataItemType: String, // all, specific, none
@@ -58,8 +57,15 @@ var groupSchema = new Schema(
     permissions: [String],
     dataTypes: Schema.Types.Mixed,
     purposes: [String],
-    thirdParties: [String]
-},
+    thirdParties: [String],
+
+    permissionResult: Schema.Types.Decimal128,
+    dataTypeResult: Schema.Types.Decimal128,
+    purposeResult: Schema.Types.Decimal128,
+    thirdPartyResult: Schema.Types.Decimal128,
+
+    sentiment: Schema.Types.Decimal128
+  },
   {
     timestamps: true,
     toJSON: { virtuals: true }

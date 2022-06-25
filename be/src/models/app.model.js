@@ -26,8 +26,8 @@ var schema = new Schema(
         id: Schema.Types.ObjectId,
         name: String,
         value: Number,
-        parent: Schema.Types.ObjectId,
-      },
+        parent: Schema.Types.ObjectId
+      }
     ],
     apis: [
       {
@@ -35,18 +35,21 @@ var schema = new Schema(
         name: String,
         left: Number,
         right: Number,
-        parent: Schema.Types.ObjectId,
-      },
+        parent: Schema.Types.ObjectId
+      }
     ],
     distance: Number,
     collectionData: String,
     thirdPartyData: String,
     retentionData: String,
     permissions: [String], // get from mainfest file
+    dataTypes: [String],
+    purposesHP: [String],
+    thirdPartiesHP: [String]
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
+    toJSON: { virtuals: true }
   }
 );
 schema.plugin(findOrCreate);
