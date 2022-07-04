@@ -1896,7 +1896,7 @@ async function step22() {
     let mostSimilarWords;
     if (w2vModelData[keyword]) mostSimilarWords = w2vModelData[keyword];
     else {
-      mostSimilarWords = w2vModel.mostSimilar(keyword, 20);
+      mostSimilarWords = w2vModel.mostSimilar(keyword, 20) || [keyword];
       w2vModelData[keyword] = mostSimilarWords;
     }
 
