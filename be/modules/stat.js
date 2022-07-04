@@ -16,6 +16,278 @@ var w2vModel;
 var w2vModelData = {};
 const comment =
   "Do not use this app, it is full of scammers. All they want you to do is take their word for how great the room is send you some generic pictures and ask for your security deposit without getting to see the room.";
+const permissionTypes = {
+  Telephony: [
+    "android.permission.ACCEPT_HANDOVER",
+    "com.android.voicemail.permission.ADD_VOICEMAIL",
+    "android.permission.ANSWER_PHONE_CALLS",
+    "android.permission.CALL_PHONE",
+    "android.permission.GET_ACCOUNTS",
+    "android.permission.PROCESS_OUTGOING_CALLS",
+    "android.permission.READ_CALL_LOG",
+    "android.permission.READ_CONTACTS",
+    "android.permission.READ_PHONE_NUMBERS",
+    "android.permission.READ_PHONE_STATE",
+    "android.permission.READ_SMS",
+    "android.permission.RECEIVE_MMS",
+    "android.permission.RECEIVE_SMS",
+    "android.permission.RECEIVE_WAP_PUSH",
+    "android.permission.SEND_SMS",
+    "android.permission.USE_SIP",
+    "android.permission.WRITE_CALL_LOG",
+    "android.permission.WRITE_CONTACTS"
+  ],
+  Location: [
+    "android.permission.ACCESS_BACKGROUND_LOCATION",
+    "android.permission.ACCESS_COARSE_LOCATION",
+    "android.permission.ACCESS_FINE_LOCATION",
+    "android.permission.ACCESS_MEDIA_LOCATION"
+  ],
+  Fitness: [
+    // Health&Fitness
+    "android.permission.ACTIVITY_RECOGNITION",
+    "android.permission.BODY_SENSORS"
+  ],
+  Connection: [
+    "android.permission.BLUETOOTH_ADVERTISE",
+    "android.permission.BLUETOOTH_CONNECT",
+    "android.permission.BLUETOOTH_SCAN",
+    "android.permission.UWB_RANGING"
+  ],
+  Hardware: ["android.permission.CAMERA"],
+  Calendar: ["android.permission.READ_CALENDAR", "android.permission.WRITE_CALENDAR"],
+  Storage: [
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.WRITE_EXTERNAL_STORAGE"
+  ],
+  Media: ["android.permission.RECORD_AUDIO"]
+};
+const dataCollectionTypes = {
+  Connection: [
+    "Bluetooth",
+    "Companion devices",
+    "Connectivity status",
+    "DNS",
+    "Inet",
+    "IP",
+    "Link",
+    "Socket",
+    "MAC",
+    "Mailto",
+    "Network type",
+    "Proxy",
+    "Route",
+    "SSL",
+    "URI",
+    "VPN",
+    "HTTP",
+    "NSD",
+    "RTP",
+    "SIP",
+    "Wifi",
+    "NFC",
+    "URL",
+    "Cookie",
+    "Authenticator",
+    "IDN",
+    "Cache"
+  ],
+  Hardware: [
+    "Camera",
+    "Flash",
+    "Buffer",
+    "Accelerometer sensor",
+    "Temperature sensor",
+    "Other sensors",
+    "Gyroscope sensor",
+    "Heart beat sensor",
+    "Heart rate sensor",
+    "Light sensor",
+    "Acceleration sensor",
+    "Location sensor",
+    "Biometric",
+    "Device model",
+    "Lens",
+    "Screen",
+    "Display",
+    "Fingerprint",
+    "Hardware type",
+    "Keyboard",
+    "USB",
+    "IMEI"
+  ],
+  Fitness: [
+    // Health&Fitness
+    "Bluetooth device",
+    "Google Fit",
+    "Fitness activity",
+    "Time",
+    "Glucose",
+    "Blood pressure",
+    "Body position",
+    "Body tempurature",
+    "Cervical",
+    "Meal",
+    "Menstrual flow",
+    "Ovulation",
+    "Oxygen",
+    "Sleep"
+  ],
+  Location: [
+    "Latitude",
+    "Longitude",
+    "Address",
+    "Country",
+    "Local name",
+    "Locale",
+    "Postal code",
+    "Criteria",
+    "Geographic",
+    "Local time",
+    "Measurement",
+    "Navigation",
+    "GPS",
+    "Longitude, Latitude",
+    "Destination",
+    "Location type",
+    "Distance",
+    "Accuracy",
+    "Speed",
+    "Altitude",
+    "Bearing",
+    "NMEA",
+    "Locale name",
+    "Position",
+    "Location activity",
+    "Vehicle",
+    "Duration",
+    "Maps",
+    "Places",
+    "Location name",
+    "Phone number"
+  ],
+  Media: [
+    "Audio",
+    "Image",
+    "Player",
+    "Video",
+    "Recorder",
+    "Scanner",
+    "Microphone",
+    "Remote",
+    "Movie",
+    "Music",
+    "Channels",
+    "Volume",
+    "Device info",
+    "Audio manager",
+    "HDMI",
+    "Sound",
+    "Playback",
+    "Headphone",
+    "Presentation",
+    "Media type",
+    "Timestamp",
+    "Audio track",
+    "Video quality",
+    "Camera",
+    "Interface",
+    "Length",
+    "Face detector",
+    "Media Cas",
+    "Session",
+    "Codec",
+    "Callback",
+    "Color",
+    "Feature",
+    "Profile",
+    "Encoder",
+    "Controller",
+    "Media description",
+    "Media ID",
+    "Media name",
+    "DRM",
+    "Key",
+    "Media format",
+    "Metadata",
+    "Muxer",
+    "Players",
+    "Voice",
+    "Router",
+    "Display",
+    "Media connection",
+    "Sync",
+    "Rating",
+    "Ringtone",
+    "TONE",
+    "Processing",
+    "Environtmental",
+    "Equalizer",
+    "Virtualizer",
+    "Browser",
+    "Effect",
+    "Midi",
+    "Projection",
+    "TV",
+    "Preview",
+    "Program",
+    "Flash",
+    "GPS",
+    "Speed",
+    "Lens",
+    "Light",
+    "Adapter",
+    "HTTP",
+    "Sensor",
+    "Widget"
+  ],
+  Telephony: [
+    "MMS",
+    "SMS",
+    "ThreadsColumns",
+    "Carrier",
+    "Service",
+    "Network type",
+    "MNC",
+    "Roaming",
+    "Cell",
+    "ICC",
+    "Session",
+    "Phone number",
+    "Phone status",
+    "Subscription",
+    "Telephony manager",
+    "Callback",
+    "UICC",
+    "Voicemail",
+    "APN",
+    "EUICC",
+    "Download",
+    "File info",
+    "Group call",
+    "MBMS"
+  ],
+  Info: [
+    // UserInfo
+    "Account",
+    "Name",
+    "Contact",
+    "User profile",
+    "Address",
+    "Age",
+    "Bigraphy",
+    "Birthdays",
+    "Email",
+    "Gender",
+    "Organizations",
+    "Bigraphic",
+    "Nickname",
+    "Occupation",
+    "Phone number",
+    "SIP",
+    "URL"
+  ]
+};
 const dataTypes = {
   Connection: [
     "Bluetooth",
@@ -1673,6 +1945,20 @@ async function step22() {
     }
 
     //
+    const dataItems = DATA_TYPES.filter(word =>
+      commentText.toLowerCase().includes(word.toLowerCase())
+    );
+
+    //
+    const purposes = PURPOSES.filter(word =>
+      commentText.toLowerCase().includes(word.toLowerCase())
+    );
+
+    //
+    const thirdParties = THIRD_PARTIES.filter(word =>
+      commentText.toLowerCase().includes(word.toLowerCase())
+    );
+    //
     const simiCollection = getSimiWord("collection");
     const hasCollection = simiCollection.some(word =>
       commentText.toLowerCase().includes(word.toLowerCase())
@@ -1711,7 +1997,10 @@ async function step22() {
       privacySentences,
       permissionSentences,
       collectionSentences,
-      sharingSentences
+      sharingSentences,
+      dataItems,
+      purposes,
+      thirdParties
     };
 
     await Models.Comment.updateOne(
@@ -1724,7 +2013,7 @@ async function step22() {
   };
 
   const comments = await Models.Comment.find({
-    isLabeled: true
+    // isLabeled: true
   });
 
   // for(let i = 0; i < comments.length; i++) {
@@ -1733,13 +2022,23 @@ async function step22() {
   // 	await getData(comment.comment)
   // }
 
-  const commentChunks = _.chunk(comments, 100);
-  for (let i = 0; i < commentChunks.length; i++) {
-    console.log(`Running ${i + 1}/${commentChunks.length}`);
-    const chunk = commentChunks[i];
+  await bluebird.map(
+    comments,
+    (comment, i) => {
+      console.log(`Running ${i + 1}/${comments.length}`);
+      return getData(comment);
+    },
+    { concurrency: 100 }
+  );
+  // const commentChunks = _.chunk(comments, 100);
+  // for (let i = 0; i < commentChunks.length; i++) {
+  //   console.log(`Running ${i + 1}/${commentChunks.length}`);
+  //   const chunk = commentChunks[i];
 
-    await Promise.all(chunk.map(getData));
-  }
+  //   await Promise.all(chunk.map(getData));
+  // }
+
+  console.log("DONE");
 }
 
 async function reportComments() {
@@ -1940,27 +2239,227 @@ function generateComment(comment) {
 }
 
 async function rawData() {
-  const res = await axios.get("https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=kaka1");
+  const fs = require("fs");
+  console.log("1");
+  // const res = await axios.get("https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=kaka1");
   const $ = cheerio.load(res.data);
-
+  fs.writeFileSync("./kaka.html", res.data);
+  console.log("loaded");
   $("#gs_res_ccl_mid .gs_r.gs_or.gs_scl").each((index, post) => {
+    console.log(index);
     const $post = $(post);
     const title = $post.find("h3 a").text();
-
     let relatedPostAction = $post
       .find(".gs_ri .gs_fl a")
       .filter((_, action) => $(action).text() === "Related articles");
     relatedPostAction = relatedPostAction[0];
-    console.log(1, title, $(relatedPostAction).text());
+    const relatedPostActionHTML = $(relatedPostAction).html();
+
+    if (relatedPostActionHTML) {
+      const regex = new RegExp("q=info:([a-zA-Z0-9]+):scholar.google.com", "i");
+      // const id = "https://scholar.google.com/scholar?q=info:Eu2XDpXt6G4J:scholar.google.com/&output=cite&scirp=0&hl=en".match(regex)[1]
+      console.log(id);
+    }
+    console.log(1, title, relatedPostActionHTML);
+
+    // const res = await axios.get(
+    //   "https://scholar.google.com/scholar?q=info:Eu2XDpXt6G4J:scholar.google.com/&output=cite&scirp=0&hl=en"
+    // );
   });
+  console.log("Done");
 }
+
+async function calculateResults() {
+  const comments = await Models.Comment.find({
+    // permissionResult: { $exists: false }
+  });
+
+  await bluebird.map(
+    comments,
+    (comment, i) => {
+      return (async () => {
+        let {
+          id,
+          appName,
+          permissions: commentPermissions = [],
+          dataTypes: commentDataType = {},
+          purposes: commentPurposes = [],
+          thirdParties: commentThirdParties = [],
+          perissionType,
+          dataItemType,
+          purposeType,
+          thirdPartyType
+        } = comment;
+
+        const app = await Models.App.findOne({
+          appName: appName
+        });
+        if (!app) return;
+        const {
+          permissions: appPermissions = [],
+          dataTypes: appDataItems = [],
+          purposesHP: appPurposes = [],
+          thirdPartiesHP: appThirdParties = []
+        } = app;
+
+        const appPermissionGroups = getPermissionGroups(appPermissions);
+        const permissionResult = calculatePermission(
+          appPermissionGroups,
+          commentPermissions,
+          perissionType
+        );
+
+        // data type
+        const appDataTypes = getDataTypesFromItem(appDataItems);
+        commentDataType = Object.keys(commentDataType);
+        const dataTypeResult = calculatePermission(appDataTypes, commentDataType, dataItemType);
+
+        // purpose
+        const purposeResult = calculatePermission(appPurposes, commentPurposes, purposeType);
+
+        // thirt party
+        const thirdPartyResult = calculatePermission(
+          appThirdParties,
+          commentThirdParties,
+          thirdPartyType
+        );
+
+        await Models.Comment.updateOne(
+          {
+            _id: id
+          },
+          {
+            permissionResult,
+            dataTypeResult,
+            purposeResult,
+            thirdPartyResult
+          }
+        );
+      })();
+    },
+    { concurrency: 100 }
+  );
+}
+
+function getDataTypesFromItem(dataItems) {
+  const result = Object.entries(dataCollectionTypes)
+    .filter(([dataTypeName, dataItemsInType]) => {
+      return !!_.intersection(dataItemsInType, dataItems).length;
+    })
+    .map(([dataTypeName]) => dataTypeName);
+
+  return result;
+}
+function calculatePermission(appPermissionGroups, commentPermissions, perissionType) {
+  let permissionResult = 0;
+  const totalAppPermision = appPermissionGroups.length;
+  const totalCommentPermision = commentPermissions.length;
+  try {
+    if (!totalAppPermision || !totalCommentPermision) {
+      return permissionResult;
+    }
+
+    if (perissionType === "all") {
+      permissionResult = (totalCommentPermision / totalAppPermision).toFixed(2);
+    } else if (perissionType === "specific") {
+      const intersection = _.intersection(appPermissionGroups, commentPermissions);
+
+      permissionResult = (intersection.length / totalCommentPermision).toFixed(2);
+    }
+
+    return permissionResult;
+  } catch (err) {
+    console.log("calculatePermission ERROR", err.message, totalAppPermision, totalCommentPermision);
+  }
+}
+function getPermissionGroups(appPermissions) {
+  if (!appPermissions.length) return [];
+  const appPermissionGroups = Object.entries(permissionTypes)
+    .filter(([_, permissions]) => {
+      return !!getDupkicatedValues([...permissions, ...appPermissions]).length;
+    })
+    .map(([groupName]) => groupName);
+  return appPermissionGroups;
+}
+function getDupkicatedValues(arr) {
+  return _.filter(arr, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
+}
+
+async function getSentimentOfApp() {
+  const Analyzer = require("natural").SentimentAnalyzer;
+  const stemmer = require("natural").PorterStemmer;
+  const analyzer = new Analyzer("English", stemmer, "afinn");
+
+  const comments = await Models.Comment.find({
+    // sentiment: { $exists: false }
+  });
+
+  console.log("comments", comments);
+  for (let i = 0; i < comments.length; i++) {
+    const comment = comments[i];
+
+    const sentiment = analyzer.getSentiment(comment.comment.split(" ")).toFixed(2);
+
+    await Models.Comment.updateOne(
+      {
+        _id: comment.id
+      },
+      {
+        sentiment
+      }
+    );
+  }
+  console.log("DONE getSentimentOfApp");
+}
+async function updateSectionsToShow() {
+  let dataCSV = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/a1234/Downloads/Comment_dataset.csv");
+
+  await bluebird.map(
+    dataCSV,
+    async (item, i) => {
+      const [
+        stt,
+        comment,
+        appName,
+        security,
+        privacy,
+        permission,
+        dataCollection,
+        dataSharing
+      ] = item;
+
+      await Models.Comment.updateOne(
+        {
+          comment
+        },
+        {
+          isShowSecurityRail3: security === "x",
+          isShowPrivacyRail3: privacy === "x",
+          isShowPermissionRail3: permission === "x",
+          isShowDataCollectionRail3: dataCollection === "x",
+          isShowDataSharingRail3: dataSharing === "x"
+        }
+      );
+    },
+    { concurrency: 100 }
+  );
+}
+
 main();
 async function main() {
+  await step22();
+  // await getSentimentOfApp();
+  // await calculateResults();
+  // await updateSectionsToShow();
+
   // await generateComments();
   // await getTestingSet();
   // await getTranningSet();
 
-  await rawData();
+  // await rawData();
 
   // await reportComments();
   return;

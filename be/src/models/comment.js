@@ -49,6 +49,10 @@ var groupSchema = new Schema(
     collectionSentences: Array,
     sharingSentences: Array,
 
+    dataItems: Array, // has in comment text
+    purposes: Array, // has in comment text
+    thirdParties: Array, // has in comment text
+
     perissionType: String, // all, specific, none
     dataItemType: String, // all, specific, none
     purposeType: String, // all, specific, none
@@ -64,7 +68,29 @@ var groupSchema = new Schema(
     purposeResult: Schema.Types.Decimal128,
     thirdPartyResult: Schema.Types.Decimal128,
 
-    sentiment: Schema.Types.Decimal128
+    sentiment: Schema.Types.Decimal128,
+
+    // rais3
+    isShowSecurityRail3: {
+      type: Boolean,
+      default: false
+    },
+    isShowPrivacyRail3: {
+      type: Boolean,
+      default: false
+    },
+    isShowPermissionRail3: {
+      type: Boolean,
+      default: false
+    },
+    isShowDataCollectionRail3: {
+      type: Boolean,
+      default: false
+    },
+    isShowDataSharingRail3: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     timestamps: true,
