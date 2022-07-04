@@ -59,7 +59,7 @@ var groupSchema = new Schema(
     thirdPartyType: String, // all, specific, none
 
     permissions: [String],
-    dataTypes: Schema.Types.Mixed,
+    dataItems: [String],
     purposes: [String],
     thirdParties: [String],
 
