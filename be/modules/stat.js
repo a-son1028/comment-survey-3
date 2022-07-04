@@ -2028,7 +2028,7 @@ async function step22() {
       console.log(`Running ${i + 1}/${comments.length}`);
       return getData(comment);
     },
-    { concurrency: 10 }
+    { concurrency: 50 }
   );
   // const commentChunks = _.chunk(comments, 100);
   // for (let i = 0; i < commentChunks.length; i++) {
