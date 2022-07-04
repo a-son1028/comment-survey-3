@@ -6,7 +6,7 @@ import rq from "request-promise";
 import Utils from "../utils";
 import Services from "../services";
 import constants from "../utils/constants";
-let apps
+let apps;
 class SurveyController {
   async success(req, res, next) {
     try {
@@ -15,46 +15,55 @@ class SurveyController {
         userId: user.id
       });
 
-      if(!answer || answer.questions.length < 50) return
+      if (!answer || answer.questions.length < 50) return;
 
-      await Models.User.updateOne({
-        _id: user.id
-      }, {
-        isAnswerd: true
-      })
+      await Models.User.updateOne(
+        {
+          _id: user.id
+        },
+        {
+          isAnswerd: true
+        }
+      );
 
-      await Models.CommentSurvey.updateOne({
-        _id: user.commentSurveyId
-      }, {
-        isDone: true
-      })
+      await Models.CommentSurvey.updateOne(
+        {
+          _id: user.commentSurveyId
+        },
+        {
+          isDone: true
+        }
+      );
 
-      res.json()
+      res.json();
     } catch (error) {
       next(error);
     }
-  } 
+  }
 
   async updateInstruction(req, res, next) {
     const user = req.user;
 
-
-    const updateUser = await Models.User.updateOne({
+    const updateUser = await Models.User.updateOne(
+      {
         _id: user.id
-        }, {
-            $set: {
-              isInstruction: true
-            }
-          })
+      },
+      {
+        $set: {
+          isInstruction: true
+        }
+      }
+    );
 
-
-    res.json(updateUser)
+    res.json(updateUser);
   }
   async getQuestions(req, res, next) {
     try {
-      if(!apps) apps = await Models.App.find({}).limit(1)
-      
-      console.log('apps', apps)
+      if (!apps)
+        apps = await Models.App.find({
+          _id: "6037655492e2b52f3cf8270e"
+        }).limit(1);
+
       // apps = await Promise.all(apps.map(app => {
       //   return Models.Comment.find({
       //     appName: app.appName
@@ -65,8 +74,32 @@ class SurveyController {
       //     }
       //   })
       // }))
+      apps = apps.map(app => {
+        // app = app.toJSON();
 
-      res.json(apps)
+        if (!app.distance) app.distance = 0.1;
+
+        const distance = app.distance;
+        let distanceLevel;
+
+        if (distance > 0 && distance <= 0.2) {
+          distanceLevel = "Very Low";
+        } else if (distance > 0.2 && distance <= 0.4) {
+          distanceLevel = "Low";
+        } else if (distance > 0.4 && distance <= 0.6) {
+          distanceLevel = "Neutral";
+        } else if (distance > 0.6 && distance <= 0.8) {
+          distanceLevel = "High";
+        } else if (distance > 0.8 && distance <= 1) {
+          distanceLevel = "Very High";
+        }
+
+        app.distanceLevel = distanceLevel;
+
+        console.log(app.distanceLevel);
+        return app;
+      });
+      res.json(apps);
     } catch (error) {
       next(error);
     }
@@ -77,16 +110,25 @@ class SurveyController {
       const { appName } = req.params;
 
       let comments = await Models.Comment.find({
-        appName,
-        isLabeled: true,
-      }).limit(1)
+        appName
+        // isLabeled: true,
+        // isShowSecurityRail3: { $exists: true }
+        // isShowDataSharingRail3: true
+      })
+        .sort({
+          isShowDataSharingRail3: -1,
+          isShowDataCollectionRail3: -1,
+          isShowPermissionRail3: -1,
+          isShowPrivacyRail3: -1,
+          isShowSecurityRail3: -1
+        })
+        .limit(10);
 
-      res.json(comments)
+      res.json(comments);
     } catch (error) {
       next(error);
     }
   }
-
 
   async getAnswer(req, res, next) {
     try {
@@ -95,7 +137,7 @@ class SurveyController {
         userId: user.id
       });
 
-      res.json(answer)
+      res.json(answer);
     } catch (error) {
       next(error);
     }
@@ -115,11 +157,11 @@ class SurveyController {
           questions: []
         });
 
-      let newQuestions = answer.questions
-      const oldQuestionIndex = answer.questions.findIndex(item => item.stt === question.stt)
-      if(~oldQuestionIndex) {
-        newQuestions[oldQuestionIndex] = question
-      } else newQuestions.push(question)
+      let newQuestions = answer.questions;
+      const oldQuestionIndex = answer.questions.findIndex(item => item.stt === question.stt);
+      if (~oldQuestionIndex) {
+        newQuestions[oldQuestionIndex] = question;
+      } else newQuestions.push(question);
       // update anwsers
       await Models.Answer.updateOne(
         {
@@ -133,7 +175,7 @@ class SurveyController {
         {}
       );
 
-      const currentQuestion = newQuestions.length + 1 <= 50 ? newQuestions.length + 1 : 50 
+      const currentQuestion = newQuestions.length + 1 <= 50 ? newQuestions.length + 1 : 50;
       await Models.User.updateOne(
         {
           _id: user.id
@@ -169,9 +211,7 @@ class SurveyController {
         })[0];
 
         if (!question.personalDataTypes || !question.personalDataTypes.length) {
-          let apis = await Promise.all(
-            question.nodes.map(Utils.Function.getAPIFromNode)
-          );
+          let apis = await Promise.all(question.nodes.map(Utils.Function.getAPIFromNode));
           apis = _.uniqBy(apis, "name");
 
           const groupApis = _.groupBy(apis, "parent");
@@ -183,9 +223,7 @@ class SurveyController {
             const personalDataTypeApiIds = groupApis[personalDataTypeId];
 
             const personalDataTypeApis = await Promise.all(
-              personalDataTypeApiIds.map(id =>
-                Models.Tree.findById(id).cache(60 * 60 * 24 * 30)
-              )
+              personalDataTypeApiIds.map(id => Models.Tree.findById(id).cache(60 * 60 * 24 * 30))
             );
 
             personalDataTypes.push({
@@ -195,40 +233,31 @@ class SurveyController {
           }
 
           question.personalDataTypes = personalDataTypes;
-          await Models.App.updateOne(
-            { _id: id },
-            { $set: { personalDataTypes } }
-          );
+          await Models.App.updateOne({ _id: id }, { $set: { personalDataTypes } });
         }
 
-        question.personalDataTypes = question.personalDataTypes.map(
-          personalDataType => {
-            const apis = personalDataType.apis.reduce((acc, item) => {
-              const newAPi = Utils.Function.getGroupApi(item);
-              if (newAPi) acc.push(newAPi);
+        question.personalDataTypes = question.personalDataTypes.map(personalDataType => {
+          const apis = personalDataType.apis.reduce((acc, item) => {
+            const newAPi = Utils.Function.getGroupApi(item);
+            if (newAPi) acc.push(newAPi);
 
-              return acc;
-            }, []);
+            return acc;
+          }, []);
 
-            return {
-              ...personalDataType,
-              ...(Utils.Function.getPersonalDataType(personalDataType) || {}),
-              apis: _.uniqBy(apis, "groupName"),
-              originalApis: personalDataType.apis
-            };
-          }
-        );
+          return {
+            ...personalDataType,
+            ...(Utils.Function.getPersonalDataType(personalDataType) || {}),
+            apis: _.uniqBy(apis, "groupName"),
+            originalApis: personalDataType.apis
+          };
+        });
 
         question.personalDataTypes;
 
         question.collectionData = JSON.parse(question.collectionData || "[]");
-        question.collectionData = question.collectionData.filter(
-          item => item.children.length > 0
-        );
+        question.collectionData = question.collectionData.filter(item => item.children.length > 0);
         question.thirdPartyData = JSON.parse(question.thirdPartyData || "[]");
-        question.thirdPartyData = question.thirdPartyData.filter(
-          item => item.children.length > 0
-        );
+        question.thirdPartyData = question.thirdPartyData.filter(item => item.children.length > 0);
 
         question.retentionData = JSON.parse(question.retentionData || "[]");
 
@@ -349,7 +378,7 @@ class SurveyController {
         }
 
         const refreshUser = await Models.User.findById(user.id);
-        console.time('predict')
+        console.time("predict");
         if (index > 10 && index <= 14) {
           const tranningAppIds = refreshUser.questionIds.slice(0, index - 1);
           const tranningApps = await Promise.all(
@@ -362,9 +391,7 @@ class SurveyController {
             PPModel = JSON.parse(PPModel);
             apisModel = JSON.parse(apisModel);
 
-            const userAnswerQuestion = answer.questions.find(
-              question => question.id === id
-            );
+            const userAnswerQuestion = answer.questions.find(question => question.id === id);
             let questionInstallation = userAnswerQuestion.responses.find(
               item => item.name === "install"
             );
@@ -409,10 +436,7 @@ class SurveyController {
               ...refreshUser.questionIds.slice(16, index - 1)
             ];
           console.log("Get tranning apps", tranningAppIds);
-          const traningSet = await Utils.Function.getTranningData(
-            tranningAppIds,
-            answer
-          );
+          const traningSet = await Utils.Function.getTranningData(tranningAppIds, answer);
 
           const testSet = [
             [
@@ -451,7 +475,7 @@ class SurveyController {
             question
           );
         }
-        console.timeEnd('predict')
+        console.timeEnd("predict");
         Utils.Logger.info(`getQuestion Step 3:: Prediction: ${ourPrediction}`);
         question.categoryName = category;
 
@@ -476,15 +500,11 @@ class SurveyController {
       const questions = [];
       for (let i = 0; i < apps.length; i++) {
         const app = apps[i];
-        let question = await Models.App.findById(app.appId).cache(
-          60 * 60 * 24 * 30
-        ); // 1 month;
+        let question = await Models.App.findById(app.appId).cache(60 * 60 * 24 * 30); // 1 month;
         question = question.toJSON();
 
         if (!question.personalDataTypes || !question.personalDataTypes.length) {
-          let apis = await Promise.all(
-            question.nodes.map(Utils.Function.getAPIFromNode)
-          );
+          let apis = await Promise.all(question.nodes.map(Utils.Function.getAPIFromNode));
           apis = _.uniqBy(apis, "name");
 
           const groupApis = _.groupBy(apis, "parent");
@@ -506,10 +526,9 @@ class SurveyController {
           }
 
           question.personalDataTypes = personalDataTypes;
-          await Models.App.updateOne(
-            { _id: id },
-            { $set: { personalDataTypes } }
-          ).then(console.log);
+          await Models.App.updateOne({ _id: id }, { $set: { personalDataTypes } }).then(
+            console.log
+          );
         }
 
         questions.push({
