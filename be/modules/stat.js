@@ -707,7 +707,16 @@ const DATA_TYPES = [
   "Nickname",
   "Occupation"
 ];
-const PERMISSIONS = ["Calendar", "Connection", "Media", "Storage", "Telephony"];
+const PERMISSIONS = [
+  "Calendar",
+  "Connection",
+  "Media",
+  "Storage",
+  "Telephony",
+  "Location",
+  "Fitness",
+  "Hardware"
+];
 const THIRD_PARTIES = [
   "a.applovin.com",
   "aarki.net",
@@ -1892,18 +1901,23 @@ async function step22() {
     });
   });
 
-  const getSimiWord = keyword => {
-    let mostSimilarWords;
+  const getMostSimilarWords = keyword => {
+    let mostSimilarWords = [];
     if (w2vModelData[keyword]) mostSimilarWords = w2vModelData[keyword];
     else {
-      mostSimilarWords = w2vModel.mostSimilar(keyword, 20) || [{ word: keyword }];
+      mostSimilarWords = w2vModel.mostSimilar(keyword, 20) || [];
       w2vModelData[keyword] = mostSimilarWords;
     }
 
-    const words = mostSimilarWords
-      ? _.map(mostSimilarWords, "word").map(item => item.toLowerCase())
-      : [];
-    return words;
+    mostSimilarWords = _.map(mostSimilarWords, "word").map(item => item.toLowerCase());
+
+    return mostSimilarWords && mostSimilarWords.length ? mostSimilarWords : [keyword.toLowerCase()];
+  };
+
+  const findKeydsInText = (keys, text) => {
+    text = text.toLowerCase();
+
+    return keys.filter(key => text.includes(key.toLowerCase()));
   };
 
   const getData = async comment => {
@@ -1914,80 +1928,69 @@ async function step22() {
       .filter(item => !!item);
 
     //
-    const simiSecurity = getSimiWord("security");
+    const simiSecurity = getMostSimilarWords("security");
     let securitySentences = subComments.filter(subComment => {
       return simiSecurity.some(word => subComment.toLowerCase().includes(word.toLowerCase()));
     });
     securitySentences = _.uniq(securitySentences);
 
     //
-    const simiPrivacy = getSimiWord("privacy");
+    const simiPrivacy = getMostSimilarWords("privacy");
     let privacySentences = subComments.filter(subComment => {
       return simiPrivacy.some(word => subComment.toLowerCase().includes(word.toLowerCase()));
     });
     privacySentences = _.uniq(privacySentences);
 
     //
-    const simiPermission = getSimiWord("permission");
+    const simiPermission = getMostSimilarWords("permission");
     const hasPermission = simiPermission.some(word =>
       commentText.toLowerCase().includes(word.toLowerCase())
     );
     let permissionSentences = [];
     if (hasPermission) {
       const simiPermissionItems = PERMISSIONS.reduce((acc, item) => {
-        return (acc = [...acc, ...getSimiWord(item)]);
+        return (acc = [...acc, ...getMostSimilarWords(item)]);
       }, []);
       permissionSentences = subComments.filter(subComment => {
-        return simiPermissionItems.some(word =>
-          subComment.toLowerCase().includes(word.toLowerCase())
-        );
+        return !!findKeydsInText(simiPermissionItems, subComment).length;
       });
     }
 
     //
-    const dataItems = DATA_TYPES.filter(word =>
-      commentText.toLowerCase().includes(word.toLowerCase())
-    );
+    const dataItems = findKeydsInText(DATA_TYPES, commentText);
 
     //
-    const purposes = PURPOSES.filter(word =>
-      commentText.toLowerCase().includes(word.toLowerCase())
-    );
+    const purposes = findKeydsInText(PURPOSES, commentText);
 
     //
-    const thirdParties = THIRD_PARTIES.filter(word =>
-      commentText.toLowerCase().includes(word.toLowerCase())
-    );
+    const thirdParties = findKeydsInText(THIRD_PARTIES, commentText);
     //
-    const simiCollection = getSimiWord("collection");
-    const hasCollection = simiCollection.some(word =>
-      commentText.toLowerCase().includes(word.toLowerCase())
-    );
+    const simiCollection = getMostSimilarWords("collection");
+    const hasCollection = !!findKeydsInText(simiCollection, commentText).length;
+
     let collectionSentences = [];
     if (hasCollection) {
       const simiItems = [...DATA_TYPES, ...PURPOSES].reduce((acc, item) => {
-        return (acc = [...acc, ...getSimiWord(item)]);
+        return (acc = [...acc, ...getMostSimilarWords(item)]);
       }, []);
 
       collectionSentences = subComments.filter(subComment => {
-        return simiItems.some(word => subComment.toLowerCase().includes(word.toLowerCase()));
+        return !!findKeydsInText(simiItems, subComment).length;
       });
     }
     collectionSentences = _.uniq(collectionSentences);
 
     //
-    const simiSharing = getSimiWord("sharing");
-    const hasSharing = simiSharing.some(word =>
-      commentText.toLowerCase().includes(word.toLowerCase())
-    );
+    const simiSharing = getMostSimilarWords("sharing");
+    const hasSharing = !!findKeydsInText(simiSharing, commentText).length;
     let sharingSentences = [];
     if (hasSharing) {
       const simiItems = [...DATA_TYPES, ...PURPOSES, ...THIRD_PARTIES].reduce((acc, item) => {
-        return (acc = [...acc, ...getSimiWord(item)]);
+        return (acc = [...acc, ...getMostSimilarWords(item)]);
       }, []);
 
       sharingSentences = subComments.filter(subComment => {
-        return simiItems.some(word => subComment.toLowerCase().includes(word.toLowerCase()));
+        return !!findKeydsInText(simiItems, subComment).length;
       });
     }
     sharingSentences = _.uniq(sharingSentences);
@@ -2013,6 +2016,7 @@ async function step22() {
   };
 
   const comments = await Models.Comment.find({
+    _id: "6248747af878240dc03c2e08"
     // isLabeled: true
   });
 
