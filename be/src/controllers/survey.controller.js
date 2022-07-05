@@ -6,7 +6,6 @@ import rq from "request-promise";
 import Utils from "../utils";
 import Services from "../services";
 import constants from "../utils/constants";
-let apps;
 class SurveyController {
   async success(req, res, next) {
     try {
@@ -59,10 +58,9 @@ class SurveyController {
   }
   async getQuestions(req, res, next) {
     try {
-      if (!apps)
-        apps = await Models.App.find({
-          _id: "6037655492e2b52f3cf8270e"
-        }).limit(1);
+      let apps = await Models.App.find({
+        _id: "6037655492e2b52f3cf8270e"
+      }).limit(1);
 
       // apps = await Promise.all(apps.map(app => {
       //   return Models.Comment.find({
@@ -75,7 +73,7 @@ class SurveyController {
       //   })
       // }))
       apps = apps.map(app => {
-        // app = app.toJSON();
+        app = app.toJSON();
 
         if (!app.distance) app.distance = 0.1;
 
@@ -109,6 +107,14 @@ class SurveyController {
     try {
       const { appName } = req.params;
 
+      const app = await Models.App.findOne({
+        appName
+      }).select("appName distance");
+
+      (() => {
+        if (!app.distance) app.distance = 0.1;
+      })();
+
       let comments = await Models.Comment.find({
         appName
         // isLabeled: true,
@@ -124,6 +130,29 @@ class SurveyController {
         })
         .limit(10);
 
+      comments = comments.map(comment => {
+        comment = comment.toJSON();
+        comment.sentiment = Number(
+          (1 - Math.abs(app.distance - (1 - Math.abs(comment.sentiment)))).toFixed(2)
+        );
+
+        let sentimentLevel;
+        const sentiment = comment.sentiment;
+        if (sentiment > 0 && sentiment <= 0.2) {
+          sentimentLevel = "Very Low";
+        } else if (sentiment > 0.2 && sentiment <= 0.4) {
+          sentimentLevel = "Low";
+        } else if (sentiment > 0.4 && sentiment <= 0.6) {
+          sentimentLevel = "Neutral";
+        } else if (sentiment > 0.6 && sentiment <= 0.8) {
+          sentimentLevel = "High";
+        } else if (sentiment > 0.8 && sentiment <= 1) {
+          sentimentLevel = "Very High";
+        }
+        comment.sentimentLevel = sentimentLevel;
+
+        return comment;
+      });
       res.json(comments);
     } catch (error) {
       next(error);

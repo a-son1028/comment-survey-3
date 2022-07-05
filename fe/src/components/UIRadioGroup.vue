@@ -1,9 +1,13 @@
 <template>
-  <div class="anwsers mt-2">
+  <div
+    class="anwsers mt-2"
+    style="display: flex;"
+  >
     <label
       v-for="option in options"
       :key="option.value"
       class="container-radio"
+      style="margin-right: 25px"
     >{{ option.label }}
       <input
         :name="name"
