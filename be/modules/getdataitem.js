@@ -470,12 +470,12 @@ const THIRD_PARTIES = [
 
 main();
 async function main() {
-  const comments = await Models.Comment.find({
-    // perissionType: { $exists: false },
-    // dataItemType: { $exists: false },
-    // purposeType: { $exists: false },
-    // thirdPartyType: { $exists: false }
-  });
+  // const comments = await Models.Comment.find({
+  //   // perissionType: { $exists: false },
+  //   // dataItemType: { $exists: false },
+  //   // purposeType: { $exists: false },
+  //   // thirdPartyType: { $exists: false }
+  // });
 
   w2vModel = await new Promise((resolve, reject) => {
     w2v.loadModel(process.env.W2V_MODEL, function(error, model) {
@@ -485,30 +485,30 @@ async function main() {
     });
   });
 
-  try {
-    for (let comment of comments) {
-      const [perissionType, dataItemType, purposeType, thirdPartyType] = await Promise.all([
-        getPermissionType(comment.comment),
-        getDataCollectionType(comment.comment),
-        getPurposeType(comment.comment),
-        getSharingType(comment.comment)
-      ]);
+  // try {
+  //   for (let comment of comments) {
+  //     const [perissionType, dataItemType, purposeType, thirdPartyType] = await Promise.all([
+  //       getPermissionType(comment.comment),
+  //       getDataCollectionType(comment.comment),
+  //       getPurposeType(comment.comment),
+  //       getSharingType(comment.comment)
+  //     ]);
 
-      await Models.Comment.updateOne(
-        {
-          _id: comment.id
-        },
-        {
-          perissionType,
-          dataItemType,
-          purposeType,
-          thirdPartyType
-        }
-      );
-    }
-  } catch (err) {
-    console.log(err);
-  }
+  //     await Models.Comment.updateOne(
+  //       {
+  //         _id: comment.id
+  //       },
+  //       {
+  //         perissionType,
+  //         dataItemType,
+  //         purposeType,
+  //         thirdPartyType
+  //       }
+  //     );
+  //   }
+  // } catch (err) {
+  //   console.log(err);
+  // }
 
   await updateData();
 
@@ -524,6 +524,7 @@ async function updateData() {
   // 	});
   // })
   const comments = await Models.Comment.find({
+    _id: "6248747af878240dc03c2559",
     permissions: { $exists: false },
     dataTypes: { $exists: false },
     purposes: { $exists: false },
@@ -542,17 +543,18 @@ async function updateData() {
       "result",
       JSON.stringify({ permissions, dataTypes, purposes, thirdParties }, null, 2)
     );
-    await Models.Comment.updateOne(
-      {
-        _id: comment.id
-      },
-      {
-        permissions,
-        dataTypes,
-        purposes,
-        thirdParties
-      }
-    );
+
+    // await Models.Comment.updateOne(
+    //   {
+    //     _id: comment.id
+    //   },
+    //   {
+    //     permissions,
+    //     dataTypes,
+    //     purposes,
+    //     thirdParties
+    //   }
+    // );
   }
 }
 function getCommentPermission(comment) {
