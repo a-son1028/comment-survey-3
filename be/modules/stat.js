@@ -1957,13 +1957,26 @@ async function step22() {
     }
 
     //
-    const dataItems = findKeydsInText(DATA_TYPES, commentText);
+
+    const dataItems = DATA_TYPES.filter(item => {
+      const simiItems = getMostSimilarWords(item);
+
+      return !!findKeydsInText(simiItems, commentText).length;
+    });
 
     //
-    const purposes = findKeydsInText(PURPOSES, commentText);
+    const purposes = PURPOSES.filter(item => {
+      const simiItems = getMostSimilarWords(item);
+
+      return !!findKeydsInText(simiItems, commentText).length;
+    });
 
     //
-    const thirdParties = findKeydsInText(THIRD_PARTIES, commentText);
+    const thirdParties = THIRD_PARTIES.filter(item => {
+      const simiItems = getMostSimilarWords(item);
+
+      return !!findKeydsInText(simiItems, commentText).length;
+    });
     //
     const simiCollection = getMostSimilarWords("collection");
     const hasCollection = !!findKeydsInText(simiCollection, commentText).length;
@@ -2016,7 +2029,6 @@ async function step22() {
   };
 
   const comments = await Models.Comment.find({
-    _id: "6248747af878240dc03c2e08"
     // isLabeled: true
   });
 
