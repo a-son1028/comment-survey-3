@@ -2466,9 +2466,9 @@ async function updateSectionsToShow() {
 
 main();
 async function main() {
-  await step22();
+  // await step22();
   // await getSentimentOfApp();
-  // await calculateResults();
+  await calculateResults();
   // await updateSectionsToShow();
 
   // await generateComments();
