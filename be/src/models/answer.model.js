@@ -7,29 +7,13 @@ var answerSchema = new Schema(
     userId: {
       type: Schema.Types.ObjectId
     },
-    workerId: {
-      type: String
-    },
-    slotId: {
-      type: String
-    },
-    randKey: {
-      type: String
-    },
-    campaignId: {
-      type: String
-    },
-    isPaid: {
-      type: Boolean,
-      default: false
-    },
-    groupSurvey: {
-      type: String
-    },
+    isSatisfied: Schema.Types.Number,
+    isHasComment: Schema.Types.Number,
+    comment: Schema.Types.String,
     questions: [
       {
-        commentId: {
-          type: String,
+        appId: {
+          type: Schema.Types.ObjectId,
           required: true
         },
         stt: {
@@ -38,22 +22,19 @@ var answerSchema = new Schema(
         },
         responses: [
           {
+            commentId: {
+              type: Schema.Types.ObjectId,
+              required: true
+            },
             name: {
               type: String,
               required: true
             },
             value: {
-              type: String,
+              type: Number,
               required: true
             },
-            coppiedContent: {
-              type: String
-            },
-            selectedContent: Array,
-            reason: {
-              type: String
-            },
-            others: Schema.Types.Mixed
+            subQuestions: Schema.Types.Mixed
           }
         ]
       }
@@ -72,4 +53,4 @@ answerSchema.virtual("user", {
   foreignField: "userId"
 });
 
-export default mongoose.model("answer", answerSchema);
+export default mongoose.model("answerRais3", answerSchema);

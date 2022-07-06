@@ -58,22 +58,11 @@ class SurveyController {
   }
   async getQuestions(req, res, next) {
     try {
-      let apps = await Models.App.find({
-        _id: "6037655492e2b52f3cf8270e"
-      }).limit(1);
+      let apps = await Models.App.find({}).limit(constants.QUESTION_NUM);
 
-      // apps = await Promise.all(apps.map(app => {
-      //   return Models.Comment.find({
-      //     appName: app.appName
-      //   }).then(comments => {
-      //     return {
-      //       ...app.toJSON(),
-      //       comments
-      //     }
-      //   })
-      // }))
-      apps = apps.map(app => {
+      apps = apps.map((app, stt) => {
         app = app.toJSON();
+        app.stt = stt + 1;
 
         if (!app.distance) app.distance = 0.1;
 
@@ -94,7 +83,6 @@ class SurveyController {
 
         app.distanceLevel = distanceLevel;
 
-        console.log(app.distanceLevel);
         return app;
       });
       res.json(apps);
@@ -122,13 +110,17 @@ class SurveyController {
         // isShowDataSharingRail3: true
       })
         .sort({
+          permissionResult: -1,
+          dataTypeResult: -1,
+          purposeResult: -1,
+          thirdPartyResult: -1,
           isShowDataSharingRail3: -1,
           isShowDataCollectionRail3: -1,
           isShowPermissionRail3: -1,
           isShowPrivacyRail3: -1,
           isShowSecurityRail3: -1
         })
-        .limit(10);
+        .limit(2);
 
       comments = comments.map(comment => {
         comment = comment.toJSON();
@@ -150,6 +142,13 @@ class SurveyController {
           sentimentLevel = "Very High";
         }
         comment.sentimentLevel = sentimentLevel;
+
+        comment.isShowSecurity = comment.sentiment && comment.securitySentences.length;
+        comment.isShowPrivacy = comment.sentiment && comment.privacySentences.length;
+        comment.isShowPermission = comment.permissionResult && comment.permissions.length;
+        comment.isShowDataItem = comment.dataTypeResult && comment.dataItems.length;
+        comment.isShowPurpose = comment.purposeResult && comment.purposes.length;
+        comment.isShowThirdParty = comment.thirdPartyResult && comment.thirdParties.length;
 
         return comment;
       });
@@ -187,10 +186,13 @@ class SurveyController {
         });
 
       let newQuestions = answer.questions;
-      const oldQuestionIndex = answer.questions.findIndex(item => item.stt === question.stt);
+      const oldQuestionIndex = answer.questions.findIndex(
+        item => item.appId.toString() === question.appId
+      );
       if (~oldQuestionIndex) {
         newQuestions[oldQuestionIndex] = question;
       } else newQuestions.push(question);
+
       // update anwsers
       await Models.Answer.updateOne(
         {
@@ -204,7 +206,10 @@ class SurveyController {
         {}
       );
 
-      const currentQuestion = newQuestions.length + 1 <= 50 ? newQuestions.length + 1 : 50;
+      const currentQuestion =
+        newQuestions.length + 1 <= constants.QUESTION_NUM
+          ? newQuestions.length + 1
+          : constants.QUESTION_NUM;
       await Models.User.updateOne(
         {
           _id: user.id
@@ -218,6 +223,36 @@ class SurveyController {
       );
 
       res.json(newQuestions);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async confirm(req, res, next) {
+    try {
+      const user = req.user;
+      const { isSatisfied, isHasComment, comment } = req.body;
+      let answer = await Models.Answer.findOne({
+        userId: user.id
+      });
+
+      if (!answer) throw new Error("Something went wrong");
+      // update anwsers
+      const updatedData = await Models.Answer.updateOne(
+        {
+          _id: answer.id
+        },
+        {
+          $set: {
+            isSatisfied,
+            isHasComment,
+            comment
+          }
+        },
+        {}
+      );
+
+      res.json(updatedData);
     } catch (error) {
       next(error);
     }

@@ -63,12 +63,12 @@ var groupSchema = new Schema(
     purposes: [String],
     thirdParties: [String],
 
-    permissionResult: Schema.Types.Decimal128,
-    dataTypeResult: Schema.Types.Decimal128,
-    purposeResult: Schema.Types.Decimal128,
-    thirdPartyResult: Schema.Types.Decimal128,
+    permissionResult: Schema.Types.Number,
+    dataTypeResult: Schema.Types.Number,
+    purposeResult: Schema.Types.Number,
+    thirdPartyResult: Schema.Types.Number,
 
-    sentiment: Schema.Types.Decimal128,
+    sentiment: Schema.Types.Number,
 
     // rais3
     isShowSecurityRail3: {

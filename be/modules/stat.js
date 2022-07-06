@@ -2288,6 +2288,7 @@ async function rawData() {
 }
 
 async function calculateResults() {
+  console.log("Running calculateResults");
   const comments = await Models.Comment.find({
     // permissionResult: { $exists: false }
   });
@@ -2336,6 +2337,7 @@ async function calculateResults() {
         // purpose
         const purposeResult = calculatePermission(appPurposes, commentPurposes, purposeType);
 
+        console.log({ appThirdParties, commentThirdParties });
         // thirt party
         const thirdPartyResult = calculatePermission(
           appThirdParties,
@@ -2497,7 +2499,7 @@ async function updateSectionsToShow() {
 
 main();
 async function main() {
-  await step22();
+  // await step22();
   // await getSentimentOfApp();
   await calculateResults();
   // await updateSectionsToShow();

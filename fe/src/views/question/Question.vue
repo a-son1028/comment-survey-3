@@ -11,7 +11,7 @@
         <h5
           class="text-center"
           style="text-transform: capitalize;"
-        > <span class="pagingInfo"> <span style="color: #FF9800; font-size: 30px">1</span> / {{ 20 }}</span></h5>
+        > <span class="pagingInfo"> <span style="color: #FF9800; font-size: 30px">{{ questionId }}</span> / {{ QUESTION_NUM }}</span></h5>
         <h3
           class="text-center"
           style="text-transform: capitalize;"
@@ -92,9 +92,6 @@
           <b style="text-decoration: underline;">Security and privacy assessment:</b> 
           <div>{{ question.distanceLevel }}</div>
         </div>
-        
-
-
      
         <hr>
         <div>
@@ -113,7 +110,7 @@
                   triggers="hover"
                   placement="right"
                 > 
-                  According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>{{ comment.sentimentLevel }}</b>
+                  According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>{{ question.distanceLevel }}</b>
                 </b-popover>
 
                 <b-popover
@@ -121,7 +118,7 @@
                   triggers="hover"
                   placement="right"
                 > 
-                  According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>{{ comment.sentimentLevel }}</b>
+                  According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>{{ question.distanceLevel }}</b>
                 </b-popover>
 
                 <b-popover
@@ -131,9 +128,9 @@
                 >
                   According to our analysis based on the static analysis, the app requires 
                   <span
-                    v-for="(sentence, index1) in comment.permissions"
+                    v-for="(sentence, index1) in question.permissions"
                     :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === comment.permissions.length - 1 ? "." : ", " }}
+                  ><b>{{ sentence }}</b>{{ index1 === question.permissions.length - 1 ? "." : ", " }}
                   </span>
                 </b-popover>
         
@@ -145,9 +142,9 @@
                 >
                   According to our analysis based on the static analysis, the app collects
                   <span
-                    v-for="(sentence, index1) in comment.dataItems"
+                    v-for="(sentence, index1) in question.dataTypes"
                     :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === comment.dataItems.length - 1 ? "." : ", " }}
+                  ><b>{{ sentence }}</b>{{ index1 === question.dataTypes.length - 1 ? "." : ", " }}
                   </span>
                 </b-popover>
 
@@ -158,9 +155,9 @@
                 >
                   According to our analysis based on the static analysis, the app collects
                   <span
-                    v-for="(sentence, index1) in comment.dataItems"
+                    v-for="(sentence, index1) in question.dataTypes"
                     :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === comment.dataItems.length - 1 ? "." : ", " }}
+                  ><b>{{ sentence }}</b>{{ index1 === question.dataTypes.length - 1 ? "." : ", " }}
                   </span>
                 </b-popover>
 
@@ -170,9 +167,9 @@
                   placement="right"
                 >
                   According to our analysis based on the app privacy policy, the app collects user data for <span
-                    v-for="(sentence, index1) in comment.purposes"
+                    v-for="(sentence, index1) in question.purposes"
                     :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === comment.purposes.length - 1 ? "." : ", " }}
+                  ><b>{{ sentence }}</b>{{ index1 === question.purposes.length - 1 ? "." : ", " }}
                   </span>
                 </b-popover>
 
@@ -182,9 +179,9 @@
                   placement="right"
                 >
                   According to our analysis based on the app privacy policy, the app collects user data for <span
-                    v-for="(sentence, index1) in comment.purposes"
+                    v-for="(sentence, index1) in question.purposesHP"
                     :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === comment.purposes.length - 1 ? "." : ", " }}
+                  ><b>{{ sentence }}</b>{{ index1 === question.purposesHP.length - 1 ? "." : ", " }}
                   </span>
                 </b-popover>
         
@@ -194,9 +191,9 @@
                   placement="right"
                 >
                   According to our analysis based on the app privacy policy, the app share user data with <span
-                    v-for="(sentence, index1) in comment.thirdParties"
+                    v-for="(sentence, index1) in question.thirdPartiesHP"
                     :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === comment.thirdParties.length - 1 ? "." : ", " }}
+                  ><b>{{ sentence }}</b>{{ index1 === question.thirdPartiesHP.length - 1 ? "." : ", " }}
                   </span></b-popover>
 
        
@@ -207,7 +204,7 @@
                 <div class="mt-3 mb-2">Based on the analysis, we extract from the comments some security- and privacy-related features including privacy, permission, data collection.</div>
                 <!-- security -->
                 <ul
-                  v-if="comment.isShowSecurityRail3"
+                  v-if="comment.isShowSecurityRail3 && comment.isShowSecurity"
                   style="list-style-type:disc"
                 >
                   <li
@@ -236,7 +233,7 @@
 
                 <!-- privacy -->
                 <ul
-                  v-if="comment.isShowPrivacyRail3"
+                  v-if="comment.isShowPrivacyRail3 && comment.isShowPrivacy"
                   style="list-style-type:disc"
                 >
                   <li
@@ -267,7 +264,7 @@
 
                 <!-- permission -->
                 <ul
-                  v-if="comment.isShowPermissionRail3 && comment.permissions.length"
+                  v-if="comment.isShowPermissionRail3 && comment.isShowPermission"
                   style="list-style-type:disc"
                 >
                   <li
@@ -279,7 +276,7 @@
                       style="list-style-type:circle"
                     >
                       <li
-                        v-for="(sentence, index1) in comment.permissions"
+                        v-for="(sentence, index1) in comment.permissionSentences"
                         :key="index1"
                         style="text-transform: capitalize;"
                       >
@@ -287,7 +284,7 @@
                       </li> 
                       <li><span 
                         :id="'permission-popover' + index"
-                      >Result: {{ (comment.permissionResult.$numberDecimal * 100).toFixed(0) }}% correct</span>
+                      >Result: {{ (comment.permissionResult * 100).toFixed(0) }}% correct</span>
                       </li>
                     </ul>
                     <br>
@@ -295,7 +292,7 @@
                 </ul>
 
                 <ul
-                  v-if="comment.isShowDataCollectionRail3"
+                  v-if="comment.isShowDataCollectionRail3 && (comment.isShowDataItem || comment.isShowPurpose)"
                   style="list-style-type:disc"
                 >
                   <li
@@ -306,7 +303,7 @@
                       class="ml-10"
                       style="list-style-type:circle"
                     >
-                      <div v-if="comment.dataItems && comment.dataItems.length">
+                      <div v-if="comment.isShowDataItem">
                         <li
                           style="text-transform: capitalize;"
                         >
@@ -316,13 +313,13 @@
                             :key="index1"
                           >{{ sentence }}{{ index1 === comment.dataItems.length - 1 ? "." : ", " }}</span>
                         </li>  
-                        <li><span :id="'data-collection-item-popover-2' + index">Result: {{ (comment.dataTypeResult.$numberDecimal * 100).toFixed(0) }}% correct</span></li>
+                        <li><span :id="'data-collection-item-popover' + index">Result: {{ (comment.dataTypeResult * 100).toFixed(0) }}% correct</span></li>
 
                         <br>
                       </div>
                       
                       <div
-                        v-if="comment.purposes && comment.purposes.length"
+                        v-if="comment.isShowPurpose"
                       >
                         <li
                           style="text-transform: capitalize;"
@@ -334,7 +331,7 @@
                           >{{ sentence }}{{ index1 === comment.purposes.length - 1 ? "." : ", " }}</span>
                     
                         </li>  
-                        <li><span :id="'purpose-popover-2' + index">Result: {{ (comment.purposeResult.$numberDecimal * 100).toFixed(0) }}% correct</span></li>
+                        <li><span :id="'purpose-popover-2' + index">Result: {{ (comment.purposeResult * 100).toFixed(0) }}% correct</span></li>
                         <br>
                       </div>
                     </ul>
@@ -342,7 +339,7 @@
                 </ul>
 
                 <ul
-                  v-if="comment.isShowDataCollectionRail3"
+                  v-if="comment.isShowDataCollectionRail3 && (comment.isShowDataItem || comment.isShowPurpose || comment.isShowThirdParty)"
                   style="list-style-type:disc"
                 >
                   <li
@@ -354,7 +351,7 @@
                       style="list-style-type:circle"
                     >
 
-                      <div v-if="comment.dataItems && comment.dataItems.length">
+                      <div v-if="comment.isShowDataItem">
                         <li
                           style="text-transform: capitalize;"
                         >
@@ -364,13 +361,13 @@
                             :key="index1"
                           >{{ sentence }}{{ index1 === comment.dataItems.length - 1 ? "." : ", " }}</span>
                         </li>  
-                        <li><span :id="'data-collection-item-popover-2' + index">Result: {{ (comment.dataTypeResult.$numberDecimal * 100).toFixed(0) }}% correct</span></li>
+                        <li><span :id="'data-collection-item-popover-2' + index">Result: {{ (comment.dataTypeResult * 100).toFixed(0) }}% correct</span></li>
 
                         <br>
                       </div>
 
                       <div
-                        v-if="comment.purposes && comment.purposes.length"
+                        v-if="comment.isShowPurpose"
                       >
                         <li
                           style="text-transform: capitalize;"
@@ -382,11 +379,11 @@
                           >{{ sentence }}{{ index1 === comment.purposes.length - 1 ? "." : ", " }}</span>
                     
                         </li>  
-                        <li><span :id="'purpose-popover-2' + index">Result: {{ (comment.purposeResult.$numberDecimal * 100).toFixed(0) }}% correct</span></li>
+                        <li><span :id="'purpose-popover-2' + index">Result: {{ (comment.purposeResult * 100).toFixed(0) }}% correct</span></li>
                         <br>
                       </div>
 
-                      <div v-if="comment.thirdParties && comment.thirdParties.length">
+                      <div v-if="comment.isShowThirdParty">
                         <li
                           style="text-transform: capitalize;"
                         > 
@@ -399,7 +396,7 @@
                         </li>  
                         <li><span 
                           :id="'third-party-popover' + index"
-                        >Result: {{ (comment.thirdPartyResult.$numberDecimal * 100).toFixed(0) }}% correct</span></li>
+                        >Result: {{ (comment.thirdPartyResult * 100).toFixed(0) }}% correct</span></li>
                       </div>
                      
                     </ul>
@@ -428,7 +425,7 @@
 
                     <!-- Security -->
                     <div
-                      v-if="comment.isShowSecurityRail3"
+                      v-if="comment.isShowSecurityRail3 && comment.isShowSecurity"
                       style="margin-left: 10px; margin-bottom: 10px"
                     >
                       <label
@@ -437,7 +434,8 @@
                       >Security
                         <input
                           v-if="commentQuestions[index].value === 2"
-                          v-model="question12.value"
+                          v-model="commentQuestions[index].subQuestions[0].selected"
+                          :name="commentQuestions[index].subQuestions[0].name"
                           class="type-question"
                           type="checkbox"
                         >
@@ -447,19 +445,33 @@
                         />
                       </label>
                       <div style="margin-left: 35px">
-                        <div>Invading Of Security</div>
-                        Result: {{ (comment.sentiment.$numberDecimal * 100).toFixed(0) }}% correct
+                        <ul
+                          class="ml-10"
+                          style="list-style-type:circle"
+                        >
+                          <li
+                            v-for="(sentence, index1) in comment.securitySentences"
+                            :key="index1"
+                            style="text-transform: capitalize;"
+                          >  ...“{{ sentence }}”... </li>
+                          <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
+                        </ul>
+                        
 
-                        <div v-if="question12.value || question1.value === 0">
+                        <div v-if="commentQuestions[index].subQuestions[0].selected || commentQuestions[index].value === 0">
                           <div>Can you provide the related content from the comment?</div>
-                          <div style="margin-left: 10px">Result: <input type="text"></div>
+                            
+                          <div style="margin-left: 25px">Result: <input
+                            v-model="commentQuestions[index].subQuestions[0].result"
+                            type="text"
+                          ></div>
                         </div>
                       </div>
                     </div>
 
                     <!-- Privacy -->
                     <div
-                      v-if="comment.isShowPrivacyRail3"
+                      v-if="comment.isShowPrivacyRail3 && comment.isShowPrivacy"
                       style="margin-left: 10px; margin-bottom: 10px"
                     >
                       <label
@@ -467,30 +479,45 @@
                         class="container-checkbox"
                       >Privacy
                         <input
-                          v-if="question1.value === 2"
-                          v-model="question12.value"
+                          v-if="commentQuestions[index].value === 2"
+                          v-model="commentQuestions[index].subQuestions[1].selected"
+                          :name="commentQuestions[index].subQuestions[1].name"
                           class="type-question"
                           type="checkbox"
                         >
                         <span
-                          v-if="question1.value === 2"
+                          v-if="commentQuestions[index].value === 2"
                           class="checkmark"
                         />
                       </label>
                       <div style="margin-left: 35px">
-                        <div>Invading Of Privacy</div>
-                        Result: {{ (comment.sentiment.$numberDecimal * 100).toFixed(0) }}% correct
+                        <ul
+                          class="ml-10"
+                          style="list-style-type:circle"
+                        >
+                          <li
+                            v-for="(sentence, index1) in comment.privacySentences"
+                            :key="index1"
+                            style="text-transform: capitalize;"
+                          >  ...“{{ sentence }}”... </li>
+                          <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
+                        </ul>
+                        
 
-                        <div v-if="question12.value || question1.value === 0">
+                        <div v-if="commentQuestions[index].subQuestions[1].selected || commentQuestions[index].value === 0">
                           <div>Can you provide the related content from the comment?</div>
-                          <div style="margin-left: 10px">Result: <input type="text"></div>
+                            
+                          <div style="margin-left: 25px">Result: <input
+                            v-model="commentQuestions[index].subQuestions[1].result"
+                            type="text"
+                          ></div>
                         </div>
                       </div>
                     </div>
 
                     <!-- Permission -->
                     <div
-                      v-if="comment.isShowPermissionRail3"
+                      v-if="comment.isShowPermissionRail3 && isShowPermission"
                       style="margin-left: 10px; margin-bottom: 10px"
                     >
                       <label
@@ -498,53 +525,87 @@
                         class="container-checkbox"
                       >Permission
                         <input
-                          v-if="question1.value === 2"
-                          v-model="question13.value"
+                          v-if="commentQuestions[index].value === 2"
+                          v-model="commentQuestions[index].subQuestions[3].selected"
+                          :name="commentQuestions[index].subQuestions[3].name"
                           class="type-question"
                           type="checkbox"
                         >
                         <span
-                          v-if="question1.value === 2"
+                          v-if="commentQuestions[index].value === 2"
                           class="checkmark"
                         />
                       </label>
                       <div style="margin-left: 35px">
-                        <div>Update: emailed support/developers and asked why they needed the location permission</div>
-                        Result: {{ (comment.permissionResult.$numberDecimal * 100).toFixed(0) }}% correct
+                        <ul
+                          class="ml-10"
+                          style="list-style-type:circle"
+                        >
+                          <li
+                            v-for="(sentence, index1) in comment.permissionSentences"
+                            :key="index1"
+                            style="text-transform: capitalize;"
+                          >  ...“{{ sentence }}”... </li>
+                          <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
+                        </ul>
+                        
 
-                        <div v-if="question13.value || question1.value === 0">
+                        <div v-if="commentQuestions[index].subQuestions[3].selected || commentQuestions[index].value === 0">
                           <div>Can you provide the related content from the comment?</div>
-                          <div style="margin-left: 10px">Result: <input type="text"></div>
+                            
+                          <div style="margin-left: 25px">Result: <input
+                            v-model="commentQuestions[index].subQuestions[3].result"
+                            type="text"
+                          ></div>
                         </div>
                       </div>
                     </div>
 
-                    <!-- Data collection -->
+                    <!-- Third Party -->
                     <div
-                      v-if="comment.isShowDataCollectionRail3"
+                      v-if="comment.isShowThirdParty"
                       style="margin-left: 10px; margin-bottom: 10px"
                     >
                       <label
                         style="margin-bottom: 0px"
                         class="container-checkbox"
-                      >Data collection
+                      >Data sharing
                         <input
-                          v-if="question1.value === 2"
-                          v-model="question14.value"
+                          v-if="commentQuestions[index].value === 2"
+                          v-model="commentQuestions[index].subQuestions[5].selected"
+                          :name="commentQuestions[index].subQuestions[5].name"
                           class="type-question"
                           type="checkbox"
                         >
                         <span
-                          v-if="question1.value === 2"
+                          v-if="commentQuestions[index].value === 2"
                           class="checkmark"
                         />
                       </label>
                       <div style="margin-left: 35px">
-                        Result: 50% correct
+                        <ul
+                          class="ml-10"
+                          style="list-style-type:circle"
+                        >
+                          <li
+                            style="text-transform: capitalize;"
+                          >  Third party:
+                            <span
+                              v-for="(sentence, index1) in comment.thirdParties"
+                      
+                              :key="index1"
+                            >{{ sentence }}{{ index1 === comment.thirdParties.length - 1 ? "." : ", " }}</span> </li>
+                          <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
+                        </ul>
+                        
 
-                        <div v-if="question14.value || question1.value === 0">
+                        <div v-if="commentQuestions[index].subQuestions[5].selected || commentQuestions[index].value === 0">
                           <div>Can you provide the related content from the comment?</div>
-                          <div style="margin-left: 10px">Result: <input type="text"></div>
+                            
+                          <div style="margin-left: 25px">Result: <input
+                            v-model="commentQuestions[index].subQuestions[5].result"
+                            type="text"
+                          ></div>
                         </div>
                       </div>
                     </div>
@@ -557,8 +618,6 @@
         </div>
       </div>
 
-   
-     
       <div style="position: relative">
         <UINextButton />
 
@@ -583,8 +642,9 @@ import UILoader from '@/components/UILoader.vue'
 import UIRadioGroup from '@/components/UIRadioGroup.vue'
 // import UITextarea from '@/components/UITextarea.vue'
 import { GET_QUESTIONS, GET_COMMENTS } from '@/store/modules/question/action.type.js'
-// import { GET_QUESTIONS, GET_ANSWER, STORE_ANSWER } from '@/store/modules/question/action.type.js'
-// import { GET_USER_INFO } from '@/store/modules/user/action.type.js'
+import { GET_ANSWER, STORE_ANSWER } from '@/store/modules/question/action.type.js'
+import { GET_USER_INFO } from '@/store/modules/user/action.type.js'
+import { QUESTION_NUM } from '@/constants'
 
 const questionOptions = [{label: 'Yes', value: 1}, {label: 'Partially', value: 2}, {label: 'No', value: 0} ]
 const question1Options = [{label: 'Yes', value: 1}, {label: 'No', value: 0} ]
@@ -597,131 +657,122 @@ export default {
     // UITextarea,
   },
   data: () => ({
+    QUESTION_NUM,
     isLoading: true,
-    question: null,
     questionOptions,
     question1Options,
-    commentQuestions: {},
-    question1: {
-      name: 'question1',
-      value: null,
-    },
-    question11: {
-      name: 'question11',
-      value: null,
-      reason: ''
-    },
-    question12: {
-      name: 'question12',
-      value: null,
-      reason: ''
-    },
-    question13: {
-      name: 'question13',
-      value: null,
-      reason: ''
-    },
-    question14: {
-      name: 'question14',
-      value: null,
-      reason: '',
-      others: {}
-    },
-    question15: {
-      name: 'question15',
-      value: null,
-      reason: ''
-    },
+    commentQuestions: [],
   }),
   computed: {
     ...mapGetters({
       questions: 'getQuestions',
       comments: 'getComments',
-      // question: 'getQuestion',
-      // questionAnswered: 'getQuestionAnswered',
-      // questionId: 'getQuestionId',
-      // userInfo: 'getUserInfo',
+      question: 'getQuestion',
+      questionAnswered: 'getQuestionAnswered',
+      questionId: 'getQuestionId',
+      userInfo: 'getUserInfo',
       // answer: 'getAnswer'
     })
   },
   watch: {
-    questions(questions) {
-      this.question = questions[0];
-      this.question.dynamicGroup = this.question.dynamicGroup ? JSON.parse(this.question.dynamicGroup) : []
-      this.question.staticGroup = this.question.staticGroup ? JSON.parse(this.question.staticGroup) : []
+    question(question) {
+      question.dynamicGroup = question.dynamicGroup ? JSON.parse(question.dynamicGroup) : []
+      question.staticGroup = question.staticGroup ? JSON.parse(question.staticGroup) : []
 
-      console.log(this.question.staticGroup)
-      this.$store.dispatch(GET_COMMENTS, this.question.appName)
+      this.$store.dispatch(GET_COMMENTS, question.appName)
     },
     userInfo(userInfo) {
       if(!userInfo.isInstruction) this.$router.push('/')
+
+      this.$store.commit('setQuestionId', userInfo.currentQuestion)
     },
     comments(comments) {
-
-      this.commentQuestions = comments.reduce((acc, _, index) => {
+      if(this.commentQuestions.length) return 
+      
+      this.commentQuestions = comments.reduce((acc, comment, index) => {
         acc[index] = {
+          commentId: comment.id,
           name: `question${index}`,
           value: null,
+          subQuestions: {
+            0: {
+              name: `subQuestions${index}0`,
+              selected: null,
+              result: null,
+            },
+            1: {
+              name: `subQuestions${index}1`,
+              selected: null,
+              result: null,
+            },
+            2: {
+              name: `subQuestions${index}2`,
+              selected: null,
+              result: null,
+            },
+            3: {
+              name: `subQuestions${index}3`,
+              selected: null,
+              result: null,
+            },
+            4: {
+              name: `subQuestions${index}4`,
+              selected: null,
+              result: null,
+            },
+            5: {
+              name: `subQuestions${index}4`,
+              selected: null,
+              result: null,
+            },
+          }
         }
 
         return acc
-      }, {})
+      }, [])
+    },
+    questionAnswered(questionAnswered) {
+      if(!questionAnswered) return
+      this.commentQuestions = questionAnswered.responses
     },
   },
   mounted() {
     Promise.all([
       this.$store.dispatch(GET_QUESTIONS),
-      // this.$store.dispatch(GET_ANSWER),
-      // this.$store.dispatch(GET_USER_INFO),
+      this.$store.dispatch(GET_ANSWER),
+      this.$store.dispatch(GET_USER_INFO),
     ]).then(() => this.isLoading = false)
-
-    // this.isLoading = false
   },
   methods: {
     clearFormData() {
-      this.question1.value=null
-      this.question1.comment1=''
-
-      this.question11.value=null
-      this.question11.reason=''
-
-      this.question12.value=null
-      this.question12.reason=''
-
-      this.question13.value=null
-      this.question13.reason=''
-
-      this.question14.value=null
-      this.question14.reason=''
-
-      this.question15.value=null
-      this.question15.reason=''
+      this.commentQuestions = []
     },
     next(e) {
       e.preventDefault();
-      // this.isLoading = true
-      // const data = {
-      //   commentId: this.question.commentId,
-      //   stt: this.question.stt,
-      //   responses: [this.question1, this.question11, this.question12, this.question13, this.question14, this.question15]
-      // }
-      // this.$store.dispatch(STORE_ANSWER, data)
-      // .then(() => {
+      this.isLoading = true
+      const data = {
+        appId: this.question.id,
+        stt: this.questionId,
+        responses: this.commentQuestions
+      }
+      
+      this.$store.dispatch(STORE_ANSWER, data)
+      .then(() => {
 
-      //   if(this.questionId == 50) {
-      //     this.$router.push('/success')
-      //   } else {
-      //     this.$store.commit('setQuestionId', this.questionId + 1)
-      //   }
+        if(this.questionId === this.QUESTION_NUM) {
+          return this.$router.push('/confirm')
+        } else {
+          this.$store.commit('setQuestionId', this.questionId + 1)
+        }
         
-      //   this.isLoading = false
+        this.isLoading = false
 
-      //   this.clearFormData()
-      // })
+        this.clearFormData()
+      })
     },
 
     back() {
-      // this.$store.commit('setQuestionId', this.questionId - 1)
+      this.$store.commit('setQuestionId', this.questionId - 1)
     }
   }
 };

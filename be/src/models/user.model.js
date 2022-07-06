@@ -37,7 +37,7 @@ var userSchema = new Schema(
     isInstruction: {
       type: Boolean,
       default: false
-    },
+    }
   },
   {
     timestamps: true,
@@ -53,4 +53,4 @@ userSchema.virtual("answers", {
 
 userSchema.plugin(findOrCreate);
 
-export default mongoose.model("user2", userSchema);
+export default mongoose.model("userRais3", userSchema);
