@@ -5,7 +5,6 @@ import Models from "../src/models";
 import fs from "fs";
 import axios from "axios";
 import bluebird from "bluebird";
-import cheerio from "cheerio";
 
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 const csv = require("csvtojson");
@@ -1959,23 +1958,26 @@ async function step22() {
     //
 
     const dataItems = DATA_TYPES.filter(item => {
-      const simiItems = getMostSimilarWords(item);
+      // const simiItems = getMostSimilarWords(item);
 
-      return !!findKeydsInText(simiItems, commentText).length;
+      // return !!findKeydsInText(simiItems, commentText).length;
+      return commentText.toLowerCase().includes(item.toLowerCase());
     });
 
     //
     const purposes = PURPOSES.filter(item => {
-      const simiItems = getMostSimilarWords(item);
+      // const simiItems = getMostSimilarWords(item);
 
-      return !!findKeydsInText(simiItems, commentText).length;
+      // return !!findKeydsInText(simiItems, commentText).length;
+      return commentText.toLowerCase().includes(item.toLowerCase());
     });
 
     //
     const thirdParties = THIRD_PARTIES.filter(item => {
-      const simiItems = getMostSimilarWords(item);
+      // const simiItems = getMostSimilarWords(item);
 
-      return !!findKeydsInText(simiItems, commentText).length;
+      // return !!findKeydsInText(simiItems, commentText).length;
+      return commentText.toLowerCase().includes(item.toLowerCase());
     });
     //
     const simiCollection = getMostSimilarWords("collection");
@@ -2319,10 +2321,11 @@ async function calculateResults() {
         } = app;
 
         const appPermissionGroups = getPermissionGroups(appPermissions);
-        const permissionResult = calculatePermission(
+        const permissionResult = calculatePermissionOnlyPer(
           appPermissionGroups,
           commentPermissions,
-          perissionType
+          perissionType,
+          appPermissions
         );
 
         // data type
@@ -2366,6 +2369,34 @@ function getDataTypesFromItem(dataItems) {
 
   return result;
 }
+function calculatePermissionOnlyPer(
+  appPermissionGroups,
+  commentPermissions,
+  perissionType,
+  appPermissionItems
+) {
+  let permissionResult = 0;
+  const totalAppPermision = appPermissionGroups.length;
+  const totalCommentPermision = commentPermissions.length;
+  try {
+    if (!totalAppPermision || !totalCommentPermision) {
+      return permissionResult;
+    }
+
+    if (perissionType === "all") {
+      permissionResult = (appPermissionItems / 191).toFixed(2);
+    } else if (perissionType === "specific") {
+      const intersection = _.intersection(appPermissionGroups, commentPermissions);
+
+      permissionResult = (intersection.length / totalCommentPermision).toFixed(2);
+    }
+
+    return permissionResult;
+  } catch (err) {
+    console.log("calculatePermission ERROR", err.message, totalAppPermision, totalCommentPermision);
+  }
+}
+
 function calculatePermission(appPermissionGroups, commentPermissions, perissionType) {
   let permissionResult = 0;
   const totalAppPermision = appPermissionGroups.length;
@@ -2466,7 +2497,7 @@ async function updateSectionsToShow() {
 
 main();
 async function main() {
-  // await step22();
+  await step22();
   // await getSentimentOfApp();
   await calculateResults();
   // await updateSectionsToShow();
