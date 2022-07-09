@@ -4,7 +4,7 @@ import "../src/configs/mongoose.config";
 import Models from "../src/models";
 import fs from "fs";
 import axios from "axios";
-import bluebird from "bluebird";
+import bluebird, { Promise } from "bluebird";
 
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 const csv = require("csvtojson");
@@ -2496,12 +2496,137 @@ async function updateSectionsToShow() {
     { concurrency: 100 }
   );
 }
+async function getDistance() {
+  const apps = await Models.App.find({
+    // sentiment: { $exists: false }
+  }).select("distance");
 
+  const maxDis = _.maxBy(apps, "distance").get("distance");
+  const minDis = _.minBy(apps, "distance").get("distance");
+
+  const segment = (maxDis - minDis) / 5;
+
+  const rangeVL = [minDis, minDis + segment * 1];
+  const rangeL = [minDis + segment * 1, minDis + segment * 2];
+  const rangeN = [minDis + segment * 2, minDis + segment * 3];
+  const rangeH = [minDis + segment * 3, minDis + segment * 4];
+  const rangeVH = [minDis + segment * 4, minDis + segment * 5];
+
+  for (let i = 0; i < apps.length; i++) {
+    console.log(i);
+    const app = apps[i];
+
+    let distanceRais3;
+    if (_.inRange(app.distance, ...rangeVL)) {
+      distanceRais3 = 0.1;
+    } else if (_.inRange(app.distance, ...rangeL)) {
+      distanceRais3 = 0.3;
+    } else if (_.inRange(app.distance, ...rangeN)) {
+      distanceRais3 = 0.5;
+    } else if (_.inRange(app.distance, ...rangeH)) {
+      distanceRais3 = 0.7;
+    } else if (_.inRange(app.distance, ...rangeVH)) {
+      distanceRais3 = 0.9;
+    } else {
+      distanceRais3 = 0.5;
+    }
+
+    await Models.App.updateOne(
+      {
+        _id: app.id
+      },
+      {
+        distanceRais3
+      }
+    );
+  }
+  console.log("DONE");
+}
+
+async function updateComentShow() {
+  let comments = await Models.Comment.find({
+    // isShowOnRais3: { $exists: false }
+  });
+
+  await bluebird.map(
+    comments,
+    async comment => {
+      const app = await Models.App.findOne({
+        appName: comment.appName
+      });
+      if (!app) return;
+      comment = comment.toJSON();
+      comment.sentiment = Number(
+        (1 - Math.abs(app.distance - (1 - Math.abs(comment.sentiment)))).toFixed(2)
+      );
+
+      const isShowSecurity = !!comment.sentiment && !!comment.securitySentences.length;
+      const isShowPrivacy = !!comment.sentiment && !!comment.privacySentences.length;
+      const isShowPermission = !!comment.permissionResult && !!comment.permissions.length;
+      const isShowDataItem = !!comment.dataTypeResult && !!comment.dataItems.length;
+      const isShowPurpose = !!comment.purposeResult && !!comment.purposes.length;
+      const isShowThirdParty = !!comment.thirdPartyResult && !!comment.thirdParties.length;
+
+      const isShowOnRais3 =
+        isShowSecurity ||
+        isShowPrivacy ||
+        isShowPermission ||
+        isShowDataItem ||
+        isShowPurpose ||
+        isShowThirdParty;
+      return Models.Comment.updateOne(
+        {
+          _id: comment.id
+        },
+        {
+          isShowSecurityRais3: isShowSecurity,
+          isShowPrivacyRais3: isShowPrivacy,
+          isShowPermissionRais3: isShowPermission,
+          isShowDataItemRais3: isShowDataItem,
+          isShowPurposeRais3: isShowPurpose,
+          isShowThirdPartyRais3: isShowThirdParty,
+          isShowOnRais3
+        }
+      );
+    },
+    { concurrency: 50 }
+  );
+
+  console.log("DONE");
+}
+
+async function getCommentSurvey() {
+  let apps = await Models.App.find({});
+
+  const appsHasComment = await bluebird.filter(apps, async app => {
+    const isHasComment = await Models.Comment.findOne({
+      appName: app.appName,
+      isShowOnRais3: true
+    });
+    return !!isHasComment;
+  });
+
+  const appSurveys = _.chunk(appsHasComment, 7);
+
+  await Models.AppSurvey.deleteMany();
+
+  await bluebird.map(appSurveys, async apps => {
+    if (apps.length < 7) return;
+    return Models.AppSurvey.create({
+      apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id }))
+    });
+  });
+
+  console.log("DONE");
+}
 main();
 async function main() {
+  await getCommentSurvey();
+  // await updateComentShow();
+  // await getDistance();
   // await step22();
   // await getSentimentOfApp();
-  await calculateResults();
+  // await calculateResults();
   // await updateSectionsToShow();
 
   // await generateComments();

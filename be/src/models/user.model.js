@@ -34,6 +34,8 @@ var userSchema = new Schema(
       type: String
     },
     commentSurveyId: Schema.Types.ObjectId,
+    appSurveyId: Schema.Types.ObjectId,
+
     isInstruction: {
       type: Boolean,
       default: false

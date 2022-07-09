@@ -204,7 +204,7 @@
                 <div class="mt-3 mb-2">Based on the analysis, we extract from the comments some security- and privacy-related features including privacy, permission, data collection.</div>
                 <!-- security -->
                 <ul
-                  v-if="comment.isShowSecurityRail3 && comment.isShowSecurity"
+                  v-if="comment.isShowSecurity"
                   style="list-style-type:disc"
                 >
                   <li
@@ -233,7 +233,7 @@
 
                 <!-- privacy -->
                 <ul
-                  v-if="comment.isShowPrivacyRail3 && comment.isShowPrivacy"
+                  v-if="comment.isShowPrivacy"
                   style="list-style-type:disc"
                 >
                   <li
@@ -264,7 +264,7 @@
 
                 <!-- permission -->
                 <ul
-                  v-if="comment.isShowPermissionRail3 && comment.isShowPermission"
+                  v-if="comment.isShowPermission"
                   style="list-style-type:disc"
                 >
                   <li
@@ -292,7 +292,7 @@
                 </ul>
 
                 <ul
-                  v-if="comment.isShowDataCollectionRail3 && (comment.isShowDataItem || comment.isShowPurpose)"
+                  v-if="(comment.isShowDataItem || comment.isShowPurpose)"
                   style="list-style-type:disc"
                 >
                   <li
@@ -339,7 +339,7 @@
                 </ul>
 
                 <ul
-                  v-if="comment.isShowDataCollectionRail3 && (comment.isShowDataItem || comment.isShowPurpose || comment.isShowThirdParty)"
+                  v-if="comment.isShowDataItem || comment.isShowPurpose || comment.isShowThirdParty"
                   style="list-style-type:disc"
                 >
                   <li
@@ -425,7 +425,7 @@
 
                     <!-- Security -->
                     <div
-                      v-if="comment.isShowSecurityRail3 && comment.isShowSecurity"
+                      v-if="comment.isShowSecurity"
                       style="margin-left: 10px; margin-bottom: 10px"
                     >
                       <label
@@ -471,7 +471,7 @@
 
                     <!-- Privacy -->
                     <div
-                      v-if="comment.isShowPrivacyRail3 && comment.isShowPrivacy"
+                      v-if="comment.isShowPrivacy"
                       style="margin-left: 10px; margin-bottom: 10px"
                     >
                       <label
@@ -517,7 +517,7 @@
 
                     <!-- Permission -->
                     <div
-                      v-if="comment.isShowPermissionRail3 && isShowPermission"
+                      v-if="comment.isShowPermission"
                       style="margin-left: 10px; margin-bottom: 10px"
                     >
                       <label
@@ -676,8 +676,9 @@ export default {
   },
   watch: {
     question(question) {
-      question.dynamicGroup = question.dynamicGroup ? JSON.parse(question.dynamicGroup) : []
-      question.staticGroup = question.staticGroup ? JSON.parse(question.staticGroup) : []
+      if(!question) return
+      question.dynamicGroup = typeof question.dynamicGroup === "string" ? JSON.parse(question.dynamicGroup) : []
+      question.staticGroup = typeof question.staticGroup === "string" ? JSON.parse(question.staticGroup) : []
 
       this.$store.dispatch(GET_COMMENTS, question.appName)
     },
@@ -741,11 +742,12 @@ export default {
       this.$store.dispatch(GET_QUESTIONS),
       this.$store.dispatch(GET_ANSWER),
       this.$store.dispatch(GET_USER_INFO),
-    ]).then(() => this.isLoading = false)
+    ]).then(() =>  this.isLoading = false)
   },
   methods: {
     clearFormData() {
       this.commentQuestions = []
+      window.scrollTo(0,0);
     },
     next(e) {
       e.preventDefault();
@@ -772,6 +774,7 @@ export default {
     },
 
     back() {
+      this.clearFormData()
       this.$store.commit('setQuestionId', this.questionId - 1)
     }
   }

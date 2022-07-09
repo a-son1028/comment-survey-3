@@ -90,7 +90,16 @@ var groupSchema = new Schema(
     isShowDataSharingRail3: {
       type: Boolean,
       default: false
-    }
+    },
+
+    // show pieces sections on UI
+    isShowSecurityRais3: Boolean,
+    isShowPrivacyRais3: Boolean,
+    isShowPermissionRais3: Boolean,
+    isShowDataItemRais3: Boolean,
+    isShowPurposeRais3: Boolean,
+    isShowThirdPartyRais3: Boolean,
+    isShowOnRais3: Boolean
   },
   {
     timestamps: true,

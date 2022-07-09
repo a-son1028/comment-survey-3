@@ -14,7 +14,7 @@ class SurveyController {
         userId: user.id
       });
 
-      if (!answer || answer.questions.length < 50) return;
+      if (!answer || answer.questions.length < constants.QUESTION_NUM) return;
 
       await Models.User.updateOne(
         {
@@ -25,9 +25,9 @@ class SurveyController {
         }
       );
 
-      await Models.CommentSurvey.updateOne(
+      await Models.AppSurvey.updateOne(
         {
-          _id: user.commentSurveyId
+          _id: user.appSurveyId
         },
         {
           isDone: true
@@ -58,15 +58,49 @@ class SurveyController {
   }
   async getQuestions(req, res, next) {
     try {
-      let apps = await Models.App.find({}).limit(constants.QUESTION_NUM);
+      const { user } = req;
+      const { appSurveyId } = user;
+      let appSurvey = await Models.AppSurvey.findOne({
+        ...(appSurveyId
+          ? {
+              _id: appSurveyId
+            }
+          : { isSelected: false })
+      });
+
+      await appSurvey.updateOne({
+        isSelected: true
+      });
+
+      if (!appSurveyId) {
+        await Models.User.updateOne(
+          {
+            _id: user.id
+          },
+          {
+            $set: {
+              appSurveyId: appSurvey.id
+            }
+          }
+        );
+      }
+
+      appSurvey.apps = _.sortBy(appSurvey.apps, "stt");
+
+      let apps = await Promise.all(
+        appSurvey.apps.map(app => {
+          return Models.App.findById(app.appId).then(appData => {
+            return { ...appData.toJSON(), ...app.toJSON() };
+          });
+        })
+      );
 
       apps = apps.map((app, stt) => {
-        app = app.toJSON();
         app.stt = stt + 1;
 
-        if (!app.distance) app.distance = 0.1;
+        if (!app.distanceRais3) app.distanceRais3 = 0.5;
 
-        const distance = app.distance;
+        const distance = app.distanceRais3;
         let distanceLevel;
 
         if (distance > 0 && distance <= 0.2) {
@@ -97,17 +131,15 @@ class SurveyController {
 
       const app = await Models.App.findOne({
         appName
-      }).select("appName distance");
+      }).select("appName distance distanceRais3");
 
       (() => {
         if (!app.distance) app.distance = 0.1;
       })();
 
       let comments = await Models.Comment.find({
-        appName
-        // isLabeled: true,
-        // isShowSecurityRail3: { $exists: true }
-        // isShowDataSharingRail3: true
+        appName,
+        isShowOnRais3: true
       })
         .sort({
           permissionResult: -1,
@@ -120,13 +152,15 @@ class SurveyController {
           isShowPrivacyRail3: -1,
           isShowSecurityRail3: -1
         })
-        .limit(2);
+        .limit(10);
 
       comments = comments.map(comment => {
         comment = comment.toJSON();
         comment.sentiment = Number(
-          (1 - Math.abs(app.distance - (1 - Math.abs(comment.sentiment)))).toFixed(2)
+          (1 - Math.abs(app.distanceRais3 - (1 - Math.abs(comment.sentiment)))).toFixed(2)
         );
+
+        console.log(1, app.distanceRais3, comment.sentiment, comment.sentiment);
 
         let sentimentLevel;
         const sentiment = comment.sentiment;
@@ -143,12 +177,12 @@ class SurveyController {
         }
         comment.sentimentLevel = sentimentLevel;
 
-        comment.isShowSecurity = comment.sentiment && comment.securitySentences.length;
-        comment.isShowPrivacy = comment.sentiment && comment.privacySentences.length;
-        comment.isShowPermission = comment.permissionResult && comment.permissions.length;
-        comment.isShowDataItem = comment.dataTypeResult && comment.dataItems.length;
-        comment.isShowPurpose = comment.purposeResult && comment.purposes.length;
-        comment.isShowThirdParty = comment.thirdPartyResult && comment.thirdParties.length;
+        comment.isShowSecurity = comment.isShowSecurityRais3;
+        comment.isShowPrivacy = comment.isShowPrivacyRais3;
+        comment.isShowPermission = comment.isShowPermissionRais3;
+        comment.isShowDataItem = comment.isShowDataItemRais3;
+        comment.isShowPurpose = comment.isShowPurposeRais3;
+        comment.isShowThirdParty = comment.isShowThirdPartyRais3;
 
         return comment;
       });
@@ -210,6 +244,7 @@ class SurveyController {
         newQuestions.length + 1 <= constants.QUESTION_NUM
           ? newQuestions.length + 1
           : constants.QUESTION_NUM;
+
       await Models.User.updateOne(
         {
           _id: user.id

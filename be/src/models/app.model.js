@@ -45,7 +45,8 @@ var schema = new Schema(
     permissions: [String], // get from mainfest file
     dataTypes: [String],
     purposesHP: [String],
-    thirdPartiesHP: [String]
+    thirdPartiesHP: [String],
+    distanceRais3: Schema.Types.Number
   },
   {
     timestamps: true,

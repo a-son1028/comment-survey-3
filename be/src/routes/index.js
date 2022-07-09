@@ -10,17 +10,9 @@ router.use("/user", userRouter);
 router.post("/handle-questions", [Middlewares.Auth.isUser], Controllers.Survey.handleQuestions);
 router.post("/confirm", [Middlewares.Auth.isUser], Controllers.Survey.confirm);
 router.get("/answer", [Middlewares.Auth.isUser], Controllers.Survey.getAnswer);
-router.post(
-  "/questions",
-  // [Middlewares.Auth.isUser],
-  Controllers.Survey.getQuestions
-);
+router.post("/questions", [Middlewares.Auth.isUser], Controllers.Survey.getQuestions);
 
-router.get(
-  "/comments/:appName",
-  // [Middlewares.Auth.isUser],
-  Controllers.Survey.getComments
-);
+router.get("/comments/:appName", [Middlewares.Auth.isUser], Controllers.Survey.getComments);
 
 router.put("/instruction", [Middlewares.Auth.isUser], Controllers.Survey.updateInstruction);
 

@@ -3,9 +3,9 @@ var Schema = mongoose.Schema;
 
 var groupSchema = new Schema(
   {
-    comments: [
+    apps: [
       {
-        commentId: String,
+        appId: Schema.Types.ObjectId,
         stt: Number
       }
     ],
@@ -24,4 +24,4 @@ var groupSchema = new Schema(
   }
 );
 
-export default mongoose.model("commentSurveyRais3", groupSchema);
+export default mongoose.model("appSurveyRais3", groupSchema);

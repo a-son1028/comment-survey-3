@@ -187,4 +187,4 @@ export const PURPOSES = [
   "Tracking",
 ];
 
-export const QUESTION_NUM = 30;
+export const QUESTION_NUM = 7;
