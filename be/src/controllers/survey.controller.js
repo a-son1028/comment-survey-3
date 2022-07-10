@@ -140,19 +140,17 @@ class SurveyController {
       let comments = await Models.Comment.find({
         appName,
         isShowOnRais3: true
-      })
-        .sort({
-          permissionResult: -1,
-          dataTypeResult: -1,
-          purposeResult: -1,
-          thirdPartyResult: -1,
-          isShowDataSharingRail3: -1,
-          isShowDataCollectionRail3: -1,
-          isShowPermissionRail3: -1,
-          isShowPrivacyRail3: -1,
-          isShowSecurityRail3: -1
-        })
-        .limit(10);
+      }).sort({
+        permissionResult: -1,
+        dataTypeResult: -1,
+        purposeResult: -1,
+        thirdPartyResult: -1,
+        isShowDataSharingRail3: -1,
+        isShowDataCollectionRail3: -1,
+        isShowPermissionRail3: -1,
+        isShowPrivacyRail3: -1,
+        isShowSecurityRail3: -1
+      });
 
       comments = comments.map(comment => {
         comment = comment.toJSON();

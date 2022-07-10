@@ -20,6 +20,10 @@ var answerSchema = new Schema(
           type: Number,
           required: true
         },
+        time: {
+          type: Number,
+          required: true
+        },
         responses: [
           {
             commentId: {

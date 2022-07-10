@@ -649,6 +649,7 @@ import { QUESTION_NUM } from '@/constants'
 const questionOptions = [{label: 'Yes', value: 1}, {label: 'Partially', value: 2}, {label: 'No', value: 0} ]
 const question1Options = [{label: 'Yes', value: 1}, {label: 'No', value: 0} ]
 
+let timer = 0
 export default {
   components: {
     UINextButton,
@@ -735,6 +736,8 @@ export default {
     questionAnswered(questionAnswered) {
       if(!questionAnswered) return
       this.commentQuestions = questionAnswered.responses
+
+      timer = questionAnswered.time
     },
   },
   mounted() {
@@ -743,11 +746,16 @@ export default {
       this.$store.dispatch(GET_ANSWER),
       this.$store.dispatch(GET_USER_INFO),
     ]).then(() =>  this.isLoading = false)
+
+    setInterval(() => {
+      timer++
+    }, 1000)
   },
   methods: {
     clearFormData() {
       this.commentQuestions = []
       window.scrollTo(0,0);
+      timer = 0
     },
     next(e) {
       e.preventDefault();
@@ -755,6 +763,7 @@ export default {
       const data = {
         appId: this.question.id,
         stt: this.questionId,
+        time: timer,
         responses: this.commentQuestions
       }
       
