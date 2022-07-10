@@ -9,7 +9,7 @@
       <div class="intro mt-3">
         <div class="intro-title text-underline font-weight-bold">Description:</div>
         <div class="intro-desc">
-          We are developing a tool for the automatic analysis of comments provided by users on mobile apps. We need to collect your evaluation on a limited set of comments for 20 apps to evaluate this tool. In particular, we focus on comments that could be somehow related to the security and privacy features of the target apps. We are interested in detecting comments on the app's data collection, data sharing, and required permissions among these features.
+          We are developing a tool for the automatic analysis of comments provided by users on mobile apps. We need to collect your evaluation on a limited set of comments for 7 apps to evaluate this tool. In particular, we focus on comments that could be somehow related to the security and privacy features of the target apps. We are interested in detecting comments on the app's data collection, data sharing, and required permissions among these features.
         </div>
       </div>
     </div>
