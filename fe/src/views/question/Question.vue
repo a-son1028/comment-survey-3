@@ -96,520 +96,523 @@
         <hr>
         <div>
           <b style="text-decoration: underline;font-size: 21px">Android user comments:</b> 
-          <div v-if="comments && comments.length">
-            <!-- Comment -->
+          <div v-if="isLoadingComment">Loading...</div>
+          <div v-else>
+            <div v-if="comments && comments.length">
+              <!-- Comment -->
           
 
-            <div
-              v-for="(comment, index) in comments"
-              :key="index"
-            >
-              <div>
-                <b-popover
-                  :target="'privacy-popover' + index"
-                  triggers="hover"
-                  placement="right"
-                > 
-                  According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>{{ question.distanceLevel }}</b>
-                </b-popover>
-
-                <b-popover
-                  :target="'security-popover' + index"
-                  triggers="hover"
-                  placement="right"
-                > 
-                  According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>{{ question.distanceLevel }}</b>
-                </b-popover>
-
-                <b-popover
-                  :target="'permission-popover' + index"
-                  triggers="hover"
-                  placement="right"
-                >
-                  According to our analysis based on the static analysis, the app requires 
-                  <span
-                    v-for="(sentence, index1) in question.permissions"
-                    :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === question.permissions.length - 1 ? "." : ", " }}
-                  </span>
-                </b-popover>
-        
-
-                <b-popover
-                  :target="'data-collection-item-popover' + index"
-                  triggers="hover"
-                  placement="right"
-                >
-                  According to our analysis based on the static analysis, the app collects
-                  <span
-                    v-for="(sentence, index1) in question.dataTypes"
-                    :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === question.dataTypes.length - 1 ? "." : ", " }}
-                  </span>
-                </b-popover>
-
-                <b-popover
-                  :target="'data-collection-item-popover-2' + index"
-                  triggers="hover"
-                  placement="right"
-                >
-                  According to our analysis based on the static analysis, the app collects
-                  <span
-                    v-for="(sentence, index1) in question.dataTypes"
-                    :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === question.dataTypes.length - 1 ? "." : ", " }}
-                  </span>
-                </b-popover>
-
-                <b-popover
-                  :target="'purpose-popover' + index"
-                  triggers="hover"
-                  placement="right"
-                >
-                  According to our analysis based on the app privacy policy, the app collects user data for <span
-                    v-for="(sentence, index1) in question.purposes"
-                    :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === question.purposes.length - 1 ? "." : ", " }}
-                  </span>
-                </b-popover>
-
-                <b-popover
-                  :target="'purpose-popover-2' + index"
-                  triggers="hover"
-                  placement="right"
-                >
-                  According to our analysis based on the app privacy policy, the app collects user data for <span
-                    v-for="(sentence, index1) in question.purposesHP"
-                    :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === question.purposesHP.length - 1 ? "." : ", " }}
-                  </span>
-                </b-popover>
-        
-                <b-popover
-                  :target="'third-party-popover' + index"
-                  triggers="hover"
-                  placement="right"
-                >
-                  According to our analysis based on the app privacy policy, the app share user data with <span
-                    v-for="(sentence, index1) in question.thirdPartiesHP"
-                    :key="index1"
-                  ><b>{{ sentence }}</b>{{ index1 === question.thirdPartiesHP.length - 1 ? "." : ", " }}
-                  </span></b-popover>
-
-       
-              </div>
-              <div class="content-question">
-                <div style="font-family: American-Typewriter-Regular;font-size: 18px"><b>Comment {{ index + 1 }}: </b>{{ comment.comment }}</div>
-            
-                <div class="mt-3 mb-2">Based on the analysis, we extract from the comments some security- and privacy-related features including privacy, permission, data collection.</div>
-                <!-- security -->
-                <ul
-                  v-if="comment.isShowSecurity"
-                  style="list-style-type:disc"
-                >
-                  <li
-                    class="ml-3"
-                  >
-                    Security 
-                    <ul
-                      class="ml-10"
-                      style="list-style-type:circle"
-                    >
-                      <li
-                        v-for="(sentence, index1) in comment.securitySentences"
-                        :key="index1"
-                        style="text-transform: capitalize;"
-                      >
-                        ...“{{ sentence }}”...
-                      </li>   
-                      <li><span 
-                        :id="'security-popover' + index"
-                      >Result: {{ (comment.sentiment * 100) }}% correct</span>
-                      </li>
-                    </ul>
-                    <br>
-                  </li>
-                </ul>
-
-                <!-- privacy -->
-                <ul
-                  v-if="comment.isShowPrivacy"
-                  style="list-style-type:disc"
-                >
-                  <li
-                    class="ml-3"
-                  >
-                    Privacy 
-                    <ul
-                      class="ml-10"
-                      style="list-style-type:circle"
-                    >
-                  
-                      <li
-                        v-for="(sentence, index1) in comment.privacySentences"
-                        :key="index1"
-                        style="text-transform: capitalize;"
-                      >
-                        ...“{{ sentence }}”...
-                      </li> 
-                  
-                      <li><span 
-                        :id="'privacy-popover' + index"
-                      >Result: {{ (comment.sentiment * 100) }}% correct</span>
-                      </li>
-                    </ul>
-                    <br>
-                  </li>
-                </ul>
-
-                <!-- permission -->
-                <ul
-                  v-if="comment.isShowPermission"
-                  style="list-style-type:disc"
-                >
-                  <li
-                    class="ml-3"
-                  >
-                    Permission 
-                    <ul
-                      class="ml-10"
-                      style="list-style-type:circle"
-                    >
-                      <li
-                        v-for="(sentence, index1) in comment.permissionSentences"
-                        :key="index1"
-                        style="text-transform: capitalize;"
-                      >
-                        ...“{{ sentence }}”...
-                      </li> 
-                      <li><span 
-                        :id="'permission-popover' + index"
-                      >Result: {{ (comment.permissionResult * 100).toFixed(0) }}% correct</span>
-                      </li>
-                    </ul>
-                    <br>
-                  </li>
-                </ul>
-
-                <ul
-                  v-if="(comment.isShowDataItem || comment.isShowPurpose)"
-                  style="list-style-type:disc"
-                >
-                  <li
-                    class="ml-3"
-                  >
-                    Data collection  
-                    <ul
-                      class="ml-10"
-                      style="list-style-type:circle"
-                    >
-                      <div v-if="comment.isShowDataItem">
-                        <li
-                          style="text-transform: capitalize;"
-                        >
-                          Data Item:
-                          <span
-                            v-for="(sentence, index1) in comment.dataItems"
-                            :key="index1"
-                          >{{ sentence }}{{ index1 === comment.dataItems.length - 1 ? "." : ", " }}</span>
-                        </li>  
-                        <li><span :id="'data-collection-item-popover' + index">Result: {{ (comment.dataTypeResult * 100).toFixed(0) }}% correct</span></li>
-
-                        <br>
-                      </div>
-                      
-                      <div
-                        v-if="comment.isShowPurpose"
-                      >
-                        <li
-                          style="text-transform: capitalize;"
-                        >
-                          Purpose:
-                          <span
-                            v-for="(sentence, index1) in comment.purposes"
-                            :key="index1"
-                          >{{ sentence }}{{ index1 === comment.purposes.length - 1 ? "." : ", " }}</span>
-                    
-                        </li>  
-                        <li><span :id="'purpose-popover-2' + index">Result: {{ (comment.purposeResult * 100).toFixed(0) }}% correct</span></li>
-                        <br>
-                      </div>
-                    </ul>
-                  </li>
-                </ul>
-
-                <ul
-                  v-if="comment.isShowDataItem || comment.isShowPurpose || comment.isShowThirdParty"
-                  style="list-style-type:disc"
-                >
-                  <li
-                    class="ml-3"
-                  >
-                    Data sharing  
-                    <ul
-                      class="ml-10"
-                      style="list-style-type:circle"
-                    >
-
-                      <div v-if="comment.isShowDataItem">
-                        <li
-                          style="text-transform: capitalize;"
-                        >
-                          Data Item:
-                          <span
-                            v-for="(sentence, index1) in comment.dataItems"
-                            :key="index1"
-                          >{{ sentence }}{{ index1 === comment.dataItems.length - 1 ? "." : ", " }}</span>
-                        </li>  
-                        <li><span :id="'data-collection-item-popover-2' + index">Result: {{ (comment.dataTypeResult * 100).toFixed(0) }}% correct</span></li>
-
-                        <br>
-                      </div>
-
-                      <div
-                        v-if="comment.isShowPurpose"
-                      >
-                        <li
-                          style="text-transform: capitalize;"
-                        >
-                          Purpose:
-                          <span
-                            v-for="(sentence, index1) in comment.purposes"
-                            :key="index1"
-                          >{{ sentence }}{{ index1 === comment.purposes.length - 1 ? "." : ", " }}</span>
-                    
-                        </li>  
-                        <li><span :id="'purpose-popover-2' + index">Result: {{ (comment.purposeResult * 100).toFixed(0) }}% correct</span></li>
-                        <br>
-                      </div>
-
-                      <div v-if="comment.isShowThirdParty">
-                        <li
-                          style="text-transform: capitalize;"
-                        > 
-                          Third party:
-                          <span
-                            v-for="(sentence, index1) in comment.thirdParties"
-                      
-                            :key="index1"
-                          >{{ sentence }}{{ index1 === comment.thirdParties.length - 1 ? "." : ", " }}</span>
-                        </li>  
-                        <li><span 
-                          :id="'third-party-popover' + index"
-                        >Result: {{ (comment.thirdPartyResult * 100).toFixed(0) }}% correct</span></li>
-                      </div>
-                     
-                    </ul>
-                    <br>
-                  </li>
-                </ul>
-              </div>
-
               <div
-                v-if="commentQuestions[index]"
-                class="question"
+                v-for="(comment, index) in comments"
+                :key="index"
               >
                 <div>
-                  <div>Do you agree with comment's validation provided above?</div>
+                  <b-popover
+                    :target="'privacy-popover' + index"
+                    triggers="hover"
+                    placement="right"
+                  > 
+                    According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>{{ question.distanceLevel }}</b>
+                  </b-popover>
 
-                  <UIRadioGroup
-                    v-model="commentQuestions[index].value"
-                    :name="commentQuestions[index].name"
-                    :options="questionOptions"
-                  />
-            
-                  <div
-                    v-if="commentQuestions[index].value === 2 || commentQuestions[index].value === 0"
+                  <b-popover
+                    :target="'security-popover' + index"
+                    triggers="hover"
+                    placement="right"
+                  > 
+                    According to our analysis based on the app features and its data collection/sharing behaviors, the security and privacy assessment of the app is <b>{{ question.distanceLevel }}</b>
+                  </b-popover>
+
+                  <b-popover
+                    :target="'permission-popover' + index"
+                    triggers="hover"
+                    placement="right"
                   >
-                    <div class="mb-1"><b>Can you provide the part of the comment justifying your decision?</b></div>
+                    According to our analysis based on the static analysis, the app requires 
+                    <span
+                      v-for="(sentence, index1) in question.permissions"
+                      :key="index1"
+                    ><b>{{ sentence }}</b>{{ index1 === question.permissions.length - 1 ? "." : ", " }}
+                    </span>
+                  </b-popover>
+        
 
-                    <!-- Security -->
-                    <div
-                      v-if="comment.isShowSecurity"
-                      style="margin-left: 10px; margin-bottom: 10px"
+                  <b-popover
+                    :target="'data-collection-item-popover' + index"
+                    triggers="hover"
+                    placement="right"
+                  >
+                    According to our analysis based on the static analysis, the app collects
+                    <span
+                      v-for="(sentence, index1) in question.dataTypes"
+                      :key="index1"
+                    ><b>{{ sentence }}</b>{{ index1 === question.dataTypes.length - 1 ? "." : ", " }}
+                    </span>
+                  </b-popover>
+
+                  <b-popover
+                    :target="'data-collection-item-popover-2' + index"
+                    triggers="hover"
+                    placement="right"
+                  >
+                    According to our analysis based on the static analysis, the app collects
+                    <span
+                      v-for="(sentence, index1) in question.dataTypes"
+                      :key="index1"
+                    ><b>{{ sentence }}</b>{{ index1 === question.dataTypes.length - 1 ? "." : ", " }}
+                    </span>
+                  </b-popover>
+
+                  <b-popover
+                    :target="'purpose-popover' + index"
+                    triggers="hover"
+                    placement="right"
+                  >
+                    According to our analysis based on the app privacy policy, the app collects user data for <span
+                      v-for="(sentence, index1) in question.purposes"
+                      :key="index1"
+                    ><b>{{ sentence }}</b>{{ index1 === question.purposes.length - 1 ? "." : ", " }}
+                    </span>
+                  </b-popover>
+
+                  <b-popover
+                    :target="'purpose-popover-2' + index"
+                    triggers="hover"
+                    placement="right"
+                  >
+                    According to our analysis based on the app privacy policy, the app collects user data for <span
+                      v-for="(sentence, index1) in question.purposesHP"
+                      :key="index1"
+                    ><b>{{ sentence }}</b>{{ index1 === question.purposesHP.length - 1 ? "." : ", " }}
+                    </span>
+                  </b-popover>
+        
+                  <b-popover
+                    :target="'third-party-popover' + index"
+                    triggers="hover"
+                    placement="right"
+                  >
+                    According to our analysis based on the app privacy policy, the app share user data with <span
+                      v-for="(sentence, index1) in question.thirdPartiesHP"
+                      :key="index1"
+                    ><b>{{ sentence }}</b>{{ index1 === question.thirdPartiesHP.length - 1 ? "." : ", " }}
+                    </span></b-popover>
+
+       
+                </div>
+                <div class="content-question">
+                  <div style="font-family: American-Typewriter-Regular;font-size: 18px"><b>Comment {{ index + 1 }}: </b>{{ comment.comment }}</div>
+            
+                  <div class="mt-3 mb-2">Based on the analysis, we extract from the comments some security- and privacy-related features including privacy, permission, data collection.</div>
+                  <!-- security -->
+                  <ul
+                    v-if="comment.isShowSecurity"
+                    style="list-style-type:disc"
+                  >
+                    <li
+                      class="ml-3"
                     >
-                      <label
-                        style="margin-bottom: 0px"
-                        class="container-checkbox"
-                      >Security
-                        <input
-                          v-if="commentQuestions[index].value === 2"
-                          v-model="commentQuestions[index].subQuestions[0].selected"
-                          :name="commentQuestions[index].subQuestions[0].name"
-                          class="type-question"
-                          type="checkbox"
+                      Security 
+                      <ul
+                        class="ml-10"
+                        style="list-style-type:circle"
+                      >
+                        <li
+                          v-for="(sentence, index1) in comment.securitySentences"
+                          :key="index1"
+                          style="text-transform: capitalize;"
                         >
-                        <span
-                          v-if="commentQuestions[index].value === 2"
-                          class="checkmark"
-                        />
-                      </label>
-                      <div style="margin-left: 35px">
-                        <ul
-                          class="ml-10"
-                          style="list-style-type:circle"
-                        >
-                          <li
-                            v-for="(sentence, index1) in comment.securitySentences"
-                            :key="index1"
-                            style="text-transform: capitalize;"
-                          >  ...“{{ sentence }}”... </li>
-                          <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
-                        </ul>
-                        
+                          ...“{{ sentence }}”...
+                        </li>   
+                        <li><span 
+                          :id="'security-popover' + index"
+                        >Result: {{ (comment.sentiment * 100) }}% correct</span>
+                        </li>
+                      </ul>
+                      <br>
+                    </li>
+                  </ul>
 
-                        <div v-if="commentQuestions[index].subQuestions[0].selected || commentQuestions[index].value === 0">
-                          <div>Can you provide the related content from the comment?</div>
-                            
-                          <div style="margin-left: 25px">Result: <input
-                            v-model="commentQuestions[index].subQuestions[0].result"
-                            type="text"
-                          ></div>
+                  <!-- privacy -->
+                  <ul
+                    v-if="comment.isShowPrivacy"
+                    style="list-style-type:disc"
+                  >
+                    <li
+                      class="ml-3"
+                    >
+                      Privacy 
+                      <ul
+                        class="ml-10"
+                        style="list-style-type:circle"
+                      >
+                  
+                        <li
+                          v-for="(sentence, index1) in comment.privacySentences"
+                          :key="index1"
+                          style="text-transform: capitalize;"
+                        >
+                          ...“{{ sentence }}”...
+                        </li> 
+                  
+                        <li><span 
+                          :id="'privacy-popover' + index"
+                        >Result: {{ (comment.sentiment * 100) }}% correct</span>
+                        </li>
+                      </ul>
+                      <br>
+                    </li>
+                  </ul>
+
+                  <!-- permission -->
+                  <ul
+                    v-if="comment.isShowPermission"
+                    style="list-style-type:disc"
+                  >
+                    <li
+                      class="ml-3"
+                    >
+                      Permission 
+                      <ul
+                        class="ml-10"
+                        style="list-style-type:circle"
+                      >
+                        <li
+                          v-for="(sentence, index1) in comment.permissionSentences"
+                          :key="index1"
+                          style="text-transform: capitalize;"
+                        >
+                          ...“{{ sentence }}”...
+                        </li> 
+                        <li><span 
+                          :id="'permission-popover' + index"
+                        >Result: {{ (comment.permissionResult * 100).toFixed(0) }}% correct</span>
+                        </li>
+                      </ul>
+                      <br>
+                    </li>
+                  </ul>
+
+                  <ul
+                    v-if="(comment.isShowDataItem || comment.isShowPurpose)"
+                    style="list-style-type:disc"
+                  >
+                    <li
+                      class="ml-3"
+                    >
+                      Data collection  
+                      <ul
+                        class="ml-10"
+                        style="list-style-type:circle"
+                      >
+                        <div v-if="comment.isShowDataItem">
+                          <li
+                            style="text-transform: capitalize;"
+                          >
+                            Data Item:
+                            <span
+                              v-for="(sentence, index1) in comment.dataItems"
+                              :key="index1"
+                            >{{ sentence }}{{ index1 === comment.dataItems.length - 1 ? "." : ", " }}</span>
+                          </li>  
+                          <li><span :id="'data-collection-item-popover' + index">Result: {{ (comment.dataTypeResult * 100).toFixed(0) }}% correct</span></li>
+
+                          <br>
                         </div>
-                      </div>
-                    </div>
-
-                    <!-- Privacy -->
-                    <div
-                      v-if="comment.isShowPrivacy"
-                      style="margin-left: 10px; margin-bottom: 10px"
-                    >
-                      <label
-                        style="margin-bottom: 0px"
-                        class="container-checkbox"
-                      >Privacy
-                        <input
-                          v-if="commentQuestions[index].value === 2"
-                          v-model="commentQuestions[index].subQuestions[1].selected"
-                          :name="commentQuestions[index].subQuestions[1].name"
-                          class="type-question"
-                          type="checkbox"
-                        >
-                        <span
-                          v-if="commentQuestions[index].value === 2"
-                          class="checkmark"
-                        />
-                      </label>
-                      <div style="margin-left: 35px">
-                        <ul
-                          class="ml-10"
-                          style="list-style-type:circle"
+                      
+                        <div
+                          v-if="comment.isShowPurpose"
                         >
                           <li
-                            v-for="(sentence, index1) in comment.privacySentences"
-                            :key="index1"
                             style="text-transform: capitalize;"
-                          >  ...“{{ sentence }}”... </li>
-                          <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
-                        </ul>
-                        
-
-                        <div v-if="commentQuestions[index].subQuestions[1].selected || commentQuestions[index].value === 0">
-                          <div>Can you provide the related content from the comment?</div>
-                            
-                          <div style="margin-left: 25px">Result: <input
-                            v-model="commentQuestions[index].subQuestions[1].result"
-                            type="text"
-                          ></div>
+                          >
+                            Purpose:
+                            <span
+                              v-for="(sentence, index1) in comment.purposes"
+                              :key="index1"
+                            >{{ sentence }}{{ index1 === comment.purposes.length - 1 ? "." : ", " }}</span>
+                    
+                          </li>  
+                          <li><span :id="'purpose-popover-2' + index">Result: {{ (comment.purposeResult * 100).toFixed(0) }}% correct</span></li>
+                          <br>
                         </div>
-                      </div>
-                    </div>
+                      </ul>
+                    </li>
+                  </ul>
 
-                    <!-- Permission -->
-                    <div
-                      v-if="comment.isShowPermission"
-                      style="margin-left: 10px; margin-bottom: 10px"
+                  <ul
+                    v-if="comment.isShowDataItem || comment.isShowPurpose || comment.isShowThirdParty"
+                    style="list-style-type:disc"
+                  >
+                    <li
+                      class="ml-3"
                     >
-                      <label
-                        style="margin-bottom: 0px"
-                        class="container-checkbox"
-                      >Permission
-                        <input
-                          v-if="commentQuestions[index].value === 2"
-                          v-model="commentQuestions[index].subQuestions[3].selected"
-                          :name="commentQuestions[index].subQuestions[3].name"
-                          class="type-question"
-                          type="checkbox"
-                        >
-                        <span
-                          v-if="commentQuestions[index].value === 2"
-                          class="checkmark"
-                        />
-                      </label>
-                      <div style="margin-left: 35px">
-                        <ul
-                          class="ml-10"
-                          style="list-style-type:circle"
-                        >
-                          <li
-                            v-for="(sentence, index1) in comment.permissionSentences"
-                            :key="index1"
-                            style="text-transform: capitalize;"
-                          >  ...“{{ sentence }}”... </li>
-                          <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
-                        </ul>
-                        
+                      Data sharing  
+                      <ul
+                        class="ml-10"
+                        style="list-style-type:circle"
+                      >
 
-                        <div v-if="commentQuestions[index].subQuestions[3].selected || commentQuestions[index].value === 0">
-                          <div>Can you provide the related content from the comment?</div>
-                            
-                          <div style="margin-left: 25px">Result: <input
-                            v-model="commentQuestions[index].subQuestions[3].result"
-                            type="text"
-                          ></div>
+                        <div v-if="comment.isShowDataItem">
+                          <li
+                            style="text-transform: capitalize;"
+                          >
+                            Data Item:
+                            <span
+                              v-for="(sentence, index1) in comment.dataItems"
+                              :key="index1"
+                            >{{ sentence }}{{ index1 === comment.dataItems.length - 1 ? "." : ", " }}</span>
+                          </li>  
+                          <li><span :id="'data-collection-item-popover-2' + index">Result: {{ (comment.dataTypeResult * 100).toFixed(0) }}% correct</span></li>
+
+                          <br>
                         </div>
-                      </div>
-                    </div>
 
-                    <!-- Third Party -->
-                    <div
-                      v-if="comment.isShowThirdParty"
-                      style="margin-left: 10px; margin-bottom: 10px"
-                    >
-                      <label
-                        style="margin-bottom: 0px"
-                        class="container-checkbox"
-                      >Data sharing
-                        <input
-                          v-if="commentQuestions[index].value === 2"
-                          v-model="commentQuestions[index].subQuestions[5].selected"
-                          :name="commentQuestions[index].subQuestions[5].name"
-                          class="type-question"
-                          type="checkbox"
-                        >
-                        <span
-                          v-if="commentQuestions[index].value === 2"
-                          class="checkmark"
-                        />
-                      </label>
-                      <div style="margin-left: 35px">
-                        <ul
-                          class="ml-10"
-                          style="list-style-type:circle"
+                        <div
+                          v-if="comment.isShowPurpose"
                         >
                           <li
                             style="text-transform: capitalize;"
-                          >  Third party:
+                          >
+                            Purpose:
+                            <span
+                              v-for="(sentence, index1) in comment.purposes"
+                              :key="index1"
+                            >{{ sentence }}{{ index1 === comment.purposes.length - 1 ? "." : ", " }}</span>
+                    
+                          </li>  
+                          <li><span :id="'purpose-popover-2' + index">Result: {{ (comment.purposeResult * 100).toFixed(0) }}% correct</span></li>
+                          <br>
+                        </div>
+
+                        <div v-if="comment.isShowThirdParty">
+                          <li
+                            style="text-transform: capitalize;"
+                          > 
+                            Third party:
                             <span
                               v-for="(sentence, index1) in comment.thirdParties"
                       
                               :key="index1"
-                            >{{ sentence }}{{ index1 === comment.thirdParties.length - 1 ? "." : ", " }}</span> </li>
-                          <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
-                        </ul>
+                            >{{ sentence }}{{ index1 === comment.thirdParties.length - 1 ? "." : ", " }}</span>
+                          </li>  
+                          <li><span 
+                            :id="'third-party-popover' + index"
+                          >Result: {{ (comment.thirdPartyResult * 100).toFixed(0) }}% correct</span></li>
+                        </div>
+                     
+                      </ul>
+                      <br>
+                    </li>
+                  </ul>
+                </div>
+
+                <div
+                  v-if="commentQuestions[index]"
+                  class="question"
+                >
+                  <div>
+                    <div>Do you agree with comment's validation provided above?</div>
+
+                    <UIRadioGroup
+                      v-model="commentQuestions[index].value"
+                      :name="commentQuestions[index].name"
+                      :options="questionOptions"
+                    />
+            
+                    <div
+                      v-if="commentQuestions[index].value === 2 || commentQuestions[index].value === 0"
+                    >
+                      <div class="mb-1"><b>Can you provide the part of the comment justifying your decision?</b></div>
+
+                      <!-- Security -->
+                      <div
+                        v-if="comment.isShowSecurity"
+                        style="margin-left: 10px; margin-bottom: 10px"
+                      >
+                        <label
+                          style="margin-bottom: 0px"
+                          class="container-checkbox"
+                        >Security
+                          <input
+                            v-if="commentQuestions[index].value === 2"
+                            v-model="commentQuestions[index].subQuestions[0].selected"
+                            :name="commentQuestions[index].subQuestions[0].name"
+                            class="type-question"
+                            type="checkbox"
+                          >
+                          <span
+                            v-if="commentQuestions[index].value === 2"
+                            class="checkmark"
+                          />
+                        </label>
+                        <div style="margin-left: 35px">
+                          <ul
+                            class="ml-10"
+                            style="list-style-type:circle"
+                          >
+                            <li
+                              v-for="(sentence, index1) in comment.securitySentences"
+                              :key="index1"
+                              style="text-transform: capitalize;"
+                            >  ...“{{ sentence }}”... </li>
+                            <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
+                          </ul>
                         
 
-                        <div v-if="commentQuestions[index].subQuestions[5].selected || commentQuestions[index].value === 0">
-                          <div>Can you provide the related content from the comment?</div>
+                          <div v-if="commentQuestions[index].subQuestions[0].selected || commentQuestions[index].value === 0">
+                            <div>Can you provide the related content from the comment?</div>
                             
-                          <div style="margin-left: 25px">Result: <input
-                            v-model="commentQuestions[index].subQuestions[5].result"
-                            type="text"
-                          ></div>
+                            <div style="margin-left: 25px">Result: <input
+                              v-model="commentQuestions[index].subQuestions[0].result"
+                              type="text"
+                            ></div>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
+                      <!-- Privacy -->
+                      <div
+                        v-if="comment.isShowPrivacy"
+                        style="margin-left: 10px; margin-bottom: 10px"
+                      >
+                        <label
+                          style="margin-bottom: 0px"
+                          class="container-checkbox"
+                        >Privacy
+                          <input
+                            v-if="commentQuestions[index].value === 2"
+                            v-model="commentQuestions[index].subQuestions[1].selected"
+                            :name="commentQuestions[index].subQuestions[1].name"
+                            class="type-question"
+                            type="checkbox"
+                          >
+                          <span
+                            v-if="commentQuestions[index].value === 2"
+                            class="checkmark"
+                          />
+                        </label>
+                        <div style="margin-left: 35px">
+                          <ul
+                            class="ml-10"
+                            style="list-style-type:circle"
+                          >
+                            <li
+                              v-for="(sentence, index1) in comment.privacySentences"
+                              :key="index1"
+                              style="text-transform: capitalize;"
+                            >  ...“{{ sentence }}”... </li>
+                            <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
+                          </ul>
+                        
+
+                          <div v-if="commentQuestions[index].subQuestions[1].selected || commentQuestions[index].value === 0">
+                            <div>Can you provide the related content from the comment?</div>
+                            
+                            <div style="margin-left: 25px">Result: <input
+                              v-model="commentQuestions[index].subQuestions[1].result"
+                              type="text"
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Permission -->
+                      <div
+                        v-if="comment.isShowPermission"
+                        style="margin-left: 10px; margin-bottom: 10px"
+                      >
+                        <label
+                          style="margin-bottom: 0px"
+                          class="container-checkbox"
+                        >Permission
+                          <input
+                            v-if="commentQuestions[index].value === 2"
+                            v-model="commentQuestions[index].subQuestions[3].selected"
+                            :name="commentQuestions[index].subQuestions[3].name"
+                            class="type-question"
+                            type="checkbox"
+                          >
+                          <span
+                            v-if="commentQuestions[index].value === 2"
+                            class="checkmark"
+                          />
+                        </label>
+                        <div style="margin-left: 35px">
+                          <ul
+                            class="ml-10"
+                            style="list-style-type:circle"
+                          >
+                            <li
+                              v-for="(sentence, index1) in comment.permissionSentences"
+                              :key="index1"
+                              style="text-transform: capitalize;"
+                            >  ...“{{ sentence }}”... </li>
+                            <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
+                          </ul>
+                        
+
+                          <div v-if="commentQuestions[index].subQuestions[3].selected || commentQuestions[index].value === 0">
+                            <div>Can you provide the related content from the comment?</div>
+                            
+                            <div style="margin-left: 25px">Result: <input
+                              v-model="commentQuestions[index].subQuestions[3].result"
+                              type="text"
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Third Party -->
+                      <div
+                        v-if="comment.isShowThirdParty"
+                        style="margin-left: 10px; margin-bottom: 10px"
+                      >
+                        <label
+                          style="margin-bottom: 0px"
+                          class="container-checkbox"
+                        >Data sharing
+                          <input
+                            v-if="commentQuestions[index].value === 2"
+                            v-model="commentQuestions[index].subQuestions[5].selected"
+                            :name="commentQuestions[index].subQuestions[5].name"
+                            class="type-question"
+                            type="checkbox"
+                          >
+                          <span
+                            v-if="commentQuestions[index].value === 2"
+                            class="checkmark"
+                          />
+                        </label>
+                        <div style="margin-left: 35px">
+                          <ul
+                            class="ml-10"
+                            style="list-style-type:circle"
+                          >
+                            <li
+                              style="text-transform: capitalize;"
+                            >  Third party:
+                              <span
+                                v-for="(sentence, index1) in comment.thirdParties"
+                      
+                                :key="index1"
+                              >{{ sentence }}{{ index1 === comment.thirdParties.length - 1 ? "." : ", " }}</span> </li>
+                            <li>Result: {{ (comment.sentiment * 100).toFixed(0) }}% correct</li>
+                          </ul>
+                        
+
+                          <div v-if="commentQuestions[index].subQuestions[5].selected || commentQuestions[index].value === 0">
+                            <div>Can you provide the related content from the comment?</div>
+                            
+                            <div style="margin-left: 25px">Result: <input
+                              v-model="commentQuestions[index].subQuestions[5].result"
+                              type="text"
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
                   </div>
                 </div>
               </div>
@@ -619,9 +622,10 @@
       </div>
 
       <div style="position: relative">
-        <UINextButton />
+        <UINextButton v-show="!isLoadingComment" />
 
         <div
+          v-show="!isLoadingComment && questionId !== 1"
           class="wrap-btn-pre"
         >
           <button
@@ -660,6 +664,7 @@ export default {
   data: () => ({
     QUESTION_NUM,
     isLoading: true,
+    isLoadingComment: true,
     questionOptions,
     question1Options,
     commentQuestions: [],
@@ -681,7 +686,8 @@ export default {
       question.dynamicGroup = typeof question.dynamicGroup === "string" ? JSON.parse(question.dynamicGroup) : []
       question.staticGroup = typeof question.staticGroup === "string" ? JSON.parse(question.staticGroup) : []
 
-      this.$store.dispatch(GET_COMMENTS, question.appName)
+      this.isLoadingComment = true
+      this.$store.dispatch(GET_COMMENTS, question.appName).then(() => this.isLoadingComment = false)
     },
     userInfo(userInfo) {
       if(!userInfo.isInstruction) this.$router.push('/')
@@ -690,7 +696,7 @@ export default {
     },
     comments(comments) {
       if(this.commentQuestions.length) return 
-      
+
       this.commentQuestions = comments.reduce((acc, comment, index) => {
         acc[index] = {
           commentId: comment.id,
@@ -770,15 +776,14 @@ export default {
       this.$store.dispatch(STORE_ANSWER, data)
       .then(() => {
 
+        this.isLoading = false
+        this.clearFormData()
+
         if(this.questionId === this.QUESTION_NUM) {
           return this.$router.push('/confirm')
         } else {
           this.$store.commit('setQuestionId', this.questionId + 1)
         }
-        
-        this.isLoading = false
-
-        this.clearFormData()
       })
     },
 

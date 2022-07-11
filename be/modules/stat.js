@@ -2619,9 +2619,158 @@ async function getCommentSurvey() {
 
   console.log("DONE");
 }
+
+async function report2() {
+  const header = [
+    {
+      id: "stt",
+      title: "#"
+    },
+    {
+      id: "id",
+      title: "id"
+    },
+    {
+      id: "email",
+      title: "Email"
+    },
+    {
+      id: "time",
+      title: "Time"
+    },
+    {
+      id: "app1",
+      title: "App 1"
+    },
+    {
+      id: "app2",
+      title: "App 2"
+    },
+    {
+      id: "app3",
+      title: "App 3"
+    },
+    {
+      id: "app4",
+      title: "App 4"
+    },
+    {
+      id: "app5",
+      title: "App 5"
+    },
+    {
+      id: "app6",
+      title: "App 6"
+    },
+    {
+      id: "app7",
+      title: "App 7"
+    }
+  ];
+
+  const getValueByBoolean = value => {
+    if (value === 1) return "Yes";
+    else if (value === 0) return "No";
+    else if (value === 2) return "Partially";
+  };
+
+  const getNameBySttSub = stt => {
+    if (stt == 0) return "Security";
+    else if (stt == 1) return "Privacy";
+    else if (stt == 3) return "Permission";
+    else if (stt == 5) return "Data sharing";
+  };
+
+  const dataFromMicro = await csv({
+    noheader: true,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Downloads/CSVReport_9b45f61b802d_B_Page#1_With_PageSize#5000.csv");
+
+  const rows = [];
+  const answers = await Models.Answer.find({});
+
+  for (let i = 0; i < answers.length; i++) {
+    const answer = answers[i];
+    const user = await Models.User.findById(answer.userId);
+
+    const resultInMicro = dataFromMicro.find(
+      item => item[9]?.trim().toLowerCase() === user.email.trim().toLowerCase()
+    );
+
+    let row = {};
+    let time = 0;
+    answer.questions.forEach(appRes => {
+      let appCol = "";
+      appCol = `Time: ${appRes.time}s\n`;
+      appRes.responses.forEach((commentRes, commentStt) => {
+        appCol += `Comment ${commentStt + 1}: ${getValueByBoolean(commentRes.value)} \n`;
+
+        if (commentRes.value == 2) {
+          appCol += "   User provied:\n";
+          Object.entries(commentRes.subQuestions).forEach(([sttSub, objectValue]) => {
+            if (objectValue.selected) {
+              appCol += `   - ${getNameBySttSub(sttSub)}: ${objectValue.result} \n`;
+            }
+          });
+        }
+      });
+
+      row[`app${appRes.stt}`] = appCol;
+
+      time += appRes.time;
+    });
+
+    rows.push({
+      ...row,
+      id: resultInMicro ? resultInMicro[0] : "",
+      time: resultInMicro ? resultInMicro[8] : "",
+      email: user.email
+    });
+  }
+
+  const csvWriter = createCsvWriter({
+    path: "./report-rais3(file2).csv",
+    header
+  });
+  csvWriter.writeRecords(rows);
+  console.log("DONE");
+}
+async function report1() {
+  let result = {
+    0: 0,
+    1: 0,
+    2: 0
+  };
+  const answers = await Models.Answer.find({});
+  for (let i = 0; i < answers.length; i++) {
+    const answer = answers[i];
+    answer.questions.forEach(appRes => {
+      appRes.responses.forEach(commentRes => {
+        result[commentRes.value]++;
+      });
+    });
+  }
+  const total = _.sum(Object.values(result));
+
+  const getValueByBoolean = value => {
+    if (value == 1) return "Yes";
+    else if (value == 0) return "No";
+    else if (value == 2) return "Partially";
+  };
+
+  let text = "";
+  Object.entries(result).forEach(([key, value]) => {
+    text += `${getValueByBoolean(key)}: ${value}(${(value / total).toFixed(2) * 100}%)}\n`;
+  });
+
+  fs.writeFileSync("./report-rais3(file1).txt", text);
+  console.log("DONE");
+}
 main();
 async function main() {
-  await getCommentSurvey();
+  await report1();
+  // await report2();
+  // await getCommentSurvey();
   // await updateComentShow();
   // await getDistance();
   // await step22();

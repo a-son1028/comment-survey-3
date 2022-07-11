@@ -158,8 +158,6 @@ class SurveyController {
           (1 - Math.abs(app.distanceRais3 - (1 - Math.abs(comment.sentiment)))).toFixed(2)
         );
 
-        console.log(1, app.distanceRais3, comment.sentiment, comment.sentiment);
-
         let sentimentLevel;
         const sentiment = comment.sentiment;
         if (sentiment > 0 && sentiment <= 0.2) {
