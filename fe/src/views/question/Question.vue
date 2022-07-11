@@ -437,6 +437,7 @@
                           <input
                             v-if="commentQuestions[index].value === 2"
                             v-model="commentQuestions[index].subQuestions[0].selected"
+                            required
                             :name="commentQuestions[index].subQuestions[0].name"
                             class="type-question"
                             type="checkbox"
@@ -465,6 +466,7 @@
                             
                             <div style="margin-left: 25px">Result: <input
                               v-model="commentQuestions[index].subQuestions[0].result"
+                              required
                               type="text"
                             ></div>
                           </div>
@@ -483,6 +485,9 @@
                           <input
                             v-if="commentQuestions[index].value === 2"
                             v-model="commentQuestions[index].subQuestions[1].selected"
+                            v-bind="{
+                              ...(!comment.isShowSecurity && {required: true}),
+                            }"
                             :name="commentQuestions[index].subQuestions[1].name"
                             class="type-question"
                             type="checkbox"
@@ -511,6 +516,7 @@
                             
                             <div style="margin-left: 25px">Result: <input
                               v-model="commentQuestions[index].subQuestions[1].result"
+                              required
                               type="text"
                             ></div>
                           </div>
@@ -529,6 +535,9 @@
                           <input
                             v-if="commentQuestions[index].value === 2"
                             v-model="commentQuestions[index].subQuestions[3].selected"
+                            v-bind="{
+                              ...(!comment.isShowSecurity && !comment.isShowPrivacy && {required: true}),
+                            }"
                             :name="commentQuestions[index].subQuestions[3].name"
                             class="type-question"
                             type="checkbox"
@@ -557,6 +566,7 @@
                             
                             <div style="margin-left: 25px">Result: <input
                               v-model="commentQuestions[index].subQuestions[3].result"
+                              required
                               type="text"
                             ></div>
                           </div>
@@ -572,9 +582,12 @@
                           style="margin-bottom: 0px"
                           class="container-checkbox"
                         >Data sharing
-                          <input
+                          <input 
                             v-if="commentQuestions[index].value === 2"
                             v-model="commentQuestions[index].subQuestions[5].selected"
+                            v-bind="{
+                              ...(!comment.isShowSecurity && !comment.isShowPrivacy && !comment.isShowPermission && {required: true}),
+                            }"
                             :name="commentQuestions[index].subQuestions[5].name"
                             class="type-question"
                             type="checkbox"
@@ -604,8 +617,9 @@
                           <div v-if="commentQuestions[index].subQuestions[5].selected || commentQuestions[index].value === 0">
                             <div>Can you provide the related content from the comment?</div>
                             
-                            <div style="margin-left: 25px">Result: <input
+                            <div style="margin-left: 25px">Result: <input 
                               v-model="commentQuestions[index].subQuestions[5].result"
+                              required
                               type="text"
                             ></div>
                           </div>
