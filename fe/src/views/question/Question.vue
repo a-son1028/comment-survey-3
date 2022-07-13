@@ -760,15 +760,15 @@ export default {
     },
     questionAnswered(questionAnswered) {
       if(!questionAnswered) return
-      this.commentQuestions =_.unionWith(questionAnswered.responses || [], this.commentQuestions || [], "name") 
+      this.commentQuestions = _.unionBy(JSON.parse(JSON.stringify(questionAnswered.responses || [])), JSON.parse(JSON.stringify(this.commentQuestions || [])), "name") 
 
+      console.log(1, this.commentQuestions)
       timer = questionAnswered.time
     },
   },
   mounted() {
     Promise.all([
       this.$store.dispatch(GET_QUESTIONS),
-      this.$store.dispatch(GET_ANSWER),
       this.$store.dispatch(GET_USER_INFO),
     ]).then(() =>  this.isLoading = false)
 
