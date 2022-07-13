@@ -712,7 +712,7 @@ export default {
       this.$store.commit('setQuestionId', userInfo.currentQuestion)
     },
     comments(comments) {
-      if(!this.commentQuestions.length) return 
+      if(!comments.length) return 
 
       this.commentQuestions = comments.reduce((acc, comment, index) => {
         acc[index] = {
