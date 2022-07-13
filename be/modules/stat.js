@@ -2665,6 +2665,14 @@ async function report2() {
     {
       id: "app7",
       title: "App 7"
+    },
+    {
+      id: "satisfied",
+      title: "Satisfied"
+    },
+    {
+      id: "comment",
+      title: "Comment"
     }
   ];
 
@@ -2692,6 +2700,8 @@ async function report2() {
   for (let i = 0; i < answers.length; i++) {
     const answer = answers[i];
     const user = await Models.User.findById(answer.userId);
+
+    if (!user.isAnswerd || answer.questions.length < 7) continue;
 
     const resultInMicro = dataFromMicro.find(
       item => item[9]?.trim().toLowerCase() === user.email.trim().toLowerCase()
@@ -2723,8 +2733,10 @@ async function report2() {
     rows.push({
       ...row,
       id: resultInMicro ? resultInMicro[0] : "",
+      email: user.email,
       time: resultInMicro ? resultInMicro[8] : "",
-      email: user.email
+      satisfied: answer.isSatisfied ? "Yes" : "No",
+      comment: answer.isHasComment ? `Yes - ${answer.comment}` : "No"
     });
   }
 
@@ -2768,8 +2780,8 @@ async function report1() {
 }
 main();
 async function main() {
-  await report1();
-  // await report2();
+  // await report1();
+  await report2();
   // await getCommentSurvey();
   // await updateComentShow();
   // await getDistance();

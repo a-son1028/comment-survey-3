@@ -655,6 +655,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import _ from 'lodash';
 import UINextButton from '@/components/UINextButton.vue'
 import UILoader from '@/components/UILoader.vue'
 import UIRadioGroup from '@/components/UIRadioGroup.vue'
@@ -701,7 +702,9 @@ export default {
       question.staticGroup = typeof question.staticGroup === "string" ? JSON.parse(question.staticGroup) : []
 
       this.isLoadingComment = true
-      this.$store.dispatch(GET_COMMENTS, question.appName).then(() => this.isLoadingComment = false)
+      this.$store.dispatch(GET_COMMENTS, question.appName)
+        
+        .then(() => this.isLoadingComment = false)
     },
     userInfo(userInfo) {
       if(!userInfo.isInstruction) this.$router.push('/')
@@ -709,7 +712,7 @@ export default {
       this.$store.commit('setQuestionId', userInfo.currentQuestion)
     },
     comments(comments) {
-      if(this.commentQuestions.length) return 
+      if(!this.commentQuestions.length) return 
 
       this.commentQuestions = comments.reduce((acc, comment, index) => {
         acc[index] = {
@@ -752,10 +755,12 @@ export default {
 
         return acc
       }, [])
+
+      this.$store.dispatch(GET_ANSWER)
     },
     questionAnswered(questionAnswered) {
       if(!questionAnswered) return
-      this.commentQuestions = questionAnswered.responses
+      this.commentQuestions =_.unionWith(questionAnswered.responses || [], this.commentQuestions || [], "name") 
 
       timer = questionAnswered.time
     },
