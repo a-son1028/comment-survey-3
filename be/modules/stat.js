@@ -2756,12 +2756,17 @@ async function report1() {
   const answers = await Models.Answer.find({});
   for (let i = 0; i < answers.length; i++) {
     const answer = answers[i];
+
+    const user = await Models.User.findById(answer.userId);
+    if (!user.isAnswerd || answer.questions.length < 7) continue;
+
     answer.questions.forEach(appRes => {
       appRes.responses.forEach(commentRes => {
         result[commentRes.value]++;
       });
     });
   }
+  delete result.null;
   const total = _.sum(Object.values(result));
 
   const getValueByBoolean = value => {
@@ -2780,8 +2785,8 @@ async function report1() {
 }
 main();
 async function main() {
-  // await report1();
-  await report2();
+  await report1();
+  // await report2();
   // await getCommentSurvey();
   // await updateComentShow();
   // await getDistance();
