@@ -7,6 +7,7 @@ var groupSchema = new Schema(
     userName: String,
     comment: String,
     appName: String,
+    appId: Schema.Types.ObjectId,
     rating: String,
     thumbsUp: String,
     isLabeled: Boolean,
@@ -99,7 +100,11 @@ var groupSchema = new Schema(
     isShowDataItemRais3: Boolean,
     isShowPurposeRais3: Boolean,
     isShowThirdPartyRais3: Boolean,
-    isShowOnRais3: Boolean
+    isShowOnRais3: Boolean,
+
+    isRelatedRail3: {
+      type: Boolean
+    }
   },
   {
     timestamps: true,
@@ -107,4 +112,4 @@ var groupSchema = new Schema(
   }
 );
 
-export default mongoose.model("comments", groupSchema);
+export default mongoose.model("commentsrais3_v2", groupSchema);

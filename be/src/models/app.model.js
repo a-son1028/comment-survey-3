@@ -46,7 +46,10 @@ var schema = new Schema(
     dataTypes: [String],
     purposesHP: [String],
     thirdPartiesHP: [String],
-    distanceRais3: Schema.Types.Number
+    distanceRais3: Schema.Types.Number,
+
+    isGotComment: Boolean,
+    isGotCommentV2: Boolean
   },
   {
     timestamps: true,
@@ -65,6 +68,6 @@ schema.plugin(findOrCreate);
 //   localField: "_id",
 //   foreignField: "appId"
 // });
-const model = mongoose.model("app", schema);
+const model = mongoose.model("appsrais3", schema);
 
 export default model;

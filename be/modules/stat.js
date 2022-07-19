@@ -2783,9 +2783,133 @@ async function report1() {
   fs.writeFileSync("./report-rais3(file1).txt", text);
   console.log("DONE");
 }
+
+async function statAppcomment() {
+  const header = [
+    {
+      id: "stt",
+      title: "#"
+    },
+    {
+      id: "appName",
+      title: "App Name"
+    },
+    {
+      id: "categoryName",
+      title: "Category Name"
+    },
+    {
+      id: "totalComment",
+      title: "Total Comment"
+    },
+    {
+      id: "totalRelatedComment",
+      title: "Comments Including Keyword"
+    }
+  ];
+
+  const apps = await Models.App.find({
+    isGotComment: true
+  }).select("appName");
+
+  const rows = [];
+
+  await Promise.map(
+    apps,
+    async (app, index) => {
+      const comments = await Models.Comment.find({
+        appId: app._id
+      }).select("isRelatedRail3");
+
+      const relatedComments = comments.filter(item => item.isRelatedRail3);
+
+      rows.push({
+        stt: index + 1,
+        appName: app.appName,
+        categoryName: app.categoryName,
+        totalComment: comments.length,
+        totalRelatedComment: relatedComments.length
+      });
+    },
+    { concurrency: 100 }
+  );
+
+  const csvWriter = createCsvWriter({
+    path: "./app-comment(rais3).csv",
+    header
+  });
+  csvWriter.writeRecords(rows);
+}
+
+async function statCatApp() {
+  const header = [
+    {
+      id: "stt",
+      title: "#"
+    },
+    {
+      id: "categoryName",
+      title: "Category Name"
+    },
+    {
+      id: "app",
+      title: "App"
+    }
+  ];
+
+  let apps = await Models.App.find({
+    isGotComment: true
+  }).select("appName categoryName");
+
+  apps = await Promise.map(
+    apps,
+    async app => {
+      const totalComment = await Models.Comment.count({
+        appId: app._id,
+        isRelatedRail3: true
+      }).select("_id");
+
+      return {
+        ...app.toJSON(),
+        totalComment
+      };
+    },
+    { concurrency: 200 }
+  );
+
+  const appsGroupByCat = _.groupBy(apps, "categoryName");
+
+  let rows = [];
+  Object.entries(appsGroupByCat).forEach(([categoryName, apps], index) => {
+    rows.push({
+      stt: index + 1,
+      categoryName,
+      app: _.sumBy(apps, "totalComment")
+    });
+  });
+
+  rows = _.orderBy(rows, ["app"], ["desc"]);
+  rows = rows.map((item, index) => {
+    item.stt = index + 1;
+
+    return item;
+  });
+
+  console.log(rows);
+
+  const csvWriter = createCsvWriter({
+    path: "./category-app(rais3).csv",
+    header
+  });
+  csvWriter.writeRecords(rows);
+
+  console.log("DONE");
+}
 main();
 async function main() {
-  await report1();
+  await statCatApp();
+  // await statAppcomment();
+  // await report1();
   // await report2();
   // await getCommentSurvey();
   // await updateComentShow();
