@@ -18,8 +18,8 @@ main();
 async function main() {
   await Promise.all([
     // getAppId(),
-    getCommentFromCHplay(),
-    step2()
+    getCommentFromCHplay()
+    // step2()
   ]);
 
   // await getTranningSet();
@@ -73,7 +73,7 @@ async function getCommentFromCHplay() {
           isGotCommentV2: { $exists: false }
         }
       },
-      { $sample: { size: 1 } },
+      { $sample: { size: 10 } },
       { $project: { appIdCHPlay: 1 } }
     ]);
 
@@ -84,43 +84,47 @@ async function getCommentFromCHplay() {
 }
 
 async function updateApp(app) {
-  await Models.default.Comment.deleteMany({
-    appId: app._id
-  });
-  let comments = [];
-
-  let commentChunk = {};
-  const limit = 3000;
-  do {
-    commentChunk = await gplay.reviews({
-      appId: app.appIdCHPlay,
-      sort: gplay.sort.RATING,
-      num: limit,
-      paginate: true,
-      nextPaginationToken: commentChunk.nextPaginationToken || null
+  try {
+    await Models.default.Comment.deleteMany({
+      appId: app._id
     });
+    let comments = [];
 
-    comments = [
-      ...comments,
-      ...(commentChunk.data || []).map(item => ({
-        ...item,
-        appId: app._id,
-        comment: item.text,
-        rating: item.scoreText
-      }))
-    ];
-  } while (commentChunk.nextPaginationToken);
+    let commentChunk = {};
+    const limit = 3000;
+    do {
+      commentChunk = await gplay.reviews({
+        appId: app.appIdCHPlay,
+        sort: gplay.sort.RATING,
+        num: limit,
+        paginate: true,
+        nextPaginationToken: commentChunk.nextPaginationToken || null
+      });
 
-  await Models.default.Comment.insertMany(comments);
+      comments = [
+        ...comments,
+        ...(commentChunk.data || []).map(item => ({
+          ...item,
+          appId: app._id,
+          comment: item.text,
+          rating: item.scoreText
+        }))
+      ];
+    } while (commentChunk.nextPaginationToken);
 
-  await Models.default.App.updateOne(
-    {
-      _id: app._id
-    },
-    {
-      isGotCommentV2: true
-    }
-  );
+    await Models.default.Comment.insertMany(comments);
+
+    await Models.default.App.updateOne(
+      {
+        _id: app._id
+      },
+      {
+        isGotCommentV2: true
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // get related

@@ -2831,7 +2831,7 @@ async function statAppcomment() {
         totalRelatedComment: relatedComments.length
       });
     },
-    { concurrency: 100 }
+    { concurrency: 1000 }
   );
 
   const csvWriter = createCsvWriter({
@@ -2858,7 +2858,7 @@ async function statCatApp() {
   ];
 
   let apps = await Models.App.find({
-    isGotComment: true
+    isGotCommentV2: true
   }).select("appName categoryName");
 
   apps = await Promise.map(
@@ -2874,7 +2874,7 @@ async function statCatApp() {
         totalComment
       };
     },
-    { concurrency: 200 }
+    { concurrency: 1000 }
   );
 
   const appsGroupByCat = _.groupBy(apps, "categoryName");
