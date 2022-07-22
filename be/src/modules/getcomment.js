@@ -74,11 +74,13 @@ async function getCommentFromCHplay() {
           isGotCommentV2: { $exists: false }
         }
       },
-      { $sample: { size: 4 } },
+      { $sample: { size: 100 } },
       { $project: { appIdCHPlay: 1 } }
     ]);
 
-    await Promise.all(apps.map(updateApp));
+    await Promise.map(apps, updateApp, {
+      concurrency: 2
+    });
   } while (apps.length);
 
   console.log("DONE getCommentFromCHplay");
