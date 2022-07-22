@@ -104,7 +104,8 @@ var groupSchema = new Schema(
 
     isRelatedRail3: {
       type: Boolean
-    }
+    },
+    label: String
   },
   {
     timestamps: true,

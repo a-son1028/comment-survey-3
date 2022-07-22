@@ -9,10 +9,10 @@ const tokenizer = new natural.WordTokenizer();
 const csv = require("csvtojson");
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
-require("../src/configs/mongoose.config");
+require("dotenv").config({ path: path.join(__dirname, "../../.env") });
+require("../configs/mongoose.config");
 
-const Models = require("../src/models");
+const Models = require("../models");
 
 main();
 async function main() {
@@ -63,6 +63,7 @@ async function getAppId() {
     { concurrency: 1 }
   );
 }
+
 async function getCommentFromCHplay() {
   let apps = [];
   do {
@@ -73,7 +74,7 @@ async function getCommentFromCHplay() {
           isGotCommentV2: { $exists: false }
         }
       },
-      { $sample: { size: 10 } },
+      { $sample: { size: 100 } },
       { $project: { appIdCHPlay: 1 } }
     ]);
 
@@ -183,30 +184,30 @@ function getKeywordsStem() {
     "Fishy",
     "Stealth",
     "Creepy",
-    "collect",
-    "data",
-    "share",
-    "data",
+    "collect data",
+    "share data",
     "location",
-    "privacy",
-    "policy",
-    "third",
-    "party",
-    "other",
-    "part",
-    "3rd",
-    "part"
+    "privacy policy",
+    "third party",
+    "other part",
+    "3rd part"
   ];
 
   let stems;
   function _getKeywordsStem() {
     if (stems) return stems;
 
-    return (stems = keywords.map(stemmer.stem));
+    return (stems = keywords.map(item =>
+      item
+        .split(" ")
+        .map(stemmer.stem)
+        .join(" ")
+    ));
   }
 
   return _getKeywordsStem();
 }
+
 function getRelatedForStep2(comment) {
   const commentStem = tokenizer
     .tokenize(comment)
@@ -215,7 +216,7 @@ function getRelatedForStep2(comment) {
     .join(" ");
 
   const keywordStem = getKeywordsStem();
-
+  console.log(keywordStem);
   const isRelatedRail3 = keywordStem.some(item => commentStem.includes(item));
 
   return {

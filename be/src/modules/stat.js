@@ -1,7 +1,7 @@
 import path from "path";
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
-import "../src/configs/mongoose.config";
-import Models from "../src/models";
+require("dotenv").config({ path: path.join(__dirname, "../../.env") });
+import "../configs/mongoose.config";
+import Models from "../models";
 import fs from "fs";
 import axios from "axios";
 import bluebird, { Promise } from "bluebird";
@@ -2810,9 +2810,9 @@ async function statAppcomment() {
 
   const apps = await Models.App.find({
     isGotComment: true
-  }).select("appName");
+  }).select("appName categoryName");
 
-  const rows = [];
+  let rows = [];
 
   await Promise.map(
     apps,
@@ -2833,6 +2833,14 @@ async function statAppcomment() {
     },
     { concurrency: 1000 }
   );
+
+  rows = rows.filter(row => row.totalRelatedComment !== 0);
+  rows = _.orderBy(rows, ["totalRelatedComment"], ["desc"]);
+  rows = rows.map((item, index) => {
+    item.stt = index + 1;
+
+    return item;
+  });
 
   const csvWriter = createCsvWriter({
     path: "./app-comment(rais3).csv",
@@ -2905,9 +2913,72 @@ async function statCatApp() {
 
   console.log("DONE");
 }
+
+async function getRemainingComments() {
+  const header = [
+    {
+      id: "stt",
+      title: "#"
+    },
+    {
+      id: "categoryName",
+      title: "Category Name"
+    },
+    {
+      id: "appName",
+      title: "App Name"
+    },
+    {
+      id: "userName",
+      title: "User Name"
+    },
+    {
+      id: "comment",
+      title: "comment"
+    }
+  ];
+
+  const comments = await Models.Comment.find({
+    label: { $exists: false }
+  });
+
+  let rows = await Promise.map(
+    comments,
+    async function(comment) {
+      const app = await Models.App.findOne({
+        appName: comment.appName
+      }).cache(60 * 1000);
+
+      return {
+        categoryName: app.categoryName,
+        appName: app.appName,
+        userName: comment.userName,
+        comment: comment.comment
+      };
+    },
+    { concurrency: 100 }
+  );
+
+  rows = rows.map((item, i) => {
+    item.stt = i + 1;
+
+    return item;
+  });
+
+  const csvWriter = createCsvWriter({
+    path: "./remaining-apps-without-lable(mobile_purpose).csv",
+    header
+  });
+  csvWriter.writeRecords(rows);
+
+  console.log("DONE");
+}
 main();
+
 async function main() {
-  await statCatApp();
+  // await getRemainingComments();
+  // await statCatApp();
+  await statAppcomment();
   // await statAppcomment();
   // await report1();
   // await report2();
