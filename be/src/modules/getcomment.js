@@ -74,7 +74,7 @@ async function getCommentFromCHplay() {
           isGotCommentV2: { $exists: false }
         }
       },
-      { $sample: { size: 10 } },
+      { $sample: { size: 4 } },
       { $project: { appIdCHPlay: 1 } }
     ]);
 
