@@ -86,9 +86,6 @@ async function getCommentFromCHplay() {
 
 async function updateApp(app) {
   try {
-    await Models.default.Comment.deleteMany({
-      appId: app._id
-    });
     let comments = [];
 
     let commentChunk = {};
