@@ -67,6 +67,8 @@ async function getAppId() {
 async function getCommentFromCHplay() {
   let apps = [];
   do {
+    global.gc();
+
     apps = await Models.default.App.aggregate([
       {
         $match: {
@@ -74,12 +76,12 @@ async function getCommentFromCHplay() {
           isGotCommentV2: { $exists: false }
         }
       },
-      { $sample: { size: 100 } },
+      { $sample: { size: 4 } },
       { $project: { appIdCHPlay: 1 } }
     ]);
 
     await Promise.map(apps, updateApp, {
-      concurrency: 2
+      concurrency: 4
     });
   } while (apps.length);
 

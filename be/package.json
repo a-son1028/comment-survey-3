@@ -24,9 +24,7 @@
     "stat": "babel-node --max_old_space_size=12192 modules/stat.js",
     "getdataitem": "babel-node --max_old_space_size=12192 modules/getdataitem.js",
     "getcomment": "babel-node --max_old_space_size=12192 src/modules/getcomment.js",
-
-    "getcommentFEV": "forever start -c nodemon dist/modules/getcomment.js"
-    
+    "getcommentRaw": "npm run build && node --expose-gc --max_old_space_size=12192 dist/modules/getcomment.js"
   },
   "heroku-prebuild": "rm -rf node_modules",
   "dependencies": {
