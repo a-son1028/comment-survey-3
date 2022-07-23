@@ -19,6 +19,6 @@ mongoose.connection.on("error", err => {
   Utils.Logger.error(err);
 });
 
-mongoose.set("debug", true);
+mongoose.set("debug", false);
 
 // MongooseCache(mongoose, `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);

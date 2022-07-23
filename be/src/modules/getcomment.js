@@ -63,7 +63,7 @@ async function getAppId() {
     { concurrency: 1 }
   );
 }
-
+var stt = 0;
 async function getCommentFromCHplay() {
   let apps = [];
   do {
@@ -89,6 +89,7 @@ async function getCommentFromCHplay() {
 }
 
 async function updateApp(app) {
+  console.log(++stt, app._id);
   try {
     let comments = [];
 
