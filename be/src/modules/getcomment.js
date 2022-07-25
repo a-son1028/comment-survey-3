@@ -26,6 +26,19 @@ async function main() {
   // await getTestingSet();
   console.log("DONE");
 }
+
+async function updatePredict() {
+  const comments = await Models.default.Comment.aggregate([
+    {
+      $match: {
+        isRelatedRail3: { $exists: false }
+      }
+    },
+    { $sample: { size: 1000 } },
+    { $project: { comment: 1 } }
+  ]);
+}
+
 async function getAppId() {
   const apps = await Models.default.App.find({
     $or: [
@@ -143,12 +156,13 @@ async function step2() {
           isRelatedRail3: { $exists: false }
         }
       },
-      { $sample: { size: 1000 } },
+      { $sample: { size: 1000000 } },
       { $project: { comment: 1 } }
-    ]);
+    ]).allowDiskUse(true);
 
-    await Promise.all(
-      comments.map(comment => {
+    await Promise.map(
+      comments,
+      comment => {
         if (!comment.comment) return;
         const result = getRelatedForStep2(comment.comment);
 
@@ -160,7 +174,10 @@ async function step2() {
             ...result
           }
         );
-      })
+      },
+      {
+        concurrency: 1000
+      }
     );
   } while (comments.length);
 
