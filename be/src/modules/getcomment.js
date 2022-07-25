@@ -143,7 +143,7 @@ async function step2() {
           isRelatedRail3: { $exists: false }
         }
       },
-      { $sample: { size: 100 } },
+      { $sample: { size: 1000 } },
       { $project: { comment: 1 } }
     ]);
 
