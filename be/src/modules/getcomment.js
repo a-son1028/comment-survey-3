@@ -18,8 +18,8 @@ main();
 async function main() {
   await Promise.all([
     // getAppId(),
-    getCommentFromCHplay()
-    // step2()
+    // getCommentFromCHplay()
+    step2()
   ]);
 
   // await getTranningSet();
@@ -133,7 +133,7 @@ async function updateApp(app) {
 
 // get related
 async function step2() {
-  await Models.default.Comment.deleteMany({ comment: null });
+  // await Models.default.Comment.deleteMany({ comment: null });
 
   let comments = [];
   do {
@@ -219,7 +219,6 @@ function getRelatedForStep2(comment) {
     .join(" ");
 
   const keywordStem = getKeywordsStem();
-  console.log(keywordStem);
   const isRelatedRail3 = keywordStem.some(item => commentStem.includes(item));
 
   return {
@@ -228,41 +227,150 @@ function getRelatedForStep2(comment) {
 }
 
 async function getTranningSet() {
-  let dataCSV = await csv({
+  let dataCSVSP = await csv({
     noheader: false,
     output: "csv"
-  }).fromFile("/Users/tuanle/Downloads/SP_Comment_TrainingDataset(Y-N).csv");
+  }).fromFile("/Users/tuanle/Downloads/SP_TRAINING.csv");
+
+  let dataCSVPermission = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Downloads/PERMISSION_TRAINING.csv");
+
+  let dataCSVCollection = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Downloads/DATA_COLLECTION_TRAINING.csv");
+
+  let dataCSVSharing = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Downloads/DATA_SHARING_TRAINING.csv");
+
+  let combinedFiles = [];
+
+  dataCSVSP.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = combinedFiles.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      combinedFiles.push({
+        comment: comment.trim(),
+        SPLabel: label === "Y" ? 1 : 0,
+        permissionLabel: 0,
+        dataCollectionLabel: 0,
+        dataSharingLabel: 0
+      });
+    } else {
+      combinedFiles.push({
+        comment: comment.trim(),
+        SPLabel: label === "Y" ? 1 : 0,
+        permissionLabel: 0,
+        dataCollectionLabel: 0,
+        dataSharingLabel: 0
+      });
+    }
+  });
+
+  dataCSVPermission.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = combinedFiles.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      combinedFiles[rowIndex] = {
+        ...combinedFiles[rowIndex],
+        permissionLabel: label === "Y" ? 1 : 0
+      };
+    } else {
+      combinedFiles.push({
+        comment: comment.trim(),
+        permissionLabel: label === "Y" ? 1 : 0
+      });
+    }
+  });
+
+  dataCSVCollection.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = combinedFiles.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      combinedFiles[rowIndex] = {
+        ...combinedFiles[rowIndex],
+        dataCollectionLabel: label === "Y" ? 1 : 0
+      };
+    } else {
+      combinedFiles.push({
+        comment: comment.trim(),
+        dataCollectionLabel: label === "Y" ? 1 : 0
+      });
+    }
+  });
+
+  dataCSVSharing.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = combinedFiles.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      combinedFiles[rowIndex] = {
+        ...combinedFiles[rowIndex],
+        dataSharingLabel: label === "Y" ? 1 : 0
+      };
+    } else {
+      combinedFiles.push({
+        comment: comment.trim(),
+        dataSharingLabel: label === "Y" ? 1 : 0
+      });
+    }
+  });
 
   const header = [
-    // {
-    //   id: "stt",
-    //   title: "#"
-    // },
     {
-      id: "label",
-      title: "label"
+      id: "id",
+      title: "id"
     },
-    // {
-    //   id: "char",
-    //   title: "char"
-    // },
     {
-      id: "comment",
-      title: "comment"
+      id: "comment_text",
+      title: "comment_text"
+    },
+    {
+      id: "SPLabel",
+      title: "SPLabel"
+    },
+    {
+      id: "permissionLabel",
+      title: "permissionLabel"
+    },
+    {
+      id: "dataCollectionLabel",
+      title: "dataCollectionLabel"
+    },
+    {
+      id: "dataSharingLabel",
+      title: "dataSharingLabel"
+    },
+    {
+      id: "temp1",
+      title: "temp1"
+    },
+    {
+      id: "temp2",
+      title: "temp2"
     }
   ];
 
-  const training = [];
-  for (let i = 0; i < dataCSV.length; i++) {
-    const [stt, comment, label] = dataCSV[i];
-
-    training.push({
-      stt,
-      label: label === "Y" ? 1 : 2,
-      char: "q",
-      comment: comment
-    });
-  }
+  const training = combinedFiles.map((item, index) => {
+    return {
+      ...item,
+      id: index + 1,
+      comment_text: item.comment,
+      temp1: 0,
+      temp2: 0
+    };
+  });
 
   const csvWriter = createCsvWriter({
     path: "./training.csv",
