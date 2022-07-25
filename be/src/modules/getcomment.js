@@ -13,13 +13,15 @@ require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 require("../configs/mongoose.config");
 
 const Models = require("../models");
+import Services from "../services";
 
 main();
 async function main() {
   await Promise.all([
     // getAppId(),
     // getCommentFromCHplay()
-    step2()
+    step2(),
+    updatePredict()
   ]);
 
   // await getTranningSet();
@@ -28,15 +30,46 @@ async function main() {
 }
 
 async function updatePredict() {
-  const comments = await Models.default.Comment.aggregate([
-    {
-      $match: {
-        isRelatedRail3: { $exists: false }
-      }
-    },
-    { $sample: { size: 1000 } },
-    { $project: { comment: 1 } }
-  ]);
+  let comments = [];
+  do {
+    comments = await Models.default.Comment.aggregate([
+      {
+        $match: {
+          isRelatedRail3: true,
+          scores: { $exists: false }
+        }
+      },
+      { $sample: { size: 1 } },
+      { $project: { comment: 1 } }
+    ]).allowDiskUse(true);
+
+    await Promise.map(
+      comments,
+      async comment => {
+        let predictionRes = await Services.PredictionLabel.getPredictLabel([
+          {
+            id: 1,
+            text: comment.comment
+          }
+        ]);
+
+        const scores = predictionRes?.[0].scores;
+
+        if (_.isEmpty(scores)) return;
+
+        await Models.default.Comment.updateOne(
+          {
+            _id: comment._id
+          },
+          {
+            scores
+          }
+        );
+        return;
+      },
+      { concurrency: 100 }
+    );
+  } while (comments.length);
 }
 
 async function getAppId() {
@@ -236,7 +269,12 @@ function getRelatedForStep2(comment) {
     .join(" ");
 
   const keywordStem = getKeywordsStem();
-  const isRelatedRail3 = keywordStem.some(item => commentStem.includes(item));
+  const isRelatedRail3 = keywordStem.some(item => {
+    if (commentStem.includes(item)) {
+      console.log(item);
+      return true;
+    }
+  });
 
   return {
     isRelatedRail3

@@ -105,7 +105,8 @@ var groupSchema = new Schema(
     isRelatedRail3: {
       type: Boolean
     },
-    label: String
+    label: String,
+    scores: Schema.Types.Mixed
   },
   {
     timestamps: true,
