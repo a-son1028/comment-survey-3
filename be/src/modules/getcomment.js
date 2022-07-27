@@ -43,7 +43,7 @@ async function updatePredict() {
           scores: { $exists: false }
         }
       },
-      { $sample: { size: 1 } },
+      { $sample: { size: 1000000 } },
       { $project: { comment: 1 } }
     ]).allowDiskUse(true);
 
