@@ -26,6 +26,10 @@ async function main() {
 
   // await getTranningSet();
   // await getTestingSet();
+
+  // await Models.default.Comment.count({
+  //   isRelatedRail3: { $exists: false }
+  // }).then(console.log);
   console.log("DONE");
 }
 
@@ -189,7 +193,7 @@ async function step2() {
           isRelatedRail3: { $exists: false }
         }
       },
-      { $sample: { size: 1000000 } },
+      { $sample: { size: 5000000 } },
       { $project: { comment: 1 } }
     ]).allowDiskUse(true);
 
