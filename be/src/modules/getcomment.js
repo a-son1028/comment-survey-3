@@ -71,7 +71,7 @@ async function updatePredict() {
         );
         return;
       },
-      { concurrency: 100 }
+      { concurrency: 5 }
     );
   } while (comments.length);
 }
