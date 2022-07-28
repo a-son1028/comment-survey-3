@@ -213,7 +213,7 @@ async function step2() {
         );
       },
       {
-        concurrency: 1000
+        concurrency: 500
       }
     );
   } while (comments.length);
