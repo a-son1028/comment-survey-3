@@ -2809,7 +2809,7 @@ async function statAppcomment() {
   ];
 
   const apps = await Models.App.find({
-    isGotComment: true
+    isGotCommentV2: true
   }).select("appName categoryName");
 
   let rows = [];
@@ -2973,12 +2973,85 @@ async function getRemainingComments() {
 
   console.log("DONE");
 }
-main();
 
+async function getPredictionReport() {
+  const header = [
+    {
+      id: "stt",
+      title: "#"
+    },
+    // {
+    //   id: "categoryName",
+    //   title: "Category Name"
+    // },
+    // {
+    //   id: "appName",
+    //   title: "App Name"
+    // },
+    {
+      id: "comment",
+      title: "Comment"
+    },
+    {
+      id: "sp",
+      title: "S&P"
+    },
+    {
+      id: "permission",
+      title: "Permission"
+    },
+    {
+      id: "dataCollection",
+      title: "Data collection"
+    },
+    {
+      id: "dataSharing",
+      title: "Data sharing"
+    }
+  ];
+
+  const comments = await Models.Comment.find({
+    scores: { $exists: true }
+  });
+
+  let rows = await Promise.map(
+    comments,
+    async function(comment, index) {
+      // const app = await Models.App.findOne({
+      //   _id: comment.appId
+      // }).cache(60 * 1000);
+
+      return {
+        comment: comment.comment,
+        sp: comment.scores.SPLabel,
+        permission: comment.scores.SPLabel,
+        dataCollection: comment.scores.SPLabel,
+        dataSharing: comment.scores.SPLabel
+      };
+    },
+    { concurrency: 100 }
+  );
+
+  rows = rows.map((item, i) => {
+    item.stt = i + 1;
+
+    return item;
+  });
+
+  const csvWriter = createCsvWriter({
+    path: "./comments-prediction.csv",
+    header
+  });
+  csvWriter.writeRecords(rows);
+
+  console.log("DONE");
+}
+
+main();
 async function main() {
   // await getRemainingComments();
-  // await statCatApp();
-  await statAppcomment();
+  await Promise.all([statCatApp(), statAppcomment(), getPredictionReport()]);
+
   // await statAppcomment();
   // await report1();
   // await report2();
