@@ -21,7 +21,7 @@
     "thirdFile": "babel-watch --max_old_space_size=8192 thirdFile.js",
     "countingRisk": "babel-watch --max_old_space_size=8192 countingRisk.js",
     "seed": "babel-node --max_old_space_size=8192 src/seed/comment.js",
-    "stat": "babel-node --max_old_space_size=12192 modules/stat.js",
+    "stat": "babel-node --max_old_space_size=12192 src/modules/stat.js",
     "getdataitem": "babel-node --max_old_space_size=12192 modules/getdataitem.js",
     "getcomment": "babel-node --max_old_space_size=12192 src/modules/getcomment.js",
     "getcommentProd": "node --expose-gc --max_old_space_size=12192 dist/modules/getcomment.js"

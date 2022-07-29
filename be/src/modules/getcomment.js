@@ -20,16 +20,23 @@ async function main() {
   await Promise.all([
     // getAppId(),
     // getCommentFromCHplay()
-    step2(),
+    // step2(),
     updatePredict()
   ]);
 
   // await getTranningSet();
   // await getTestingSet();
 
-  // await Models.default.Comment.count({
-  //   isRelatedRail3: { $exists: false }
-  // }).then(console.log);
+  // const result = await Promise.all([
+  //   Models.default.Comment.count({
+  //     isRelatedRail3: true
+  //   }),
+  //   Models.default.Comment.count({
+  //     scores: { $exists: true }
+  //   })
+  // ]);
+
+  // console.log(1, result);
   console.log("DONE");
 }
 
@@ -43,8 +50,8 @@ async function updatePredict() {
           scores: { $exists: false }
         }
       },
-      { $sample: { size: 1000000 } },
-      { $project: { comment: 1 } }
+      { $sample: { size: 5000000 } },
+      { $project: { comment: 100 } }
     ]).allowDiskUse(true);
 
     await Promise.map(
