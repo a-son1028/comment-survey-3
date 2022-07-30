@@ -2832,7 +2832,7 @@ async function statAppcomment() {
           totalRelatedComment: relatedComments.length
         });
       },
-      { concurrency: 1000 }
+      { concurrency: 300 }
     );
 
     rows = rows.filter(row => row.totalRelatedComment !== 0);
@@ -3064,8 +3064,8 @@ async function main() {
   // await getRemainingComments();
   await Promise.all([
     // statCatApp(),
-    statAppcomment(),
-    getPredictionReport()
+    statAppcomment()
+    // getPredictionReport()
   ]);
 
   // await statAppcomment();
