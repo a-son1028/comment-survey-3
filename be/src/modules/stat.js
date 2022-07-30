@@ -3033,9 +3033,9 @@ async function getPredictionReport() {
         return {
           comment: comment.comment,
           sp: comment.scores.SPLabel,
-          permission: comment.scores.SPLabel,
-          dataCollection: comment.scores.SPLabel,
-          dataSharing: comment.scores.SPLabel
+          permission: comment.scores.permissionLabel,
+          dataCollection: comment.scores.dataCollectionLabel,
+          dataSharing: comment.scores.dataSharingLabel
         };
       },
       { concurrency: 100 }
@@ -3064,8 +3064,8 @@ async function main() {
   // await getRemainingComments();
   await Promise.all([
     // statCatApp(),
-    statAppcomment()
-    // getPredictionReport()
+    // statAppcomment(),
+    getPredictionReport()
   ]);
 
   // await statAppcomment();
