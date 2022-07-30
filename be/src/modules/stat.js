@@ -2806,6 +2806,10 @@ async function statAppcomment() {
       {
         id: "totalRelatedComment",
         title: "Comments Including Keyword"
+      },
+      {
+        id: "totalPredictComment",
+        title: "Bert prediction"
       }
     ];
 
@@ -2823,13 +2827,15 @@ async function statAppcomment() {
         }).select("isRelatedRail3");
 
         const relatedComments = comments.filter(item => item.isRelatedRail3);
+        const predictionComments = relatedComments.filter(item => !_.isEmpty(item.scores));
 
         rows.push({
           stt: index + 1,
           appName: app.appName,
           categoryName: app.categoryName,
           totalComment: comments.length,
-          totalRelatedComment: relatedComments.length
+          totalRelatedComment: relatedComments.length,
+          totalPredictComment: predictionComments.length
         });
       },
       { concurrency: 100 }
@@ -3064,8 +3070,8 @@ async function main() {
   // await getRemainingComments();
   await Promise.all([
     // statCatApp(),
-    // statAppcomment(),
-    getPredictionReport()
+    statAppcomment()
+    // getPredictionReport()
   ]);
 
   // await statAppcomment();
