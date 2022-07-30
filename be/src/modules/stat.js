@@ -3062,7 +3062,11 @@ async function getPredictionReport() {
 main();
 async function main() {
   // await getRemainingComments();
-  await Promise.all([statCatApp(), statAppcomment(), getPredictionReport()]);
+  await Promise.all([
+    // statCatApp(),
+    statAppcomment(),
+    getPredictionReport()
+  ]);
 
   // await statAppcomment();
   // await report1();
