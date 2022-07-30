@@ -11,8 +11,8 @@ mongoose.connect(process.env.MONGODB_URL, {
   useCreateIndex: true,
   useFindAndModify: false,
 
-  poolSize: 300,
-  maxPoolSize: 1000
+  poolSize: 100,
+  maxPoolSize: 300
 });
 
 mongoose.connection.on("error", err => {

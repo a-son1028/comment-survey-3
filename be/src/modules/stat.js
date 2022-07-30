@@ -2832,7 +2832,7 @@ async function statAppcomment() {
           totalRelatedComment: relatedComments.length
         });
       },
-      { concurrency: 300 }
+      { concurrency: 100 }
     );
 
     rows = rows.filter(row => row.totalRelatedComment !== 0);
