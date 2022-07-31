@@ -74,5 +74,7 @@ networks:
     external: true
   mongodb_net:
     external: true
+  redis_net:
+    external: true
 volumes:
   data:
