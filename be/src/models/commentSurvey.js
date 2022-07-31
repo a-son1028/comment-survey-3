@@ -24,4 +24,4 @@ var groupSchema = new Schema(
   }
 );
 
-export default mongoose.model("commentSurveyRais3", groupSchema);
+export default mongoose.model("commentSurveyRais3_v2", groupSchema);

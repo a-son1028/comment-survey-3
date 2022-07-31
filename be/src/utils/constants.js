@@ -300,7 +300,7 @@ const questions = [
   }
 ];
 
-const QUESTION_NUM = 7;
+const QUESTION_NUM = 20;
 export default {
   questions,
   QUESTION_NUM

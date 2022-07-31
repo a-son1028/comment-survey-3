@@ -89,9 +89,11 @@ class SurveyController {
 
       let apps = await Promise.all(
         appSurvey.apps.map(app => {
-          return Models.App.findById(app.appId).then(appData => {
-            return { ...appData.toJSON(), ...app.toJSON() };
-          });
+          return Models.App.findById(app.appId)
+            .cache(60 * 60 * 24 * 30)
+            .then(appData => {
+              return { ...appData.toJSON(), ...app.toJSON() };
+            });
         })
       );
 
@@ -127,59 +129,30 @@ class SurveyController {
 
   async getComments(req, res, next) {
     try {
-      const { appName } = req.params;
+      const { appId } = req.params;
 
-      const app = await Models.App.findOne({
-        appName
-      }).select("appName distance distanceRais3");
+      const app = await Models.App.findById(appId)
+        .select("appName distance distanceRais3")
+        .cache(60 * 60 * 24 * 30);
 
       (() => {
         if (!app.distance) app.distance = 0.1;
       })();
 
       let comments = await Models.Comment.find({
-        appName,
+        appId: app._id,
         isShowOnRais3: true
-      }).sort({
-        permissionResult: -1,
-        dataTypeResult: -1,
-        purposeResult: -1,
-        thirdPartyResult: -1,
-        isShowDataSharingRail3: -1,
-        isShowDataCollectionRail3: -1,
-        isShowPermissionRail3: -1,
-        isShowPrivacyRail3: -1,
-        isShowSecurityRail3: -1
-      });
+      })
+        .limit(100)
+        .cache(60 * 60 * 24 * 30);
 
       comments = comments.map(comment => {
         comment = comment.toJSON();
-        comment.sentiment = Number(
-          (1 - Math.abs(app.distanceRais3 - (1 - Math.abs(comment.sentiment)))).toFixed(2)
-        );
 
-        let sentimentLevel;
-        const sentiment = comment.sentiment;
-        if (sentiment > 0 && sentiment <= 0.2) {
-          sentimentLevel = "Very Low";
-        } else if (sentiment > 0.2 && sentiment <= 0.4) {
-          sentimentLevel = "Low";
-        } else if (sentiment > 0.4 && sentiment <= 0.6) {
-          sentimentLevel = "Neutral";
-        } else if (sentiment > 0.6 && sentiment <= 0.8) {
-          sentimentLevel = "High";
-        } else if (sentiment > 0.8 && sentiment <= 1) {
-          sentimentLevel = "Very High";
-        }
-        comment.sentimentLevel = sentimentLevel;
-
-        comment.isShowSecurity = comment.isShowSecurityRais3;
-        comment.isShowPrivacy = comment.isShowPrivacyRais3;
-        comment.isShowPermission = comment.isShowPermissionRais3;
-        comment.isShowDataItem = comment.isShowDataItemRais3;
-        comment.isShowPurpose = comment.isShowPurposeRais3;
-        comment.isShowThirdParty = comment.isShowThirdPartyRais3;
-
+        comment.scores.SPLabel = Math.round(comment.scores.SPLabel * 100);
+        comment.scores.permissionLabel = Math.round(comment.scores.permissionLabel * 100);
+        comment.scores.dataCollectionLabel = Math.round(comment.scores.dataCollectionLabel * 100);
+        comment.scores.dataSharingLabel = Math.round(comment.scores.dataSharingLabel * 100);
         return comment;
       });
       res.json(comments);

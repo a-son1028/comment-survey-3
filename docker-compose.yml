@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 services:
   fe:
     image: untadee/comment-survey-fe-3:latest
@@ -9,14 +9,14 @@ services:
     deploy:
       # service resource management
       # resources:
-        # Hard limit - Docker does not allow to allocate more
-        # limits:
-        #   cpus: '0.50'
-        #   memory: 512M
-        # Soft limit - Docker makes best effort to return to it
-        # reservations:
-        #   cpus: '0.50'
-        #   memory: 256M
+      # Hard limit - Docker does not allow to allocate more
+      # limits:
+      #   cpus: '0.50'
+      #   memory: 512M
+      # Soft limit - Docker makes best effort to return to it
+      # reservations:
+      #   cpus: '0.50'
+      #   memory: 256M
       # service restart policy
       replicas: 1
       update_config:
@@ -53,6 +53,7 @@ services:
     networks:
       - mongodb_net
       - traefik-public
+      - redis_net
     environment:
       - MONGODB_URL=mongodb://admin:123123@mongodb_container:27017/comment-survey?authSource=admin
     deploy:
@@ -75,5 +76,3 @@ networks:
     external: true
 volumes:
   data:
-
-

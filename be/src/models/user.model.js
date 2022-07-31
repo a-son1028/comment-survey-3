@@ -55,4 +55,4 @@ userSchema.virtual("answers", {
 
 userSchema.plugin(findOrCreate);
 
-export default mongoose.model("userRais3", userSchema);
+export default mongoose.model("userRais3_v2", userSchema);
