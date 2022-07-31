@@ -2031,7 +2031,7 @@ async function step22() {
   };
 
   const comments = await Models.Comment.find({
-    // isLabeled: true
+    isShowOnRais3: true
   });
 
   // for(let i = 0; i < comments.length; i++) {
@@ -2544,74 +2544,41 @@ async function getDistance() {
 }
 
 async function updateComentShow() {
-  let comments = await Models.Comment.find({
-    // isShowOnRais3: { $exists: false }
-  });
-
-  await bluebird.map(
-    comments,
-    async comment => {
-      const app = await Models.App.findOne({
-        appName: comment.appName
-      });
-      if (!app) return;
-      comment = comment.toJSON();
-      comment.sentiment = Number(
-        (1 - Math.abs(app.distance - (1 - Math.abs(comment.sentiment)))).toFixed(2)
-      );
-
-      const isShowSecurity = !!comment.sentiment && !!comment.securitySentences.length;
-      const isShowPrivacy = !!comment.sentiment && !!comment.privacySentences.length;
-      const isShowPermission = !!comment.permissionResult && !!comment.permissions.length;
-      const isShowDataItem = !!comment.dataTypeResult && !!comment.dataItems.length;
-      const isShowPurpose = !!comment.purposeResult && !!comment.purposes.length;
-      const isShowThirdParty = !!comment.thirdPartyResult && !!comment.thirdParties.length;
-
-      const isShowOnRais3 =
-        isShowSecurity ||
-        isShowPrivacy ||
-        isShowPermission ||
-        isShowDataItem ||
-        isShowPurpose ||
-        isShowThirdParty;
-      return Models.Comment.updateOne(
-        {
-          _id: comment.id
-        },
-        {
-          isShowSecurityRais3: isShowSecurity,
-          isShowPrivacyRais3: isShowPrivacy,
-          isShowPermissionRais3: isShowPermission,
-          isShowDataItemRais3: isShowDataItem,
-          isShowPurposeRais3: isShowPurpose,
-          isShowThirdPartyRais3: isShowThirdParty,
-          isShowOnRais3
-        }
-      );
+  let comments = await Models.Comment.updateMany(
+    {
+      $or: [
+        { "scores.SPLabel": { $gte: 0.5 } },
+        { "scores.permissionLabel": { $gte: 0.5 } },
+        { "scores.dataCollectionLabel": { $gte: 0.5 } },
+        { "scores.dataSharingLabel": { $gte: 0.5 } }
+      ]
     },
-    { concurrency: 50 }
+    {
+      isShowOnRais3: true
+    }
   );
 
+  console.log(comments);
   console.log("DONE");
 }
 
 async function getCommentSurvey() {
-  let apps = await Models.App.find({});
+  let apps = await Models.App.find({}).select("_id");
 
   const appsHasComment = await bluebird.filter(apps, async app => {
     const isHasComment = await Models.Comment.findOne({
-      appName: app.appName,
+      appId: app.id,
       isShowOnRais3: true
     });
     return !!isHasComment;
   });
 
-  const appSurveys = _.chunk(appsHasComment, 7);
+  const appSurveys = _.chunk(appsHasComment, 20);
 
   await Models.AppSurvey.deleteMany();
 
   await bluebird.map(appSurveys, async apps => {
-    if (apps.length < 7) return;
+    if (apps.length < 20) return;
     return Models.AppSurvey.create({
       apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id }))
     });
@@ -3070,7 +3037,7 @@ async function main() {
   // await getRemainingComments();
   await Promise.all([
     // statCatApp(),
-    statAppcomment()
+    // statAppcomment()
     // getPredictionReport()
   ]);
 
@@ -3080,7 +3047,7 @@ async function main() {
   // await getCommentSurvey();
   // await updateComentShow();
   // await getDistance();
-  // await step22();
+  await step22();
   // await getSentimentOfApp();
   // await calculateResults();
   // await updateSectionsToShow();
