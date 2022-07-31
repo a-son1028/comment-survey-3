@@ -2568,7 +2568,15 @@ async function getCommentSurvey() {
   const appsHasComment = await bluebird.filter(apps, async app => {
     const isHasComment = await Models.Comment.findOne({
       appId: app.id,
-      isShowOnRais3: true
+
+      isShowOnRais3: true,
+      $or: [
+        { securitySentences: { $ne: [] } },
+        { privacySentences: { $ne: [] } },
+        { permissionSentences: { $ne: [] } },
+        { collectionSentences: { $ne: [] } },
+        { sharingSentences: { $ne: [] } }
+      ]
     });
     return !!isHasComment;
   });
@@ -3044,10 +3052,10 @@ async function main() {
   // await statAppcomment();
   // await report1();
   // await report2();
-  // await getCommentSurvey();
+  await getCommentSurvey();
   // await updateComentShow();
   // await getDistance();
-  await step22();
+  // await step22();
   // await getSentimentOfApp();
   // await calculateResults();
   // await updateSectionsToShow();
