@@ -2824,7 +2824,7 @@ async function statAppcomment() {
       async (app, index) => {
         const comments = await Models.Comment.find({
           appId: app._id
-        }).select("isRelatedRail3");
+        }).select("isRelatedRail3 scores");
 
         const relatedComments = comments.filter(item => item.isRelatedRail3);
         const predictionComments = relatedComments.filter(item => !_.isEmpty(item.scores));
@@ -3092,6 +3092,7 @@ async function main() {
   // await rawData();
 
   // await reportComments();
+  console.log("DONE");
   return;
   // await step1()
   // await step2()
