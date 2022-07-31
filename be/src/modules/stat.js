@@ -2841,7 +2841,7 @@ async function statAppcomment() {
       { concurrency: 100 }
     );
 
-    rows = rows.filter(row => row.totalRelatedComment !== 0);
+    rows = rows.filter(row => row.totalRelatedComment !== 0 || row.totalPredictComment !== 0);
     rows = _.orderBy(rows, ["totalRelatedComment"], ["desc"]);
     rows = rows.map((item, index) => {
       item.stt = index + 1;
