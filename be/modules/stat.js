@@ -2783,9 +2783,126 @@ async function report1() {
   fs.writeFileSync("./report-rais3(file1).txt", text);
   console.log("DONE");
 }
+
+async function statAppcomment() {
+  try {
+    const header = [
+      {
+        id: "stt",
+        title: "#"
+      },
+      {
+        id: "appName",
+        title: "App Name"
+      },
+      {
+        id: "categoryName",
+        title: "Category Name"
+      },
+      {
+        id: "totalComment",
+        title: "Total Comment"
+      },
+      {
+        id: "totalRelatedComment",
+        title: "Comments Including Keyword"
+      },
+      {
+        id: "totalPredictComment",
+        title: "Bert prediction"
+      }
+    ];
+
+    const apps = await Models.App.find({
+      // isGotCommentV2: true
+    }).select("appName categoryName");
+
+    let rows = [];
+
+    await Promise.map(
+      apps,
+      async (app, index) => {
+        const isHasComment = await Models.Comment.findOne({
+          appName: app.appName,
+          isShowOnRais3: true
+        });
+
+        if (!isHasComment) return;
+
+        const comments = await Models.Comment.find({
+          appName: app.appName
+        });
+        const relatedComments = comments.filter(comment => {
+          const isShowSecurity = !!comment.securitySentences.length;
+          const isShowPrivacy = !!comment.privacySentences.length;
+          const isShowPermission = !!comment.permissions.length;
+          const isShowDataItem = !!comment.dataItems.length;
+          const isShowPurpose = !!comment.purposes.length;
+          const isShowThirdParty = !!comment.thirdParties.length;
+
+          return (
+            isShowSecurity ||
+            isShowPrivacy ||
+            isShowPermission ||
+            isShowDataItem ||
+            isShowThirdParty ||
+            isShowPurpose ||
+            isShowDataItem
+          );
+        });
+        // const predictionComments = relatedComments.filter(item => !_.isEmpty(item.scores));
+        const predictionComments = relatedComments.filter(comment => {
+          const {
+            isShowSecurityRail3,
+            isShowPrivacyRail3,
+            isShowPermissionRail3,
+            isShowDataCollectionRail3,
+            isShowDataSharingRail3
+          } = comment;
+
+          return (
+            isShowSecurityRail3 ||
+            isShowPrivacyRail3 ||
+            isShowPermissionRail3 ||
+            isShowDataCollectionRail3 ||
+            isShowDataSharingRail3
+          );
+        });
+
+        rows.push({
+          stt: index + 1,
+          appName: app.appName,
+          categoryName: app.categoryName,
+          totalComment: comments.length,
+          totalRelatedComment: relatedComments.length,
+          totalPredictComment: predictionComments.length
+        });
+      },
+      { concurrency: 100 }
+    );
+
+    rows = rows.filter(row => row.totalRelatedComment !== 0 || row.totalPredictComment !== 0);
+    rows = _.orderBy(rows, ["totalRelatedComment"], ["desc"]);
+    rows = rows.map((item, index) => {
+      item.stt = index + 1;
+
+      return item;
+    });
+
+    const csvWriter = createCsvWriter({
+      path: "./app-comment(rais3).csv",
+      header
+    });
+    csvWriter.writeRecords(rows);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 main();
 async function main() {
-  await report1();
+  await statAppcomment();
+  // await report1();
   // await report2();
   // await getCommentSurvey();
   // await updateComentShow();
@@ -2802,6 +2919,7 @@ async function main() {
   // await rawData();
 
   // await reportComments();
+  console.log("DONE");
   return;
   // await step1()
   // await step2()
