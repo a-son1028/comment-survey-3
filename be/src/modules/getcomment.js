@@ -43,9 +43,15 @@ async function main() {
 async function updatePredict() {
   let comments = [];
   do {
+    const apps = await Models.default.App.find({
+      needRunBert: true
+    });
     comments = await Models.default.Comment.aggregate([
       {
         $match: {
+          appId: {
+            $in: _.map(apps, "_id")
+          },
           isRelatedRail3: true,
           scores: { $exists: false }
         }

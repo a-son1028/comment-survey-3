@@ -15,6 +15,374 @@ var w2vModel;
 var w2vModelData = {};
 const comment =
   "Do not use this app, it is full of scammers. All they want you to do is take their word for how great the room is send you some generic pictures and ask for your security deposit without getting to see the room.";
+const categoryGroups = {
+  Beauty: ["Beauty", "Lifestyle"],
+  Business: ["Business"],
+  Education: ["Education", "Educational"],
+  Entertainment: ["Entertainment", "Photography"],
+  Finance: [
+    "Finance",
+    "Events",
+    "Action",
+    "Action & Adventure",
+    "Adventure",
+    "Arcade",
+    "Art & Design",
+    "Auto & Vehicles",
+    "Board",
+    "Books & Reference",
+    "Brain Games",
+    "Card",
+    "Casino",
+    "Casual",
+    "Comics",
+    "Creativity",
+    "House & Home",
+    "Libraries & Demo",
+    "News & Magazines",
+    "Parenting",
+    "Pretend Play",
+    "Productivity",
+    "Puzzle",
+    "Racing",
+    "Role Playing",
+    "Simulation",
+    "Strategy",
+    "Trivia",
+    "Weather",
+    "Word"
+  ],
+  "Food & Drink": ["Food & Drink"],
+  "Health & Fitness": ["Health & Fitness"],
+  "Maps & Navigation": ["Maps & Navigation"],
+  Medical: ["Medical"],
+  "Music & Audio": ["Music & Audio", "Video Players & Editors", "Music & Video", "Music"],
+  Shopping: ["Shopping"],
+  Social: ["Social", "Dating", "Communication"],
+  Sports: ["Sports"],
+  Tools: ["Tools", "Personalization"],
+  "Travel & Local": ["Travel & Local"]
+};
+
+const categoriesCollection = [
+  {
+    id: "1",
+    name: "Admin",
+    level: "1",
+    parent: "null",
+    keywords: [""]
+  },
+  {
+    id: "2",
+    name: "Purchase",
+    level: "1",
+    parent: "null",
+    keywords: ["business", "commercial", "businesses", "purchase"]
+  },
+  {
+    id: "3",
+    name: "Education",
+    level: "1",
+    parent: "null",
+    keywords: [""]
+  },
+  {
+    id: "4",
+    name: "Healthcare",
+    level: "1",
+    parent: "null",
+    keywords: [""]
+  },
+  {
+    id: "5",
+    name: "Booking",
+    level: "1",
+    parent: "null",
+    keywords: ["booking"]
+  },
+  {
+    id: "6",
+    name: "Services",
+    level: "1",
+    parent: "null",
+    keywords: [""]
+  },
+  {
+    id: "7",
+    name: "Marketing",
+    level: "1",
+    parent: "null",
+    keywords: [""]
+  },
+  {
+    id: "8",
+    name: "Profiling",
+    level: "2",
+    parent: "1",
+    keywords: ["profile", "profiling"]
+  },
+  {
+    id: "9",
+    name: "Analysis",
+    level: "2",
+    parent: "1",
+    keywords: ["Analytics", "analysis", "analyze", "analyse", "analyzing"]
+  },
+  {
+    id: "10",
+    name: "Statistical",
+    level: "2",
+    parent: "1",
+    keywords: ["Statistical", "statistics"]
+  },
+  {
+    id: "11",
+    name: "Advertisements",
+    level: "2",
+    parent: "1",
+    keywords: ["ads", "advertising", "advertisement", "advertisers"]
+  },
+  {
+    id: "12",
+    name: "Maintenance",
+    level: "2",
+    parent: "1",
+    keywords: ["maintain", "maintenance", "maintained"]
+  },
+  {
+    id: "13",
+    name: "Identifying",
+    level: "2",
+    parent: "1",
+    keywords: [
+      "identifier",
+      "identifying",
+      "authentication",
+      "authenticate",
+      "authenticates",
+      "identity",
+      "identities",
+      "identifiable",
+      "identifies"
+    ]
+  },
+  {
+    id: "14",
+    name: "Testing/Troubleshooting",
+    level: "2",
+    parent: "1",
+    keywords: ["Troubleshooting", "tests", "testing", "troubleshoot"]
+  },
+  {
+    id: "15",
+    name: "Payment",
+    level: "2",
+    parent: "2",
+    keywords: ["purchase", "purchasing", "payment"]
+  },
+  {
+    id: "16",
+    name: "Delivery",
+    level: "2",
+    parent: "2",
+    keywords: ["delivery", "shipping", "delivering"]
+  },
+  {
+    id: "17",
+    name: "Contacting",
+    level: "2",
+    parent: "2",
+    keywords: ["Contacting", "contacts", "contacted", "communications"]
+  },
+  {
+    id: "18",
+    name: "Research",
+    level: "2",
+    parent: "3",
+    keywords: ["research", "researching"]
+  },
+  {
+    id: "19",
+    name: "Survey",
+    level: "2",
+    parent: "3",
+    keywords: ["survey"]
+  },
+  {
+    id: "20",
+    name: "Treatment",
+    level: "2",
+    parent: "4",
+    keywords: ["Treatment"]
+  },
+  {
+    id: "21",
+    name: "Diagnosis",
+    level: "2",
+    parent: "4",
+    keywords: ["diagnostics", "diagnosis"]
+  },
+  {
+    id: "22",
+    name: "Medical",
+    level: "2",
+    parent: "4",
+    keywords: ["medical", "healthcare", "health care", "disease"]
+  },
+  {
+    id: "23",
+    name: "Improving quality",
+    level: "2",
+    parent: "6",
+    keywords: ["improve", "improving", "improvement"]
+  },
+  {
+    id: "24",
+    name: "Developing the new services",
+    level: "2",
+    parent: "6",
+    keywords: ["new service", "new product", "new feature", "new functions"]
+  },
+  {
+    id: "25",
+    name: "Direct Email",
+    level: "2",
+    parent: "7",
+    keywords: ["direct && email"]
+  },
+  {
+    id: "26",
+    name: "Direct Phone",
+    level: "2",
+    parent: "7",
+    keywords: ["direct && phone"]
+  },
+  {
+    id: "27",
+    name: "Booking",
+    level: "2",
+    parent: "5",
+    keywords: ["booking"]
+  }
+];
+
+const categoriesThirdParty = [
+  {
+    id: "0",
+    name: "Third party",
+    level: "0",
+    parent: "null",
+    keywords: ["Third-party", "3rd parties", "third party", "third parties", "3rd party"]
+  },
+  {
+    id: "2",
+    name: "Purpose",
+    level: "1",
+    parent: "null",
+    keywords: [""]
+  },
+  {
+    id: "10",
+    name: "Payment",
+    level: "2",
+    parent: "2",
+    keywords: ["payment; purchase; order; credit card"]
+  },
+  {
+    id: "11",
+    name: "Delivery",
+    level: "2",
+    parent: "2",
+    keywords: ["diliver; delivery; deliverer"]
+  },
+  {
+    id: "12",
+    name: "Marketing",
+    level: "2",
+    parent: "2",
+    keywords: ["marketing"]
+  },
+  {
+    id: "13",
+    name: "Advertisement",
+    level: "2",
+    parent: "2",
+    keywords: ["Advertising; ads; advertisement; advertiser;"]
+  },
+  {
+    id: "14",
+    name: "Analysis",
+    level: "2",
+    parent: "2",
+    keywords: ["Analysis; analytical; analysed; analyzed; analytics; market research"]
+  }
+];
+
+const groupQuestions = {
+  1: [
+    // Food & Drink
+    "resep masakan",
+    "tip calculator : split tip",
+
+    //  Health & Fitness
+    "easy rise alarm clock",
+    "sports supplements",
+
+    // Maps & Navigation
+    "tc fuel consumption record",
+    "taiwan mrt info - taipei、taoyuan、kaohsiung",
+
+    // Music & Audio
+    "soul radio",
+    "find that song",
+
+    // Social
+    "facebook",
+    // "chat rooms - find friends",
+    "my t-mobile - nederland"
+  ],
+  2: [
+    // Beauty
+    "sweet macarons hd wallpapers",
+    "kuchen rezepte kochbuch",
+    // "feeling of color combination",
+    // Business
+    "real estate auctions listings  - gsa listings",
+    "mobile inventory",
+    // Shopping
+    "brands for less",
+    "house of fraser",
+    // Entertainment
+    "christmas cards",
+    "sound view spectrum analyzer",
+
+    // Finance
+    "google news - daily headlines",
+    "habit calendar : track habits"
+  ],
+  3: [
+    // Sports
+    "football news - patriots",
+    "australian hunter magazine",
+
+    // Medical
+    "acupressure tips",
+    "nighttime speaking clock",
+
+    // Travel & Local
+    // "walkway navi - gps for walking",
+    "beijing metro map",
+    "google earth",
+
+    // Education
+    "brainwell mind & brain trainer",
+    "origami flower instructions 3d",
+
+    // Tools
+    "the ney is an end-blown flute sufi music wallpaper",
+    "calcnote - notepad calculator"
+  ]
+};
 const permissionTypes = {
   Telephony: [
     "android.permission.ACCEPT_HANDOVER",
@@ -2643,7 +3011,7 @@ async function report2() {
   const dataFromMicro = await csv({
     noheader: true,
     output: "csv"
-  }).fromFile("/Users/tuanle/Downloads/CSVReport_50749452be0b_B_Page#1_With_PageSize#5000.csv");
+  }).fromFile("/Users/tuanle/Downloads/CSVReport_50749452be0b_B_Page#1_With_PageSize#5000 (1).csv");
 
   const rows = [];
   const answers = await Models.Answer.find({});
@@ -3017,18 +3385,170 @@ async function getPredictionReport() {
   }
 }
 
+async function getRemainingApps() {
+  const header = [
+    {
+      id: "stt",
+      title: "#"
+    },
+    {
+      id: "appName",
+      title: "App Name"
+    },
+    {
+      id: "categoryName",
+      title: "Category Name"
+    },
+    {
+      id: "dataset",
+      title: "Dataset"
+    },
+    {
+      id: "totalComment",
+      title: "Total Comment"
+    },
+    {
+      id: "totalRelatedComment",
+      title: "Comments Including Keyword"
+    },
+    {
+      id: "totalPredictComment",
+      title: "Bert prediction"
+    }
+  ];
+
+  const categoryLimit = {
+    Shopping: 217,
+    "Maps & Navigation": 164,
+    Finance: 293,
+    Social: 164,
+    Entertainment: 229,
+    "Music & Audio": 171,
+    Tools: 226,
+    Beauty: 154,
+    "Health & Fitness": 165,
+    "Travel & Local": 194,
+    Education: 266,
+    "Food & Drink": 214,
+    Business: 230,
+    Sports: 166,
+    Medical: 176
+  };
+
+  const getCategory = categoryName => {
+    const category = Object.entries(categoryGroups).find(item => {
+      const subCategories = item[1];
+
+      if (subCategories.includes(categoryName)) return true;
+      return false;
+    })[0];
+
+    return category;
+  };
+
+  const [dataCSV, newdataCSV] = await Promise.all([
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("/Users/tuanle/Documents/app-comment(rais3).csv"),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("/Users/tuanle/Documents/app-comment(rais3_v2).csv")
+  ]);
+
+  const oldDataSet = dataCSV.map(item => {
+    return {
+      appName: item[1],
+      categoryName: getCategory(item[2]),
+      totalComment: item[3],
+      commentWithKeyword: item[4],
+      commentWithBert: item[5]
+    };
+  });
+  const newDataSet = newdataCSV.map(item => {
+    return {
+      appName: item[1],
+      categoryName: getCategory(item[2]),
+      totalComment: item[3],
+      commentWithKeyword: item[4],
+      commentWithBert: item[5]
+    };
+  });
+
+  const oldDataSetGroupByCat = _.groupBy(oldDataSet, "categoryName");
+
+  let stt = 1;
+  const rows = [];
+  await Promise.map(Object.keys(categoryLimit), async category => {
+    const apps = oldDataSet.filter(app => app.categoryName === category);
+
+    const numberOfCommentNeedAdd = categoryLimit[category] - apps.length;
+
+    let newAppsByCategory = newDataSet.filter(
+      app => app.categoryName === category && !_.includes(_.map(apps, "appName"), app.appName)
+    );
+    newAppsByCategory = newAppsByCategory.splice(0, numberOfCommentNeedAdd);
+
+    apps.forEach(item => {
+      rows.push({
+        stt: stt++,
+        appName: item.appName,
+        categoryName: item.categoryName,
+        dataset: "old",
+        totalComment: item.totalComment,
+        totalRelatedComment: item.commentWithKeyword,
+        totalPredictComment: item.commentWithBert
+      });
+    });
+    newAppsByCategory.forEach(item => {
+      rows.push({
+        stt: stt++,
+        appName: item.appName,
+        categoryName: item.categoryName,
+        dataset: "new",
+        totalComment: item.totalComment,
+        totalRelatedComment: item.commentWithKeyword,
+        totalPredictComment: item.commentWithBert
+      });
+    });
+
+    // await bluebird.map(
+    //   newAppsByCategory,
+    //   app =>
+    //     Models.App.updateOne(
+    //       {
+    //         appName: app.appName
+    //       },
+    //       {
+    //         needRunBert: true
+    //       }
+    //     ),
+    //   { concurrency: 100 }
+    // );
+  });
+
+  const csvWriter = createCsvWriter({
+    path: "./app-comment(with target).csv",
+    header
+  });
+  csvWriter.writeRecords(rows);
+
+  console.log("DONE");
+}
 main();
 async function main() {
   // await getRemainingComments();
   await Promise.all([
+    // getRemainingApps()
     // statCatApp(),
     // statAppcomment()
     // getPredictionReport()
   ]);
 
   // await statAppcomment();
-  await report1();
-  await report2();
+  // await report1();
+  // await report2();
   // await getCommentSurvey();
   // await updateComentShow();
   // await getDistance();

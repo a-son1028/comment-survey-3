@@ -49,7 +49,8 @@ var schema = new Schema(
     distanceRais3: Schema.Types.Number,
 
     isGotComment: Boolean,
-    isGotCommentV2: Boolean
+    isGotCommentV2: Boolean,
+    needRunBert: Boolean
   },
   {
     timestamps: true,
