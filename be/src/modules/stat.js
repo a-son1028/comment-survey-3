@@ -2613,34 +2613,10 @@ async function report2() {
       id: "time",
       title: "Time"
     },
-    {
-      id: "app1",
-      title: "App 1"
-    },
-    {
-      id: "app2",
-      title: "App 2"
-    },
-    {
-      id: "app3",
-      title: "App 3"
-    },
-    {
-      id: "app4",
-      title: "App 4"
-    },
-    {
-      id: "app5",
-      title: "App 5"
-    },
-    {
-      id: "app6",
-      title: "App 6"
-    },
-    {
-      id: "app7",
-      title: "App 7"
-    },
+    ...Array.from({ length: 20 }, (v, i) => ({
+      id: `app${i + 1}`,
+      title: `App ${i + 1}`
+    })),
     {
       id: "satisfied",
       title: "Satisfied"
@@ -2658,16 +2634,16 @@ async function report2() {
   };
 
   const getNameBySttSub = stt => {
-    if (stt == 0) return "Security";
-    else if (stt == 1) return "Privacy";
-    else if (stt == 3) return "Permission";
-    else if (stt == 5) return "Data sharing";
+    if (stt == 0) return "Security&Privacy";
+    else if (stt == 1) return "Permission";
+    else if (stt == 2) return "Data collection";
+    else if (stt == 3) return "Data sharing";
   };
 
   const dataFromMicro = await csv({
     noheader: true,
     output: "csv"
-  }).fromFile("/Users/tuanle/Downloads/CSVReport_9b45f61b802d_B_Page#1_With_PageSize#5000.csv");
+  }).fromFile("/Users/tuanle/Downloads/CSVReport_50749452be0b_B_Page#1_With_PageSize#5000.csv");
 
   const rows = [];
   const answers = await Models.Answer.find({});
@@ -2676,7 +2652,7 @@ async function report2() {
     const answer = answers[i];
     const user = await Models.User.findById(answer.userId);
 
-    if (!user.isAnswerd || answer.questions.length < 7) continue;
+    if (!user.isAnswerd || answer.questions.length < 20) continue;
 
     const resultInMicro = dataFromMicro.find(
       item => item[9]?.trim().toLowerCase() === user.email.trim().toLowerCase()
@@ -2733,7 +2709,8 @@ async function report1() {
     const answer = answers[i];
 
     const user = await Models.User.findById(answer.userId);
-    if (!user.isAnswerd || answer.questions.length < 7) continue;
+
+    if (!user.isAnswerd || answer.questions.length < 20) continue;
 
     answer.questions.forEach(appRes => {
       appRes.responses.forEach(commentRes => {
@@ -3050,9 +3027,9 @@ async function main() {
   ]);
 
   // await statAppcomment();
-  // await report1();
-  // await report2();
-  await getCommentSurvey();
+  await report1();
+  await report2();
+  // await getCommentSurvey();
   // await updateComentShow();
   // await getDistance();
   // await step22();
