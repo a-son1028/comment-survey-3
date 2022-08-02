@@ -42,10 +42,11 @@ async function main() {
 
 async function updatePredict() {
   let comments = [];
+  const apps = await Models.default.App.find({
+    needRunBert: true
+  });
+
   do {
-    const apps = await Models.default.App.find({
-      needRunBert: true
-    });
     comments = await Models.default.Comment.aggregate([
       {
         $match: {
