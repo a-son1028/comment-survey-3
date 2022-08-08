@@ -57,8 +57,8 @@ async function updatePredict() {
           scores: { $exists: false }
         }
       },
-      { $sample: { size: 5000000 } },
-      { $project: { comment: 100 } }
+      { $sample: { size: 100000 } },
+      { $project: { comment: 1 } }
     ]).allowDiskUse(true);
 
     await Promise.map(
