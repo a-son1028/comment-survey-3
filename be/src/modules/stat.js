@@ -2965,7 +2965,8 @@ async function getCommentSurvey() {
 
 async function getCommentSurveyV2() {
   const surveys = await Models.AppSurvey.find({
-    isDone: false
+    isDone: false,
+    isV2: { $exists: false }
   });
 
   const appIds = surveys.reduce((acc, survey) => {
@@ -2973,14 +2974,18 @@ async function getCommentSurveyV2() {
     return acc;
   }, []);
 
-  const appIdChunks = _.chunk(appIds, 12);
+  const appIdChunks = _.chunk(appIds, 14);
+
+  await Models.AppSurvey.deleteMany({
+    isV2: true
+  });
 
   await bluebird.map(appIdChunks, async appIds => {
-    if (appIds.length < 12) return;
+    if (appIds.length < 14) return;
 
     return Models.AppSurvey.create({
       apps: appIds.map((appId, stt) => ({ stt: stt + 1, appId })),
-      isV2: false
+      isV2: true
     });
   });
 }

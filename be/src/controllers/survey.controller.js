@@ -66,7 +66,7 @@ class SurveyController {
           ? {
               _id: appSurveyId
             }
-          : { isSelected: false, isV2: false })
+          : { isSelected: false, isV2: true })
       });
 
       await appSurvey.updateOne({
