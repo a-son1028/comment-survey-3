@@ -60,12 +60,13 @@ class SurveyController {
     try {
       const { user } = req;
       const { appSurveyId } = user;
+
       let appSurvey = await Models.AppSurvey.findOne({
         ...(appSurveyId
           ? {
               _id: appSurveyId
             }
-          : { isSelected: false })
+          : { isSelected: false, isV2: false })
       });
 
       await appSurvey.updateOne({

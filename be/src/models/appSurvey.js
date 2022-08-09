@@ -16,6 +16,10 @@ var groupSchema = new Schema(
     isSelected: {
       type: Boolean,
       default: false
+    },
+    isV2: {
+      type: Boolean,
+      default: false
     }
   },
   {

@@ -2963,6 +2963,28 @@ async function getCommentSurvey() {
   console.log("DONE");
 }
 
+async function getCommentSurveyV2() {
+  const surveys = await Models.AppSurvey.find({
+    isDone: false
+  });
+
+  const appIds = surveys.reduce((acc, survey) => {
+    acc = [...acc, ..._.map(survey.apps, "appId")];
+    return acc;
+  }, []);
+
+  const appIdChunks = _.chunk(appIds, 12);
+
+  await bluebird.map(appIdChunks, async appIds => {
+    if (appIds.length < 12) return;
+
+    return Models.AppSurvey.create({
+      apps: appIds.map((appId, stt) => ({ stt: stt + 1, appId })),
+      isV2: false
+    });
+  });
+}
+
 async function report2() {
   const header = [
     {
@@ -3558,7 +3580,8 @@ async function test() {
 
 main();
 async function main() {
-  await test();
+  // await test();
+  await getCommentSurveyV2();
   // await getRemainingComments();
   await Promise.all([
     // getRemainingApps()
