@@ -3011,7 +3011,7 @@ async function report2() {
   const dataFromMicro = await csv({
     noheader: true,
     output: "csv"
-  }).fromFile("/Users/tuanle/Downloads/CSVReport_50749452be0b_B_Page#1_With_PageSize#5000 (1).csv");
+  }).fromFile("/Users/tuanle/Downloads/CSVReport_50749452be0b_B_Page#1_With_PageSize#5000 (3).csv");
 
   const rows = [];
   const answers = await Models.Answer.find({});
@@ -3536,8 +3536,29 @@ async function getRemainingApps() {
 
   console.log("DONE");
 }
+
+async function test() {
+  const surveys = await Models.AppSurvey.find();
+
+  const remainingSurveys = surveys.filter(survey => !survey.isDone);
+
+  const appIds = remainingSurveys.reduce((acc, survey) => {
+    console.log(survey);
+    acc = [...acc, ..._.map(survey.apps, "appId")];
+    return acc;
+  }, []);
+  const comments = await Models.Comment.find({
+    appId: {
+      $in: appIds
+    }
+  });
+
+  console.log(1, comments.length);
+}
+
 main();
 async function main() {
+  await test();
   // await getRemainingComments();
   await Promise.all([
     // getRemainingApps()
