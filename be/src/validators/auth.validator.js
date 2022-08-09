@@ -13,7 +13,8 @@ class AuthValidator {
         .bail()
         .custom(async email => {
           const user = await Models.User.findOne({
-            email
+            email,
+            version: "v1"
           });
 
           if (user) throw Error("The email is already in use");

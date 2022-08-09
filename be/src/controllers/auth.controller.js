@@ -31,9 +31,10 @@ class AuthController {
   async signupHandle(req, res, next) {
     try {
       let errors = validationResult(req);
-      if (!errors.isEmpty()) return res.status(400).json({
-        message: errors.array()[0].msg
-      });
+      if (!errors.isEmpty())
+        return res.status(400).json({
+          message: errors.array()[0].msg
+        });
 
       const {
         email,
@@ -57,11 +58,13 @@ class AuthController {
         fieldOfWork,
         hasExperience,
         currentQuestion: 1,
+        version: "v1"
       });
 
-      if (!user) return res.status(400).json({
-        message: "Account created failed"
-      });
+      if (!user)
+        return res.status(400).json({
+          message: "Account created failed"
+        });
 
       res.status(200).json({
         message: "Account created successfully"
@@ -76,12 +79,14 @@ class AuthController {
       const { email, pass } = req.body;
 
       let user = await Models.User.findOne({
-        email
-      })
-
-      if (!user) return res.status(400).json({
-        message: "Email is incorrect"
+        email,
+        version: "v1"
       });
+
+      if (!user)
+        return res.status(400).json({
+          message: "Email is incorrect"
+        });
 
       // generate token
       const token = Services.Authentication.genToken(user.toJSON());

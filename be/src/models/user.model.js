@@ -39,6 +39,9 @@ var userSchema = new Schema(
     isInstruction: {
       type: Boolean,
       default: false
+    },
+    version: {
+      type: String
     }
   },
   {
