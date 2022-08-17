@@ -5,6 +5,12 @@ import Models from "../models";
 import fs from "fs";
 import axios from "axios";
 import bluebird, { Promise } from "bluebird";
+import Services from "../services";
+import natural from "natural";
+const PorterStemmer = require("../../node_modules/natural/lib/natural/stemmers/porter_stemmer");
+
+var bayesClassifier = new natural.BayesClassifier(PorterStemmer);
+var logisticRegressionClassifier = new natural.LogisticRegressionClassifier(PorterStemmer);
 
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 const csv = require("csvtojson");
@@ -3008,7 +3014,7 @@ async function report2() {
       id: "time",
       title: "Time"
     },
-    ...Array.from({ length: 20 }, (v, i) => ({
+    ...Array.from({ length: 14 }, (v, i) => ({
       id: `app${i + 1}`,
       title: `App ${i + 1}`
     })),
@@ -3038,7 +3044,7 @@ async function report2() {
   const dataFromMicro = await csv({
     noheader: true,
     output: "csv"
-  }).fromFile("/Users/tuanle/Downloads/CSVReport_50749452be0b_B_Page#1_With_PageSize#5000 (3).csv");
+  }).fromFile("/Users/tuanle/Downloads/CSVReport_9d94aa788a96_B_Page#1_With_PageSize#5000.csv");
 
   const rows = [];
   const answers = await Models.Answer.find({});
@@ -3047,7 +3053,8 @@ async function report2() {
     const answer = answers[i];
     const user = await Models.User.findById(answer.userId);
 
-    if (!user.isAnswerd || answer.questions.length < 20) continue;
+    if (user.version !== "v1") continue;
+    if (!user.isAnswerd || answer.questions.length < 14) continue;
 
     const resultInMicro = dataFromMicro.find(
       item => item[9]?.trim().toLowerCase() === user.email.trim().toLowerCase()
@@ -3105,7 +3112,8 @@ async function report1() {
 
     const user = await Models.User.findById(answer.userId);
 
-    if (!user.isAnswerd || answer.questions.length < 20) continue;
+    if (user.version !== "v1") continue;
+    if (!user.isAnswerd || answer.questions.length < 14) continue;
 
     answer.questions.forEach(appRes => {
       appRes.responses.forEach(commentRes => {
@@ -3565,39 +3573,902 @@ async function getRemainingApps() {
 }
 
 async function test() {
-  const surveys = await Models.AppSurvey.find();
+  let [k1, k2, k3, k4, k5] = await Promise.all([
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("/Users/tuanle/Documents/K1.csv"),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("/Users/tuanle/Documents/K2.csv"),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("/Users/tuanle/Documents/K3.csv"),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("/Users/tuanle/Documents/K4.csv"),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("/Users/tuanle/Documents/K5.csv")
+  ]);
 
-  const remainingSurveys = surveys.filter(survey => !survey.isDone);
+  const formatCSV = rows => {
+    return rows.map(row => ({
+      stt: row[0],
+      cites: row[1],
+      authors: row[2],
+      title: row[3],
+      year: row[4],
+      source: row[5],
+      publisher: row[6],
+      articleURL: row[7],
+      citesURL: row[8],
+      gsRank: row[9],
+      queryDate: row[10],
+      type: row[11]
+    }));
+  };
 
-  const appIds = remainingSurveys.reduce((acc, survey) => {
-    console.log(survey);
-    acc = [...acc, ..._.map(survey.apps, "appId")];
-    return acc;
-  }, []);
-  const comments = await Models.Comment.find({
-    appId: {
-      $in: appIds
+  k1 = formatCSV(k1).map(item => {
+    item.fileName = "k1";
+    return item;
+  });
+  k2 = formatCSV(k2).map(item => {
+    item.fileName = "k2";
+    return item;
+  });
+  k3 = formatCSV(k3).map(item => {
+    item.fileName = "k3";
+    return item;
+  });
+  k4 = formatCSV(k4).map(item => {
+    item.fileName = "k4";
+    return item;
+  });
+  k5 = formatCSV(k5).map(item => {
+    item.fileName = "k5";
+    return item;
+  });
+
+  const uniqArticles = _.uniqBy([...k1, ...k2, ...k3, ...k4, ...k5], function(elem) {
+    return [elem.authors, elem.title].join();
+  });
+
+  let content = "";
+  uniqArticles.forEach(item => {
+    console.log(item);
+    content += `${item.fileName}_${item.stt}\n`;
+  });
+
+  fs.writeFileSync("./articles_ids.txt", content);
+}
+
+async function generateTrainningAndTesting() {
+  const [
+    dataCollectionCSV,
+    dataSharingCSV,
+    permissionCSV,
+    SPCommentCSV,
+    SPTraningCSV
+  ] = await Promise.all([
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile(
+      "/Users/tuanle/Documents/SP_TRAINING,SP_Comment_TrainingDataset(Y-N),PERMISSION_TRAINING/DATA_COLLECTION_TRAINING.csv"
+    ),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile(
+      "/Users/tuanle/Documents/SP_TRAINING,SP_Comment_TrainingDataset(Y-N),PERMISSION_TRAINING/DATA_SHARING_TRAINING.csv"
+    ),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile(
+      "/Users/tuanle/Documents/SP_TRAINING,SP_Comment_TrainingDataset(Y-N),PERMISSION_TRAINING/PERMISSION_TRAINING.csv"
+    ),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile(
+      "/Users/tuanle/Documents/SP_TRAINING,SP_Comment_TrainingDataset(Y-N),PERMISSION_TRAINING/S&P_Comment_TrainingDataset(Y-N).csv"
+    ),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile(
+      "/Users/tuanle/Documents/SP_TRAINING,SP_Comment_TrainingDataset(Y-N),PERMISSION_TRAINING/S&P_TRAINING.csv"
+    )
+  ]);
+
+  const getTrainningAndTestingPercent = data => {
+    const numberOfTrainning = Math.floor(data.length * 0.7);
+
+    const trainning = data.slice(0, numberOfTrainning);
+    const testing = data.slice(numberOfTrainning, data.length);
+    return {
+      trainning,
+      testing
+    };
+  };
+
+  const dataCollectionDataSet = getTrainningAndTestingPercent(dataCollectionCSV);
+  const dataSharingDataSet = getTrainningAndTestingPercent(dataSharingCSV);
+  const permissionDataSet = getTrainningAndTestingPercent(permissionCSV);
+  const SPCommentDataSet = getTrainningAndTestingPercent(SPCommentCSV);
+  const SPTraningDataSet = getTrainningAndTestingPercent(SPTraningCSV);
+
+  const header = [
+    {
+      id: "id",
+      title: "id"
+    },
+    {
+      id: "comment_text",
+      title: "comment_text"
+    },
+    {
+      id: "SPCommentLabel",
+      title: "SPCommentLabel"
+    },
+    {
+      id: "SPTrainingLabel",
+      title: "SPTrainingLabel"
+    },
+    {
+      id: "permissionLabel",
+      title: "permissionLabel"
+    },
+    {
+      id: "dataCollectionLabel",
+      title: "dataCollectionLabel"
+    },
+    {
+      id: "dataSharingLabel",
+      title: "dataSharingLabel"
+    },
+    {
+      id: "temp1",
+      title: "temp1"
+    }
+  ];
+
+  let training = [];
+
+  dataCollectionDataSet.trainning.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = training.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      training[rowIndex].dataCollectionLabel = label === "Y" ? 1 : 0;
+    } else {
+      training.push({
+        comment: comment.trim(),
+        SPCommentLabel: 0,
+        SPTrainingLabel: 0,
+        permissionLabel: 0,
+        dataCollectionLabel: label === "Y" ? 1 : 0,
+        dataSharingLabel: 0
+      });
     }
   });
 
-  console.log(1, comments.length);
+  dataSharingDataSet.trainning.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = training.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      training[rowIndex].dataSharingLabel = label === "Y" ? 1 : 0;
+    } else {
+      training.push({
+        comment: comment.trim(),
+        SPCommentLabel: 0,
+        SPTrainingLabel: 0,
+        permissionLabel: 0,
+        dataCollectionLabel: 0,
+        dataSharingLabel: label === "Y" ? 1 : 0
+      });
+    }
+  });
+
+  permissionDataSet.trainning.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = training.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      training[rowIndex].permissionLabel = label === "Y" ? 1 : 0;
+    } else {
+      training.push({
+        comment: comment.trim(),
+        SPCommentLabel: 0,
+        SPTrainingLabel: 0,
+        permissionLabel: label === "Y" ? 1 : 0,
+        dataCollectionLabel: 0,
+        dataSharingLabel: 0
+      });
+    }
+  });
+
+  SPCommentDataSet.trainning.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = training.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      training[rowIndex].SPCommentLabel = label === "Y" ? 1 : 0;
+    } else {
+      training.push({
+        comment: comment.trim(),
+        SPCommentLabel: label === "Y" ? 1 : 0,
+        SPTrainingLabel: 0,
+        permissionLabel: 0,
+        dataCollectionLabel: 0,
+        dataSharingLabel: 0
+      });
+    }
+  });
+
+  SPTraningDataSet.trainning.forEach(item => {
+    const [, comment, label] = item;
+
+    const rowIndex = training.findIndex(item => item.comment === comment.trim());
+
+    if (~rowIndex) {
+      training[rowIndex].SPTrainingLabel = label === "Y" ? 1 : 0;
+    } else {
+      training.push({
+        comment: comment.trim(),
+        SPCommentLabel: 0,
+        SPTrainingLabel: label === "Y" ? 1 : 0,
+        permissionLabel: 0,
+        dataCollectionLabel: 0,
+        dataSharingLabel: 0
+      });
+    }
+  });
+
+  training = training.map((item, index) => {
+    return {
+      ...item,
+      id: index + 1,
+      comment_text: item.comment,
+      temp1: 0
+    };
+  });
+
+  const csvWriter = createCsvWriter({
+    path: "./training.csv",
+    header
+  });
+  csvWriter.writeRecords(training);
+
+  //  ======== Testing
+
+  const calculateAccuracy = async (data, fieldName) => {
+    const header = [
+      {
+        id: "name",
+        title: ""
+      },
+      {
+        id: "begin",
+        title: ""
+      }
+    ];
+
+    const header2 = [
+      {
+        id: "stt",
+        title: "STT"
+      },
+      {
+        id: "comment",
+        title: "Comment"
+      },
+      {
+        id: "label",
+        title: "Label"
+      },
+      {
+        id: "bertPrediction",
+        title: "Bert prediction"
+      }
+    ];
+
+    const testing = await Promise.map(
+      data,
+      async (item, index) => {
+        const [, comment, label] = item;
+
+        const prediction = await Services.PredictionLabel.getPredictLabel([
+          { id: 1, text: comment }
+        ]);
+        const predictionLabel = prediction[0].scores[fieldName] >= 0.5 ? "Y" : "N";
+
+        console.log(index, predictionLabel);
+        return {
+          comment,
+          label,
+          prediction: prediction[0].scores[fieldName],
+          predictionLabel
+        };
+      },
+      { concurrency: 10 }
+    );
+
+    let X = 0,
+      Y = 0,
+      Z = 0,
+      W = 0;
+
+    testing.forEach(item => {
+      const { predictionLabel, label } = item;
+      if (predictionLabel === "N" && label === "N") X++;
+      else if (predictionLabel === "Y" && label === "N") Y++;
+      else if (predictionLabel === "N" && label === "Y") Z++;
+      else if (predictionLabel === "Y" && label === "Y") W++;
+    });
+
+    const Precision = X / (X + Z);
+    const Recall = X / (X + Y);
+    const F1 = (2 * (Precision * Recall)) / (Precision + Recall);
+    const Accuracy = (X + W) / (X + Y + Z + W);
+
+    const rows = [
+      {
+        name: "Percision",
+        begin: Precision
+      },
+      {
+        name: "Recall",
+        begin: Recall
+      },
+      {
+        name: "F1",
+        begin: F1
+      },
+      {
+        name: "Accuracy",
+        begin: Accuracy
+      }
+    ];
+
+    const rows2 = testing.map((item, stt) => {
+      return {
+        stt: stt + 1,
+        comment: item.comment,
+        label: item.label,
+        bertPrediction: item.predictionLabel
+      };
+    });
+    const csvWriter = createCsvWriter({
+      path: `./${fieldName}.csv`,
+      header
+    });
+    const csvWriter2 = createCsvWriter({
+      path: `./${fieldName}-prediction.csv`,
+      header: header2
+    });
+    await csvWriter.writeRecords(rows);
+    await csvWriter2.writeRecords(rows2);
+  };
+
+  const confusion = async (data, fieldName) => {
+    const header = [
+      {
+        id: "name",
+        title: ""
+      },
+      {
+        id: "predictY",
+        title: "Predicted value: YES"
+      },
+      {
+        id: "predictN",
+        title: "Predicted value: NO"
+      }
+    ];
+
+    const testing = await Promise.map(
+      data,
+      async (item, index) => {
+        const [, comment, label] = item;
+
+        const prediction = await Services.PredictionLabel.getPredictLabel([
+          { id: 1, text: comment }
+        ]);
+        const predictionLabel = prediction[0].scores[fieldName] >= 0.5 ? "Y" : "N";
+
+        console.log(index, predictionLabel);
+        return {
+          comment,
+          label,
+          prediction: prediction[0].scores[fieldName],
+          predictionLabel
+        };
+      },
+      { concurrency: 5 }
+    );
+
+    let X = 0,
+      Y = 0,
+      Z = 0,
+      W = 0;
+
+    testing.forEach(item => {
+      const { predictionLabel, label } = item;
+      if (predictionLabel === "N" && label === "N") X++;
+      else if (predictionLabel === "Y" && label === "N") Y++;
+      else if (predictionLabel === "N" && label === "Y") Z++;
+      else if (predictionLabel === "Y" && label === "Y") W++;
+    });
+
+    const rows = [
+      {
+        name: "Actual value: Yes",
+        predictY: W,
+        predictN: Z
+      },
+      {
+        name: "Actual value: No",
+        predictY: Y,
+        predictN: X
+      }
+    ];
+
+    const csvWriter = createCsvWriter({
+      path: `./${fieldName}-confusion.csv`,
+      header
+    });
+    await csvWriter.writeRecords(rows);
+  };
+
+  await Promise.all([
+    // confusion(SPCommentDataSet.testing, "SPCommentLabel"),
+    // confusion(SPTraningDataSet.testing, "SPTrainingLabel"),
+    calculateAccuracy(SPTraningDataSet.testing, "SPTrainingLabel"),
+    calculateAccuracy(SPCommentDataSet.testing, "SPCommentLabel")
+  ]);
+  // await calculateAccuracy(SPTraningDataSet.testing, "SPTrainingLabel");
+  // await calculateAccuracy(SPCommentDataSet.testing, "SPCommentLabel");
+  // await calculateAccuracy(permissionDataSet.testing, "permissionLabel");
+  // await calculateAccuracy(dataSharingDataSet.testing, "dataSharingLabel");
+  // await calculateAccuracy(dataCollectionDataSet.testing, "dataCollectionLabel");
+
+  console.log("done");
 }
 
+async function trainningAndTesting() {
+  console.log("Running trainningAndTesting");
+
+  const [SPCommentCSV, SPTraningCSV] = await Promise.all([
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile(
+      "/Users/tuanle/Documents/SP_TRAINING,SP_Comment_TrainingDataset(Y-N),PERMISSION_TRAINING/S&P_Comment_TrainingDataset(Y-N).csv"
+    ),
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile(
+      "/Users/tuanle/Documents/SP_TRAINING,SP_Comment_TrainingDataset(Y-N),PERMISSION_TRAINING/S&P_TRAINING.csv"
+    )
+  ]);
+
+  const percentage = 70;
+  const result = {
+    bayes: {
+      TP: 0,
+      TN: 0,
+      FP: 0,
+      FN: 0
+    },
+    logistic: {
+      TP: 0,
+      TN: 0,
+      FP: 0,
+      FN: 0
+    }
+  };
+  const headerAccuracy = [
+    {
+      id: "name",
+      title: ""
+    },
+    {
+      id: "begin",
+      title: "Bayesian"
+    },
+    {
+      id: "malicious",
+      title: "Logistic Regression"
+    }
+  ];
+
+  let rows = SPTraningCSV;
+
+  const totalY = rows.filter(row => row[2] === "Y").length;
+  const totalN = rows.filter(row => row[2] === "N").length;
+  let rowsCSV = [];
+
+  const trainningY = rows.splice(0, Math.floor(totalY * (percentage / 100)));
+  const trainningN = rows.splice(0, Math.floor(totalN * (percentage / 100)));
+
+  const trainning = [...trainningY, ...trainningN];
+  trainning.forEach(([, text, label]) => {
+    bayesClassifier.addDocument(text, label);
+    logisticRegressionClassifier.addDocument(text, label);
+  });
+
+  bayesClassifier.train();
+  logisticRegressionClassifier.train();
+
+  const testing = rows;
+  testing.forEach(item => {
+    const [, text, label] = item;
+    const actualClassBayes = bayesClassifier.classify(text);
+    console.log(1, actualClassBayes);
+    if (label === "Y" && actualClassBayes == "Y") result.bayes.TP++;
+    else if (label === "N" && actualClassBayes == "N") result.bayes.TN++;
+    else if (label === "Y" && actualClassBayes == "N") result.bayes.FP++;
+    else if (label === "N" && actualClassBayes == "Y") result.bayes.FN++;
+
+    const actualClassLogistic = logisticRegressionClassifier.classify(text);
+    console.log(2, actualClassLogistic);
+
+    if (label === "Y" && actualClassLogistic == "Y") result.logistic.TP++;
+    else if (label === "N" && actualClassLogistic == "N") result.logistic.TN++;
+    else if (label === "Y" && actualClassLogistic == "N") result.logistic.FP++;
+    else if (label === "N" && actualClassLogistic == "Y") result.logistic.FN++;
+
+    rowsCSV.push({
+      comment: text,
+      label,
+      bayesian: actualClassBayes,
+      logistic: actualClassLogistic
+    });
+  });
+
+  // accuracy
+  const PrecisionBenign = result.bayes.TP / (result.bayes.TP + result.bayes.FP);
+  const PrecisionMalicious = result.logistic.TP / (result.logistic.TP + result.logistic.FP);
+
+  const RecallBenign = result.bayes.TP / (result.bayes.TP + result.bayes.FN);
+  const RecallMalicious = result.logistic.TP / (result.logistic.TP + result.logistic.FN);
+
+  const F1Benign = (2 * (PrecisionBenign * RecallBenign)) / (PrecisionBenign + RecallBenign);
+  const F1Malicious =
+    (2 * (PrecisionMalicious * RecallMalicious)) / (PrecisionMalicious + RecallMalicious);
+
+  const Accuracy =
+    (result.bayes.TP + result.bayes.TN) /
+    (result.bayes.TP + result.bayes.FP + result.bayes.FN + result.bayes.TN);
+  const AccuracyMalicious =
+    (result.logistic.TP + result.logistic.TN) /
+    (result.logistic.TP + result.logistic.FP + result.logistic.FN + result.logistic.TN);
+
+  const rowsAccuracy = [
+    {
+      name: "TP",
+      begin: result.bayes.TP,
+      malicious: result.logistic.TP
+    },
+    {
+      name: "TN",
+      begin: result.bayes.TN,
+      malicious: result.logistic.TN
+    },
+    {
+      name: "FP",
+      begin: result.bayes.FP,
+      malicious: result.logistic.FP
+    },
+    {
+      name: "FN",
+      begin: result.bayes.FN,
+      malicious: result.logistic.FN
+    },
+    {
+      name: "Percision",
+      begin: PrecisionBenign,
+      malicious: PrecisionMalicious
+    },
+    {
+      name: "Recall",
+      begin: RecallBenign,
+      malicious: RecallMalicious
+    },
+    {
+      name: "F1",
+      begin: F1Benign,
+      malicious: F1Malicious
+    },
+    {
+      name: "Accuracy",
+      begin: Accuracy,
+      malicious: AccuracyMalicious
+    }
+  ];
+
+  const csvWriterAccuracy = createCsvWriter({
+    path: `./Bayesian-and-Logistic-Regression-Classifiers(${percentage}-${100 - percentage}).csv`,
+    header: headerAccuracy
+  });
+  await csvWriterAccuracy.writeRecords(rowsAccuracy);
+
+  console.log("DONE");
+}
+
+async function test2() {
+  const csvData = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/tuanle/ind/comment-survey-3/be/SPTrainingLabel-new(prediction).csv");
+
+  let X = 0,
+    Y = 0,
+    Z = 0,
+    W = 0;
+
+  csvData.forEach(item => {
+    const [, , label, predictionLabel] = item;
+    if (predictionLabel === "N" && label === "N") X++;
+    else if (predictionLabel === "Y" && label === "N") Y++;
+    else if (predictionLabel === "N" && label === "Y") Z++;
+    else if (predictionLabel === "Y" && label === "Y") W++;
+  });
+
+  const Precision = X / (X + Z);
+  const Recall = X / (X + Y);
+  const F1 = (2 * (Precision * Recall)) / (Precision + Recall);
+  const Accuracy = (X + W) / (X + Y + Z + W);
+
+  const header1 = [
+    {
+      id: "name",
+      title: ""
+    },
+    {
+      id: "begin",
+      title: ""
+    }
+  ];
+  const header2 = [
+    {
+      id: "name",
+      title: ""
+    },
+    {
+      id: "predictY",
+      title: "Predicted value: YES"
+    },
+    {
+      id: "predictN",
+      title: "Predicted value: NO"
+    }
+  ];
+
+  const rows1 = [
+    {
+      name: "Percision",
+      begin: Precision
+    },
+    {
+      name: "Recall",
+      begin: Recall
+    },
+    {
+      name: "F1",
+      begin: F1
+    },
+    {
+      name: "Accuracy",
+      begin: Accuracy
+    }
+  ];
+
+  const rows2 = [
+    {
+      name: "Actual value: Yes",
+      predictY: W,
+      predictN: Z
+    },
+    {
+      name: "Actual value: No",
+      predictY: Y,
+      predictN: X
+    }
+  ];
+
+  const csvWriter1 = createCsvWriter({
+    path: `./SPTrainingLabel-new(accuracy).csv`,
+    header: header1
+  });
+  await csvWriter1.writeRecords(rows1);
+
+  const csvWriter2 = createCsvWriter({
+    path: `./SPTrainingLabel-new(confusion).csv`,
+    header: header2
+  });
+  await csvWriter2.writeRecords(rows2);
+  return;
+  const header = [
+    {
+      id: "stt",
+      title: "STT"
+    },
+    {
+      id: "comment",
+      title: "Comment"
+    },
+    {
+      id: "label",
+      title: "Label"
+    },
+    {
+      id: "predictionLabel",
+      title: "Bert prediction"
+    }
+  ];
+  console.log(1);
+  const rows = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile(
+    "/Users/tuanle/Documents/SP_TRAINING,SP_Comment_TrainingDataset(Y-N),PERMISSION_TRAINING/SPTrainingLabel-new.csv"
+  );
+
+  let result = await Promise.map(
+    rows,
+    async row => {
+      const [stt, comment, label] = row;
+
+      console.log(1, stt);
+      const prediction = await Services.PredictionLabel.getPredictLabel([{ id: 1, text: comment }]);
+      const predictionLabel = prediction[0].scores.SPTrainingLabel >= 0.5 ? "Y" : "N";
+
+      return {
+        comment,
+        label,
+        predictionLabel
+      };
+    },
+    {
+      concurrency: 10
+    }
+  );
+
+  console.log(result);
+  result = result.map((item, i) => {
+    item.stt = i + 1;
+
+    return item;
+  });
+
+  const csvWriterAccuracy = createCsvWriter({
+    path: `./SPTrainingLabel-new(prediction).csv`,
+    header: header
+  });
+  await csvWriterAccuracy.writeRecords(result);
+
+  console.log("DONE");
+}
+// #|Apps|#Total comments|#Keyword including comments|#BERT predicting comments|#Comments labeling by Users|#Remaining comments
+
+async function test3() {
+  const header = [
+    {
+      id: "stt",
+      title: "STT"
+    },
+    {
+      id: "appName",
+      title: "App Name"
+    },
+    {
+      id: "totalComment",
+      title: "Total Comments"
+    },
+    {
+      id: "commentIncludeKeyWord",
+      title: "Keyword including comments"
+    },
+    {
+      id: "commentIncludeBert",
+      title: "BERT predicting comments"
+    },
+    {
+      id: "commentIncludelabeling",
+      title: "Comments labeling by Users"
+    },
+    {
+      id: "remainingComments",
+      title: "Remaining comments"
+    }
+  ];
+
+  const appSurveys = await Models.AppSurvey.find();
+  const answers = await Models.Answer.find();
+
+  const appIdsAnswered = answers.reduce((acc, item) => {
+    acc = [...acc, ..._.map(item.questions, "appId")];
+    return acc;
+  }, []);
+
+  const appIds = appSurveys.reduce((acc, item) => {
+    acc = [...acc, ..._.map(item.apps, "appId")];
+    return acc;
+  }, []);
+
+  let rows = await Promise.map(
+    appIds,
+    async appId => {
+      const app = await Models.App.findById(appId);
+      const comments = await Models.Comment.find({
+        appId
+      });
+
+      const relatedComments = comments.filter(item => item.isRelatedRail3);
+      const bertComments = comments.filter(item => item.scores);
+      const labelComments = comments.filter(item => _.includes(appIdsAnswered, item.appId));
+
+      return {
+        appName: app.appName,
+        totalComment: comments.length,
+        commentIncludeKeyWord: relatedComments.length,
+        commentIncludeBert: bertComments.length,
+        commentIncludelabeling: labelComments.length,
+        remainingComments:
+          comments.length - relatedComments.length - bertComments.length - labelComments.length
+      };
+    },
+    {
+      concurrency: 100
+    }
+  );
+
+  rows = rows.map((item, i) => {
+    item.stt = i + 1;
+
+    return item;
+  });
+
+  const csvWriter1 = createCsvWriter({
+    path: `./appRais3.csv`,
+    header
+  });
+  await csvWriter1.writeRecords(rows);
+}
 main();
 async function main() {
+  await test3();
+  // await test2();
+  // await trainningAndTesting();
+  // await generateTrainningAndTesting();
   // await test();
-  await getCommentSurveyV2();
+  // await getCommentSurveyV2();
   // await getRemainingComments();
   await Promise.all([
     // getRemainingApps()
     // statCatApp(),
     // statAppcomment()
     // getPredictionReport()
+    // report1(),
+    // report2()
   ]);
 
   // await statAppcomment();
-  // await report1();
-  // await report2();
+
   // await getCommentSurvey();
   // await updateComentShow();
   // await getDistance();

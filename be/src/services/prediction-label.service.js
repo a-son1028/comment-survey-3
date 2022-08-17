@@ -3,7 +3,7 @@ class PredictionLabel {
   constructor() {
     this.API = axios.create({
       baseURL: "http://localhost:8000",
-      timeout: 1000 * 60
+      timeout: 1000 * 60 * 5
     });
   }
 
