@@ -7,6 +7,8 @@ import axios from "axios";
 import bluebird, { Promise } from "bluebird";
 import Services from "../services";
 import natural from "natural";
+const isEnglish = require("is-english");
+
 const PorterStemmer = require("../../node_modules/natural/lib/natural/stemmers/porter_stemmer");
 
 var bayesClassifier = new natural.BayesClassifier(PorterStemmer);
@@ -4380,6 +4382,10 @@ async function test3() {
       title: "Total Comments"
     },
     {
+      id: "englishComments",
+      title: "English comments"
+    },
+    {
       id: "commentIncludeKeyWord",
       title: "Keyword including comments"
     },
@@ -4421,10 +4427,12 @@ async function test3() {
       const relatedComments = comments.filter(item => item.isRelatedRail3);
       const bertComments = comments.filter(item => item.scores);
       const labelComments = comments.filter(item => _.includes(appIdsAnswered, item.appId));
+      const englishComments = comments.filter(item => isEnglish(item.comment));
 
       return {
         appName: app.appName,
         totalComment: comments.length,
+        englishComments: englishComments.length,
         commentIncludeKeyWord: relatedComments.length,
         commentIncludeBert: bertComments.length,
         commentIncludelabeling: labelComments.length,

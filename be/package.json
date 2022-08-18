@@ -50,6 +50,7 @@
     "helmet": "^3.22.0",
     "http-errors": "~1.6.3",
     "http-status-codes": "^1.4.0",
+    "is-english": "^1.3.0",
     "jsonwebtoken": "^8.5.1",
     "jwk-to-pem": "^2.0.3",
     "linebyline": "^1.3.0",
