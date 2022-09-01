@@ -4426,38 +4426,43 @@ async function test3() {
     async (appId, index) => {
       console.log(`RUNNING ${index + 1}/${appIds.length}`);
 
-      const app = await Models.App.findById(appId);
-      const comments = await Models.Comment.find({
-        appId
-      });
+      try {
+        const app = await Models.App.findById(appId);
+        const comments = await Models.Comment.find({
+          appId
+        });
 
-      const relatedComments = comments.filter(item => item.isRelatedRail3);
-      const bertComments = comments.filter(item => item.scores);
-      const labelComments = comments.filter(item =>
-        _.includes(commentIdsAnswered, item._id.toString())
-      );
-      const noLabelComments = comments.filter(
-        item => !_.includes(commentIdsAnswered, item._id.toString())
-      );
-      const englishComments = comments.filter(item => isEnglish(item.comment));
+        const relatedComments = comments.filter(item => item.isRelatedRail3);
+        const bertComments = comments.filter(item => item.scores);
+        const labelComments = comments.filter(item =>
+          _.includes(commentIdsAnswered, item._id.toString())
+        );
+        const noLabelComments = comments.filter(
+          item => !_.includes(commentIdsAnswered, item._id.toString())
+        );
+        const englishComments = comments.filter(item => isEnglish(item.comment));
 
-      fs.writeFileSync(`./data/${app.appName}`, _.map(noLabelComments, "id").join("-"));
-      return {
-        appName: app.appName,
-        totalComment: comments.length,
-        englishComments: englishComments.length,
-        commentIncludeKeyWord: relatedComments.length,
-        commentIncludeBert: bertComments.length,
-        commentIncludelabeling: labelComments.length,
-        remainingComments:
-          comments.length - relatedComments.length - bertComments.length - labelComments.length
-      };
+        fs.writeFileSync(`./data/${app.appName}`, _.map(noLabelComments, "id").join("-"));
+        return {
+          appName: app.appName,
+          totalComment: comments.length,
+          englishComments: englishComments.length,
+          commentIncludeKeyWord: relatedComments.length,
+          commentIncludeBert: bertComments.length,
+          commentIncludelabeling: labelComments.length,
+          remainingComments:
+            comments.length - relatedComments.length - bertComments.length - labelComments.length
+        };
+      } catch (err) {
+        console.log(err);
+      }
     },
     {
       concurrency: 30
     }
   );
 
+  rows = rows.filter(item => !!item);
   rows = rows.map((item, i) => {
     item.stt = i + 1;
 
