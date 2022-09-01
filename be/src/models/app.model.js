@@ -50,7 +50,8 @@ var schema = new Schema(
 
     isGotComment: Boolean,
     isGotCommentV2: Boolean,
-    needRunBert: Boolean
+    needRunBert: Boolean,
+    isTest5: Boolean
   },
   {
     timestamps: true,

@@ -106,7 +106,8 @@ var groupSchema = new Schema(
       type: Boolean
     },
     label: String,
-    scores: Schema.Types.Mixed
+    scores: Schema.Types.Mixed,
+    isNotLabel: Boolean
   },
   {
     timestamps: true,

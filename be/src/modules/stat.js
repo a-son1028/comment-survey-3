@@ -4403,6 +4403,16 @@ async function test3() {
     }
   ];
 
+  let currentRows = [];
+  try {
+    currentRows = await csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("./appRais3.csv");
+  } catch (error) {
+    console.error(error.message);
+  }
+
   const appSurveys = await Models.AppSurvey.find();
   const answers = await Models.Answer.find();
 
@@ -4428,30 +4438,57 @@ async function test3() {
 
       try {
         const app = await Models.App.findById(appId);
-        const comments = await Models.Comment.find({
-          appId
-        });
+        let appName,
+          totalComment,
+          englishComments,
+          commentIncludeKeyWord,
+          commentIncludeBert,
+          commentIncludelabeling,
+          remainingComments;
+        const existedRow = currentRows.find(item => item[1] === app.appName);
+        if (existedRow) {
+          appName = existedRow[1];
+          totalComment = existedRow[2];
+          englishComments = existedRow[3];
+          commentIncludeKeyWord = existedRow[4];
+          commentIncludeBert = existedRow[5];
+          commentIncludelabeling = existedRow[6];
+          remainingComments = existedRow[7];
+        } else {
+          const comments = await Models.Comment.find({
+            appId
+          });
 
-        const relatedComments = comments.filter(item => item.isRelatedRail3);
-        const bertComments = comments.filter(item => item.scores);
-        const labelComments = comments.filter(item =>
-          _.includes(commentIdsAnswered, item._id.toString())
-        );
-        const noLabelComments = comments.filter(
-          item => !_.includes(commentIdsAnswered, item._id.toString())
-        );
-        const englishComments = comments.filter(item => isEnglish(item.comment));
+          const relatedComments = comments.filter(item => item.isRelatedRail3);
+          const bertComments = comments.filter(item => item.scores);
+          const labelComments = comments.filter(item =>
+            _.includes(commentIdsAnswered, item._id.toString())
+          );
+          const noLabelComments = comments.filter(
+            item => !_.includes(commentIdsAnswered, item._id.toString())
+          );
+          const englishComments = comments.filter(item => isEnglish(item.comment));
 
-        fs.writeFileSync(`./data/${app.appName}`, _.map(noLabelComments, "id").join("-"));
+          fs.writeFileSync(`./data/${app.appName}`, _.map(noLabelComments, "id").join("-"));
+
+          appName = app.appName;
+          totalComment = comments.length;
+          englishComments = englishComments.length;
+          commentIncludeKeyWord = relatedComments.length;
+          commentIncludeBert = bertComments.length;
+          commentIncludelabeling = labelComments.length;
+          remainingComments =
+            comments.length - relatedComments.length - bertComments.length - labelComments.length;
+        }
+
         return {
-          appName: app.appName,
-          totalComment: comments.length,
-          englishComments: englishComments.length,
-          commentIncludeKeyWord: relatedComments.length,
-          commentIncludeBert: bertComments.length,
-          commentIncludelabeling: labelComments.length,
-          remainingComments:
-            comments.length - relatedComments.length - bertComments.length - labelComments.length
+          appName,
+          totalComment,
+          englishComments,
+          commentIncludeKeyWord,
+          commentIncludeBert,
+          commentIncludelabeling,
+          remainingComments
         };
       } catch (err) {
         console.log(err);
@@ -4476,9 +4513,221 @@ async function test3() {
   await csvWriter1.writeRecords(rows);
 }
 
+async function test4() {
+  const targetApps = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("./data/app-comment(with target).csv");
+
+  let currentRows = [];
+  try {
+    currentRows = await csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("./app-comment(with target).csv");
+  } catch (error) {
+    console.error(error.message);
+  }
+
+  const answers = await Models.Answer.find();
+  const commentIdsAnswered = answers.reduce((acc, item) => {
+    acc = [
+      ...acc,
+      ..._.map(_.flatten(_.map(item.questions, "responses")), "commentId").map(item =>
+        item.toString()
+      )
+    ];
+    return acc;
+  }, []);
+
+  const header = [
+    {
+      id: "stt",
+      title: "No."
+    },
+    {
+      id: "appName",
+      title: "App Name"
+    },
+    {
+      id: "categoryName",
+      title: "Category Name"
+    },
+    {
+      id: "dataset",
+      title: "Dataset"
+    },
+    {
+      id: "totalComment",
+      title: "Total Comment"
+    },
+    {
+      id: "totalRelatedComment",
+      title: "Comments Including Keyword"
+    },
+    {
+      id: "totalPredictComment",
+      title: "Bert prediction"
+    },
+    {
+      id: "percentage",
+      title: "Percentage"
+    },
+    {
+      id: "commentIncludelabeling",
+      title: "Comments labeling by Users"
+    }
+  ];
+
+  let rows = await Promise.map(
+    targetApps,
+    async app => {
+      try {
+        const [
+          stt,
+          appName,
+          categoryName,
+          dataset,
+          totalComment,
+          totalRelatedComment,
+          totalPredictComment,
+          percentage
+        ] = app;
+
+        let labelComments;
+        const existedRow = currentRows.find(item => item[0] === stt);
+        if (existedRow) {
+          labelComments = existedRow[8];
+        } else {
+          const appDB = await Models.App.findOne({
+            appName
+          });
+
+          if (!appDB) return;
+          const comments = await Models.Comment.find({
+            appId: appDB._id
+          });
+
+          labelComments = comments.filter(item =>
+            _.includes(commentIdsAnswered, item._id.toString())
+          );
+        }
+
+        return {
+          stt,
+          appName,
+          categoryName,
+          dataset,
+          totalComment,
+          totalRelatedComment,
+          totalPredictComment,
+          percentage,
+          commentIncludelabeling: labelComments.length
+        };
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    {
+      concurrency: 10
+    }
+  );
+
+  rows = rows.filter(item => !!item);
+  rows = _.orderBy(rows, ["stt"], ["asc"]);
+
+  const csvWriter1 = createCsvWriter({
+    path: `./app-comment(with target).csv`,
+    header
+  });
+  await csvWriter1.writeRecords(rows);
+
+  console.log("DONE");
+}
+
+async function test5() {
+  const targetApps = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("./data/app-comment(with target).csv");
+
+  const answers = await Models.Answer.find();
+  const commentIdsAnswered = answers.reduce((acc, item) => {
+    acc = [
+      ...acc,
+      ..._.map(_.flatten(_.map(item.questions, "responses")), "commentId").map(item =>
+        item.toString()
+      )
+    ];
+    return acc;
+  }, []);
+
+  await Promise.map(
+    targetApps,
+    async app => {
+      try {
+        const [
+          stt,
+          appName,
+          categoryName,
+          dataset,
+          totalComment,
+          totalRelatedComment,
+          totalPredictComment,
+          percentage
+        ] = app;
+        console.log(dataset);
+
+        if (dataset === "old") return;
+
+        const appDB = await Models.App.findOne({
+          appName
+        });
+
+        if (!appDB || appDB.isTest5) return;
+
+        const comments = await Models.Comment.find({
+          appId: appDB._id
+        });
+
+        const labelComments = comments.filter(
+          item => !_.includes(commentIdsAnswered, item._id.toString())
+        );
+
+        await Models.Comment.updateMany(
+          {
+            _id: {
+              $in: _.map(labelComments, "_id")
+            }
+          },
+          {
+            $set: { isNotLabel: true }
+          }
+        );
+
+        await Models.App.updateOne(
+          {
+            appName
+          },
+          {
+            $set: {
+              isTest5: true
+            }
+          }
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    {
+      concurrency: 10
+    }
+  );
+}
 main();
 async function main() {
-  await test3();
+  // await test3();
+
   // await test2();
   // await trainningAndTesting();
   // await generateTrainningAndTesting();
@@ -4486,6 +4735,9 @@ async function main() {
   // await getCommentSurveyV2();
   // await getRemainingComments();
   await Promise.all([
+    test3()
+    // test4(),
+    // test5()
     // getRemainingApps()
     // statCatApp(),
     // statAppcomment()
