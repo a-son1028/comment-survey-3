@@ -4511,6 +4511,8 @@ async function test3() {
     header
   });
   await csvWriter1.writeRecords(rows);
+
+  console.log("DONE test3");
 }
 
 async function test4() {
@@ -4642,7 +4644,7 @@ async function test4() {
   });
   await csvWriter1.writeRecords(rows);
 
-  console.log("DONE");
+  console.log("DONE test4");
 }
 
 async function test5() {
@@ -4723,6 +4725,8 @@ async function test5() {
       concurrency: 10
     }
   );
+
+  console.log("DONE test5");
 }
 main();
 async function main() {
