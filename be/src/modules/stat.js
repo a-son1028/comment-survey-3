@@ -4443,7 +4443,7 @@ async function test3() {
       };
     },
     {
-      concurrency: 100
+      concurrency: 30
     }
   );
 
