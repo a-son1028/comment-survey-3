@@ -4418,7 +4418,9 @@ async function test3() {
 
   let rows = await Promise.map(
     appIds,
-    async appId => {
+    async (appId, index) => {
+      console.log(`RUNNING ${index + 1}/${appIds.length}`);
+
       const app = await Models.App.findById(appId);
       const comments = await Models.Comment.find({
         appId
