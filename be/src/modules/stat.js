@@ -4735,7 +4735,7 @@ async function main() {
   // await getCommentSurveyV2();
   // await getRemainingComments();
   await Promise.all([
-    test3()
+    test3(),
     test4(),
     test5()
     // getRemainingApps()
