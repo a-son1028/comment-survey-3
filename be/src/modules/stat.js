@@ -4406,8 +4406,13 @@ async function test3() {
   const appSurveys = await Models.AppSurvey.find();
   const answers = await Models.Answer.find();
 
-  const appIdsAnswered = answers.reduce((acc, item) => {
-    acc = [...acc, ..._.map(item.questions, "appId")];
+  const commentIdsAnswered = answers.reduce((acc, item) => {
+    acc = [
+      ...acc,
+      ..._.map(_.flatten(_.map(item.questions, "responses")), "commentId").map(item =>
+        item.toString()
+      )
+    ];
     return acc;
   }, []);
 
@@ -4428,9 +4433,15 @@ async function test3() {
 
       const relatedComments = comments.filter(item => item.isRelatedRail3);
       const bertComments = comments.filter(item => item.scores);
-      const labelComments = comments.filter(item => _.includes(appIdsAnswered, item.appId));
+      const labelComments = comments.filter(item =>
+        _.includes(commentIdsAnswered, item._id.toString())
+      );
+      const noLabelComments = comments.filter(
+        item => !_.includes(commentIdsAnswered, item._id.toString())
+      );
       const englishComments = comments.filter(item => isEnglish(item.comment));
 
+      fs.writeFileSync(`./data/${app.appName}`, _.map(noLabelComments, "id").join("-"));
       return {
         appName: app.appName,
         totalComment: comments.length,
@@ -4459,6 +4470,7 @@ async function test3() {
   });
   await csvWriter1.writeRecords(rows);
 }
+
 main();
 async function main() {
   await test3();
