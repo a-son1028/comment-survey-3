@@ -4740,8 +4740,8 @@ async function main() {
   // await getRemainingComments();
   await Promise.all([
     test3(),
-    test4(),
-    test5()
+    test4()
+    // test5()
     // getRemainingApps()
     // statCatApp(),
     // statAppcomment()
