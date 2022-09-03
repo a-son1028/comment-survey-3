@@ -3011,7 +3011,16 @@ async function getCommentSurveyV3() {
     async app => {
       const comment = await Models.Comment.findOne({
         appId: app._id,
-        isNotLabel: true
+        isNotLabel: true,
+        scores: { $exists: true, $ne: null },
+        isShowOnRais3: true,
+        $or: [
+          { securitySentences: { $ne: [] } },
+          { privacySentences: { $ne: [] } },
+          { permissionSentences: { $ne: [] } },
+          { collectionSentences: { $ne: [] } },
+          { sharingSentences: { $ne: [] } }
+        ]
       });
 
       return !!comment;
@@ -3028,8 +3037,17 @@ async function getCommentSurveyV3() {
       app = app.toJSON();
       const comments = await Models.Comment.find({
         appId: app._id,
-        isNotLabel: true
-      }).limit(100);
+        isNotLabel: true,
+        scores: { $exists: true, $ne: null },
+        isShowOnRais3: true,
+        $or: [
+          { securitySentences: { $ne: [] } },
+          { privacySentences: { $ne: [] } },
+          { permissionSentences: { $ne: [] } },
+          { collectionSentences: { $ne: [] } },
+          { sharingSentences: { $ne: [] } }
+        ]
+      }).limit(300);
 
       app.commentIds = _.map(comments, "_id");
 
@@ -3041,15 +3059,17 @@ async function getCommentSurveyV3() {
     }
   );
 
-  const appChunks = _.chunk(appsWithComments, 30);
+  const appChunks = _.chunk(appsWithComments, 7);
   await bluebird.map(appChunks, async apps => {
-    if (apps.length < 30) return;
+    if (apps.length < 7) return;
 
     return Models.AppSurvey.create({
       apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id, commentIds: app.commentIds })),
       isV3: true
     });
   });
+
+  console.log("DONE getCommentSurveyV3");
 }
 
 async function report2() {
@@ -4292,10 +4312,25 @@ async function generateTrainningAndTestingV2() {
       { concurrency: 10 }
     );
 
-    let X = 0,
-      Y = 0,
-      Z = 0,
-      W = 0;
+    let XSPComment = 0,
+      YSPComment = 0,
+      ZSPComment = 0,
+      WSPComment = 0;
+
+    let Xpermission = 0,
+      Ypermission = 0,
+      Zpermission = 0,
+      Wpermission = 0;
+
+    let XdataCollection = 0,
+      YdataCollection = 0,
+      ZdataCollection = 0,
+      WdataCollection = 0;
+
+    let XdataSharing = 0,
+      YdataSharing = 0,
+      ZdataSharing = 0,
+      WdataSharing = 0;
 
     testing.forEach(item => {
       const {
@@ -4309,31 +4344,59 @@ async function generateTrainningAndTestingV2() {
         dataCollectionLabelPrediction,
         dataSharingLabelPrediction
       } = item;
-      if (SPCommentLabelPrediction === "" && SPCommentLabel === "") X++;
-      else if (SPCommentLabelPrediction === "x" && SPCommentLabel === "") Y++;
-      else if (SPCommentLabelPrediction === "" && SPCommentLabel === "x") Z++;
-      else if (SPCommentLabelPrediction === "x" && SPCommentLabel === "x") W++;
+      if (SPCommentLabelPrediction === "" && SPCommentLabel === "") XSPComment++;
+      else if (SPCommentLabelPrediction === "x" && SPCommentLabel === "") YSPComment++;
+      else if (SPCommentLabelPrediction === "" && SPCommentLabel === "x") ZSPComment++;
+      else if (SPCommentLabelPrediction === "x" && SPCommentLabel === "x") WSPComment++;
 
-      if (permissionLabelPrediction === "" && permissionLabel === "") X++;
-      else if (permissionLabelPrediction === "x" && permissionLabel === "") Y++;
-      else if (permissionLabelPrediction === "" && permissionLabel === "x") Z++;
-      else if (permissionLabelPrediction === "x" && permissionLabel === "x") W++;
+      if (permissionLabelPrediction === "" && permissionLabel === "") Xpermission++;
+      else if (permissionLabelPrediction === "x" && permissionLabel === "") Ypermission++;
+      else if (permissionLabelPrediction === "" && permissionLabel === "x") Zpermission++;
+      else if (permissionLabelPrediction === "x" && permissionLabel === "x") Wpermission++;
 
-      if (dataCollectionLabelPrediction === "" && dataCollectionLabel === "") X++;
-      else if (dataCollectionLabelPrediction === "x" && dataCollectionLabel === "") Y++;
-      else if (dataCollectionLabelPrediction === "" && dataCollectionLabel === "x") Z++;
-      else if (dataCollectionLabelPrediction === "x" && dataCollectionLabel === "x") W++;
+      if (dataCollectionLabelPrediction === "" && dataCollectionLabel === "") XdataCollection++;
+      else if (dataCollectionLabelPrediction === "x" && dataCollectionLabel === "")
+        YdataCollection++;
+      else if (dataCollectionLabelPrediction === "" && dataCollectionLabel === "x")
+        ZdataCollection++;
+      else if (dataCollectionLabelPrediction === "x" && dataCollectionLabel === "x")
+        WdataCollection++;
 
-      if (dataSharingLabelPrediction === "" && dataSharingLabel === "") X++;
-      else if (dataSharingLabelPrediction === "x" && dataSharingLabel === "") Y++;
-      else if (dataSharingLabelPrediction === "" && dataSharingLabel === "x") Z++;
-      else if (dataSharingLabelPrediction === "x" && dataSharingLabel === "x") W++;
+      if (dataSharingLabelPrediction === "" && dataSharingLabel === "") XdataSharing++;
+      else if (dataSharingLabelPrediction === "x" && dataSharingLabel === "") YdataSharing++;
+      else if (dataSharingLabelPrediction === "" && dataSharingLabel === "x") ZdataSharing++;
+      else if (dataSharingLabelPrediction === "x" && dataSharingLabel === "x") WdataSharing++;
     });
 
-    const Precision = X / (X + Z);
-    const Recall = X / (X + Y);
-    const F1 = (2 * (Precision * Recall)) / (Precision + Recall);
-    const Accuracy = (X + W) / (X + Y + Z + W);
+    const PrecisionSPComment = XSPComment / (XSPComment + ZSPComment);
+    const RecallSPComment = XSPComment / (XSPComment + YSPComment);
+    const F1SPComment =
+      (2 * (PrecisionSPComment * RecallSPComment)) / (PrecisionSPComment + RecallSPComment);
+    const AccuracySPComment =
+      (XSPComment + WSPComment) / (XSPComment + YSPComment + ZSPComment + WSPComment);
+
+    const Precisionpermission = Xpermission / (Xpermission + Zpermission);
+    const Recallpermission = Xpermission / (Xpermission + Ypermission);
+    const F1permission =
+      (2 * (Precisionpermission * Recallpermission)) / (Precisionpermission + Recallpermission);
+    const Accuracypermission =
+      (Xpermission + Wpermission) / (Xpermission + Ypermission + Zpermission + Wpermission);
+
+    const PrecisiondataCollection = XdataCollection / (XdataCollection + ZdataCollection);
+    const RecalldataCollection = XdataCollection / (XdataCollection + YdataCollection);
+    const F1dataCollection =
+      (2 * (PrecisiondataCollection * RecalldataCollection)) /
+      (PrecisiondataCollection + RecalldataCollection);
+    const AccuracydataCollection =
+      (XdataCollection + WdataCollection) /
+      (XdataCollection + YdataCollection + ZdataCollection + WdataCollection);
+
+    const PrecisiondataSharing = XdataSharing / (XdataSharing + ZdataSharing);
+    const RecalldataSharing = XdataSharing / (XdataSharing + YdataSharing);
+    const F1dataSharing =
+      (2 * (PrecisiondataSharing * RecalldataSharing)) / (PrecisiondataSharing + RecalldataSharing);
+    const AccuracydataSharing =
+      (XdataSharing + WdataSharing) / (XdataSharing + YdataSharing + ZdataSharing + WdataSharing);
 
     const rows = [
       {
@@ -4452,16 +4515,56 @@ async function trainningAndTestingLNAndBaye() {
   const percentage = 70;
   const result = {
     bayes: {
-      TP: 0,
-      TN: 0,
-      FP: 0,
-      FN: 0
+      SPComment: {
+        TP: 0,
+        TN: 0,
+        FP: 0,
+        FN: 0
+      },
+      permission: {
+        TP: 0,
+        TN: 0,
+        FP: 0,
+        FN: 0
+      },
+      dataCollection: {
+        TP: 0,
+        TN: 0,
+        FP: 0,
+        FN: 0
+      },
+      dataSharing: {
+        TP: 0,
+        TN: 0,
+        FP: 0,
+        FN: 0
+      }
     },
     logistic: {
-      TP: 0,
-      TN: 0,
-      FP: 0,
-      FN: 0
+      SPComment: {
+        TP: 0,
+        TN: 0,
+        FP: 0,
+        FN: 0
+      },
+      permission: {
+        TP: 0,
+        TN: 0,
+        FP: 0,
+        FN: 0
+      },
+      dataCollection: {
+        TP: 0,
+        TN: 0,
+        FP: 0,
+        FN: 0
+      },
+      dataSharing: {
+        TP: 0,
+        TN: 0,
+        FP: 0,
+        FN: 0
+      }
     }
   };
   const headerAccuracy = [
@@ -4470,12 +4573,36 @@ async function trainningAndTestingLNAndBaye() {
       title: ""
     },
     {
-      id: "begin",
-      title: "Bayesian"
+      id: "beginSPComment",
+      title: "Bayesian S&P assessment"
     },
     {
-      id: "malicious",
-      title: "Logistic Regression"
+      id: "beginpermission",
+      title: "Bayesian permission"
+    },
+    {
+      id: "begindataCollection",
+      title: "Bayesian data collection"
+    },
+    {
+      id: "begindataSharing",
+      title: "Bayesian data sharing"
+    },
+    {
+      id: "maliciousSPComment",
+      title: "Logistic Regression S&P assessment"
+    },
+    {
+      id: "maliciouspermission",
+      title: "Logistic Regression permission"
+    },
+    {
+      id: "maliciousdataCollection",
+      title: "Logistic Regression data collection"
+    },
+    {
+      id: "maliciousdataSharing",
+      title: "Logistic Regression data sharing"
     }
   ];
 
@@ -4578,27 +4705,37 @@ async function trainningAndTestingLNAndBaye() {
     const actualClassBayesdataCollection = bayesClassifierdataCollection.classify(comment);
     const actualClassBayesdataSharing = bayesClassifierdataSharing.classify(comment);
 
-    console.log(actualClassBayesSPComment);
-    if (SPCommentLabel === "x" && actualClassBayesSPComment == "Y") result.bayes.TP++;
-    else if (SPCommentLabel === "" && actualClassBayesSPComment == "N") result.bayes.TN++;
-    else if (SPCommentLabel === "x" && actualClassBayesSPComment == "N") result.bayes.FP++;
-    else if (SPCommentLabel === "" && actualClassBayesSPComment == "Y") result.bayes.FN++;
+    if (SPCommentLabel === "x" && actualClassBayesSPComment == "Y") result.bayes.SPComment.TP++;
+    else if (SPCommentLabel === "" && actualClassBayesSPComment == "N") result.bayes.SPComment.TN++;
+    else if (SPCommentLabel === "x" && actualClassBayesSPComment == "N")
+      result.bayes.SPComment.FP++;
+    else if (SPCommentLabel === "" && actualClassBayesSPComment == "Y") result.bayes.SPComment.FN++;
 
-    if (permissionLabel === "x" && actualClassBayespermission == "Y") result.bayes.TP++;
-    else if (permissionLabel === "" && actualClassBayespermission == "N") result.bayes.TN++;
-    else if (permissionLabel === "x" && actualClassBayespermission == "N") result.bayes.FP++;
-    else if (permissionLabel === "" && actualClassBayespermission == "Y") result.bayes.FN++;
+    if (permissionLabel === "x" && actualClassBayespermission == "Y") result.bayes.permission.TP++;
+    else if (permissionLabel === "" && actualClassBayespermission == "N")
+      result.bayes.permission.TN++;
+    else if (permissionLabel === "x" && actualClassBayespermission == "N")
+      result.bayes.permission.FP++;
+    else if (permissionLabel === "" && actualClassBayespermission == "Y")
+      result.bayes.permission.FN++;
 
-    if (dataCollectionLabel === "x" && actualClassBayesdataCollection == "Y") result.bayes.TP++;
-    else if (dataCollectionLabel === "" && actualClassBayesdataCollection == "N") result.bayes.TN++;
+    if (dataCollectionLabel === "x" && actualClassBayesdataCollection == "Y")
+      result.bayes.dataCollection.TP++;
+    else if (dataCollectionLabel === "" && actualClassBayesdataCollection == "N")
+      result.bayes.dataCollection.TN++;
     else if (dataCollectionLabel === "x" && actualClassBayesdataCollection == "N")
-      result.bayes.FP++;
-    else if (dataCollectionLabel === "" && actualClassBayesdataCollection == "Y") result.bayes.FN++;
+      result.bayes.dataCollection.FP++;
+    else if (dataCollectionLabel === "" && actualClassBayesdataCollection == "Y")
+      result.bayes.dataCollection.FN++;
 
-    if (dataSharingLabel === "x" && actualClassBayesdataSharing == "Y") result.bayes.TP++;
-    else if (dataSharingLabel === "" && actualClassBayesdataSharing == "N") result.bayes.TN++;
-    else if (dataSharingLabel === "x" && actualClassBayesdataSharing == "N") result.bayes.FP++;
-    else if (dataSharingLabel === "" && actualClassBayesdataSharing == "Y") result.bayes.FN++;
+    if (dataSharingLabel === "x" && actualClassBayesdataSharing == "Y")
+      result.bayes.dataSharing.TP++;
+    else if (dataSharingLabel === "" && actualClassBayesdataSharing == "N")
+      result.bayes.dataSharing.TN++;
+    else if (dataSharingLabel === "x" && actualClassBayesdataSharing == "N")
+      result.bayes.dataSharing.FP++;
+    else if (dataSharingLabel === "" && actualClassBayesdataSharing == "Y")
+      result.bayes.dataSharing.FN++;
 
     const actualClassLogisticSPComment = logisticRegressionClassifierSPComment.classify(comment);
     const actualClassLogisticpermission = logisticRegressionClassifierpermission.classify(comment);
@@ -4609,30 +4746,41 @@ async function trainningAndTestingLNAndBaye() {
       comment
     );
 
-    if (SPCommentLabel === "x" && actualClassLogisticSPComment == "Y") result.logistic.TP++;
-    else if (SPCommentLabel === "" && actualClassLogisticSPComment == "N") result.logistic.TN++;
-    else if (SPCommentLabel === "x" && actualClassLogisticSPComment == "N") result.logistic.FP++;
-    else if (SPCommentLabel === "" && actualClassLogisticSPComment == "Y") result.logistic.FN++;
+    if (SPCommentLabel === "x" && actualClassLogisticSPComment == "Y")
+      result.logistic.SPComment.TP++;
+    else if (SPCommentLabel === "" && actualClassLogisticSPComment == "N")
+      result.logistic.SPComment.TN++;
+    else if (SPCommentLabel === "x" && actualClassLogisticSPComment == "N")
+      result.logistic.SPComment.FP++;
+    else if (SPCommentLabel === "" && actualClassLogisticSPComment == "Y")
+      result.logistic.SPComment.FN++;
 
-    if (permissionLabel === "x" && actualClassLogisticpermission == "Y") result.logistic.TP++;
-    else if (permissionLabel === "" && actualClassLogisticpermission == "N") result.logistic.TN++;
-    else if (permissionLabel === "x" && actualClassLogisticpermission == "N") result.logistic.FP++;
-    else if (permissionLabel === "" && actualClassLogisticpermission == "Y") result.logistic.FN++;
+    if (permissionLabel === "x" && actualClassLogisticpermission == "Y")
+      result.logistic.permission.TP++;
+    else if (permissionLabel === "" && actualClassLogisticpermission == "N")
+      result.logistic.permission.TN++;
+    else if (permissionLabel === "x" && actualClassLogisticpermission == "N")
+      result.logistic.permission.FP++;
+    else if (permissionLabel === "" && actualClassLogisticpermission == "Y")
+      result.logistic.permission.FN++;
 
     if (dataCollectionLabel === "x" && actualClassLogisticdataCollection == "Y")
-      result.logistic.TP++;
+      result.logistic.dataCollection.TP++;
     else if (dataCollectionLabel === "" && actualClassLogisticdataCollection == "N")
-      result.logistic.TN++;
+      result.logistic.dataCollection.TN++;
     else if (dataCollectionLabel === "x" && actualClassLogisticdataCollection == "N")
-      result.logistic.FP++;
+      result.logistic.dataCollection.FP++;
     else if (dataCollectionLabel === "" && actualClassLogisticdataCollection == "Y")
-      result.logistic.FN++;
+      result.logistic.dataCollection.FN++;
 
-    if (dataSharingLabel === "x" && actualClassLogisticdataSharing == "Y") result.logistic.TP++;
-    else if (dataSharingLabel === "" && actualClassLogisticdataSharing == "N") result.logistic.TN++;
+    if (dataSharingLabel === "x" && actualClassLogisticdataSharing == "Y")
+      result.logistic.dataSharing.TP++;
+    else if (dataSharingLabel === "" && actualClassLogisticdataSharing == "N")
+      result.logistic.dataSharing.TN++;
     else if (dataSharingLabel === "x" && actualClassLogisticdataSharing == "N")
-      result.logistic.FP++;
-    else if (dataSharingLabel === "" && actualClassLogisticdataSharing == "Y") result.logistic.FN++;
+      result.logistic.dataSharing.FP++;
+    else if (dataSharingLabel === "" && actualClassLogisticdataSharing == "Y")
+      result.logistic.dataSharing.FN++;
 
     rowsCSV.push({
       comment,
@@ -4657,63 +4805,224 @@ async function trainningAndTestingLNAndBaye() {
 
   console.log(result);
   // accuracy
-  const PrecisionBenign = result.bayes.TP / (result.bayes.TP + result.bayes.FP);
-  const PrecisionMalicious = result.logistic.TP / (result.logistic.TP + result.logistic.FP);
+  const PrecisionBenignSPComment =
+    result.bayes.SPComment.TP / (result.bayes.SPComment.TP + result.bayes.SPComment.FP);
+  const PrecisionBenignpermission =
+    result.bayes.permission.TP / (result.bayes.permission.TP + result.bayes.permission.FP);
+  const PrecisionBenigndataCollection =
+    result.bayes.dataCollection.TP /
+    (result.bayes.dataCollection.TP + result.bayes.dataCollection.FP);
+  const PrecisionBenigndataSharing =
+    result.bayes.dataSharing.TP / (result.bayes.dataSharing.TP + result.bayes.dataSharing.FP);
 
-  const RecallBenign = result.bayes.TP / (result.bayes.TP + result.bayes.FN);
-  const RecallMalicious = result.logistic.TP / (result.logistic.TP + result.logistic.FN);
+  const PrecisionMaliciousSPComment =
+    result.logistic.SPComment.TP / (result.logistic.SPComment.TP + result.logistic.SPComment.FP);
+  const PrecisionMaliciouspermission =
+    result.logistic.permission.TP / (result.logistic.permission.TP + result.logistic.permission.FP);
+  const PrecisionMaliciousdataCollection =
+    result.logistic.dataCollection.TP /
+    (result.logistic.dataCollection.TP + result.logistic.dataCollection.FP);
+  const PrecisionMaliciousdataSharing =
+    result.logistic.dataSharing.TP /
+    (result.logistic.dataSharing.TP + result.logistic.dataSharing.FP);
 
-  const F1Benign = (2 * (PrecisionBenign * RecallBenign)) / (PrecisionBenign + RecallBenign);
-  const F1Malicious =
-    (2 * (PrecisionMalicious * RecallMalicious)) / (PrecisionMalicious + RecallMalicious);
+  const RecallBenignSPComment =
+    result.bayes.SPComment.TP / (result.bayes.SPComment.TP + result.bayes.SPComment.FN);
+  const RecallBenignpermission =
+    result.bayes.permission.TP / (result.bayes.permission.TP + result.bayes.permission.FN);
+  const RecallBenigndataCollection =
+    result.bayes.dataCollection.TP /
+    (result.bayes.dataCollection.TP + result.bayes.dataCollection.FN);
+  const RecallBenigndataSharing =
+    result.bayes.dataSharing.TP / (result.bayes.dataSharing.TP + result.bayes.dataSharing.FN);
 
-  const Accuracy =
-    (result.bayes.TP + result.bayes.TN) /
-    (result.bayes.TP + result.bayes.FP + result.bayes.FN + result.bayes.TN);
-  const AccuracyMalicious =
-    (result.logistic.TP + result.logistic.TN) /
-    (result.logistic.TP + result.logistic.FP + result.logistic.FN + result.logistic.TN);
+  const RecallMaliciousSPComment =
+    result.logistic.SPComment.TP / (result.logistic.SPComment.TP + result.logistic.SPComment.FN);
+  const RecallMaliciouspermission =
+    result.logistic.permission.TP / (result.logistic.permission.TP + result.logistic.permission.FN);
+  const RecallMaliciousdataCollection =
+    result.logistic.dataCollection.TP /
+    (result.logistic.dataCollection.TP + result.logistic.dataCollection.FN);
+  const RecallMaliciousdataSharing =
+    result.logistic.dataSharing.TP /
+    (result.logistic.dataSharing.TP + result.logistic.dataSharing.FN);
+
+  const F1BenignSPComment =
+    (2 * (PrecisionBenignSPComment * RecallBenignSPComment)) /
+    (PrecisionBenignSPComment + RecallBenignSPComment);
+  const F1Benignpermission =
+    (2 * (PrecisionBenignpermission * RecallBenignpermission)) /
+    (PrecisionBenignpermission + RecallBenignpermission);
+  const F1BenigndataCollection =
+    (2 * (PrecisionBenigndataCollection * RecallBenigndataCollection)) /
+    (PrecisionBenigndataCollection + RecallBenigndataCollection);
+  const F1BenigndataSharing =
+    (2 * (PrecisionBenigndataSharing * RecallBenigndataSharing)) /
+    (PrecisionBenigndataSharing + RecallBenigndataSharing);
+
+  const F1MaliciousSPComment =
+    (2 * (PrecisionMaliciousSPComment * RecallMaliciousSPComment)) /
+    (PrecisionMaliciousSPComment + RecallMaliciousSPComment);
+  const F1Maliciouspermission =
+    (2 * (PrecisionMaliciouspermission * RecallMaliciouspermission)) /
+    (PrecisionMaliciouspermission + RecallMaliciouspermission);
+  const F1MaliciousdataCollection =
+    (2 * (PrecisionMaliciousdataCollection * RecallMaliciousdataCollection)) /
+    (PrecisionMaliciousdataCollection + RecallMaliciousdataCollection);
+  const F1MaliciousdataSharing =
+    (2 * (PrecisionMaliciousdataSharing * RecallMaliciousdataSharing)) /
+    (PrecisionMaliciousdataSharing + RecallMaliciousdataSharing);
+
+  const AccuracySPComment =
+    (result.bayes.SPComment.TP + result.bayes.SPComment.TN) /
+    (result.bayes.SPComment.TP +
+      result.bayes.SPComment.FP +
+      result.bayes.SPComment.FN +
+      result.bayes.SPComment.TN);
+  const Accuracypermission =
+    (result.bayes.permission.TP + result.bayes.permission.TN) /
+    (result.bayes.permission.TP +
+      result.bayes.permission.FP +
+      result.bayes.permission.FN +
+      result.bayes.permission.TN);
+  const AccuracydataCollection =
+    (result.bayes.dataCollection.TP + result.bayes.dataCollection.TN) /
+    (result.bayes.dataCollection.TP +
+      result.bayes.dataCollection.FP +
+      result.bayes.dataCollection.FN +
+      result.bayes.dataCollection.TN);
+  const AccuracydataSharing =
+    (result.bayes.dataSharing.TP + result.bayes.dataSharing.TN) /
+    (result.bayes.dataSharing.TP +
+      result.bayes.dataSharing.FP +
+      result.bayes.dataSharing.FN +
+      result.bayes.dataSharing.TN);
+
+  const AccuracyMaliciousSPComment =
+    (result.logistic.SPComment.TP + result.logistic.SPComment.TN) /
+    (result.logistic.SPComment.TP +
+      result.logistic.SPComment.FP +
+      result.logistic.SPComment.FN +
+      result.logistic.SPComment.TN);
+  const AccuracyMaliciouspermission =
+    (result.logistic.permission.TP + result.logistic.permission.TN) /
+    (result.logistic.permission.TP +
+      result.logistic.permission.FP +
+      result.logistic.permission.FN +
+      result.logistic.permission.TN);
+  const AccuracyMaliciousdataCollection =
+    (result.logistic.dataCollection.TP + result.logistic.dataCollection.TN) /
+    (result.logistic.dataCollection.TP +
+      result.logistic.dataCollection.FP +
+      result.logistic.dataCollection.FN +
+      result.logistic.dataCollection.TN);
+  const AccuracyMaliciousdataSharing =
+    (result.logistic.dataSharing.TP + result.logistic.dataSharing.TN) /
+    (result.logistic.dataSharing.TP +
+      result.logistic.dataSharing.FP +
+      result.logistic.dataSharing.FN +
+      result.logistic.dataSharing.TN);
 
   const rowsAccuracy = [
     {
       name: "TP",
-      begin: result.bayes.TP,
-      malicious: result.logistic.TP
+      beginSPComment: result.bayes.SPComment.TP,
+      beginpermission: result.bayes.permission.TP,
+      begindataCollection: result.bayes.dataCollection.TP,
+      begindataSharing: result.bayes.dataSharing.TP,
+
+      maliciousSPComment: result.logistic.SPComment.TP,
+      maliciouspermission: result.logistic.permission.TP,
+      maliciousdataCollection: result.logistic.dataCollection.TP,
+      maliciousdataSharing: result.logistic.dataSharing.TP
     },
     {
       name: "TN",
-      begin: result.bayes.TN,
-      malicious: result.logistic.TN
+
+      beginSPComment: result.bayes.SPComment.TN,
+      beginpermission: result.bayes.permission.TN,
+      begindataCollection: result.bayes.dataCollection.TN,
+      begindataSharing: result.bayes.dataSharing.TN,
+
+      maliciousSPComment: result.logistic.SPComment.TN,
+      maliciouspermission: result.logistic.permission.TN,
+      maliciousdataCollection: result.logistic.dataCollection.TN,
+      maliciousdataSharing: result.logistic.dataSharing.TN
     },
     {
       name: "FP",
-      begin: result.bayes.FP,
-      malicious: result.logistic.FP
+
+      beginSPComment: result.bayes.SPComment.FP,
+      beginpermission: result.bayes.permission.FP,
+      begindataCollection: result.bayes.dataCollection.FP,
+      begindataSharing: result.bayes.dataSharing.FP,
+
+      maliciousSPComment: result.logistic.SPComment.FP,
+      maliciouspermission: result.logistic.permission.FP,
+      maliciousdataCollection: result.logistic.dataCollection.FP,
+      maliciousdataSharing: result.logistic.dataSharing.FP
     },
     {
       name: "FN",
-      begin: result.bayes.FN,
-      malicious: result.logistic.FN
+
+      beginSPComment: result.bayes.SPComment.FN,
+      beginpermission: result.bayes.permission.FN,
+      begindataCollection: result.bayes.dataCollection.FN,
+      begindataSharing: result.bayes.dataSharing.FN,
+
+      maliciousSPComment: result.logistic.SPComment.FN,
+      maliciouspermission: result.logistic.permission.FN,
+      maliciousdataCollection: result.logistic.dataCollection.FN,
+      maliciousdataSharing: result.logistic.dataSharing.FN
     },
     {
       name: "Percision",
-      begin: PrecisionBenign,
-      malicious: PrecisionMalicious
+
+      beginSPComment: PrecisionBenignSPComment,
+      beginpermission: PrecisionBenignpermission,
+      begindataCollection: PrecisionBenigndataCollection,
+      begindataSharing: PrecisionBenigndataSharing,
+
+      maliciousSPComment: PrecisionMaliciousSPComment,
+      maliciouspermission: PrecisionMaliciouspermission,
+      maliciousdataCollection: PrecisionMaliciousdataCollection,
+      maliciousdataSharing: PrecisionMaliciousdataSharing
     },
     {
       name: "Recall",
-      begin: RecallBenign,
-      malicious: RecallMalicious
+      beginSPComment: RecallBenignSPComment,
+      beginpermission: RecallBenignpermission,
+      begindataCollection: RecallBenigndataCollection,
+      begindataSharing: RecallBenigndataSharing,
+
+      maliciousSPComment: RecallMaliciousSPComment,
+      maliciouspermission: RecallMaliciouspermission,
+      maliciousdataCollection: RecallMaliciousdataCollection,
+      maliciousdataSharing: RecallMaliciousdataSharing
     },
     {
       name: "F1",
-      begin: F1Benign,
-      malicious: F1Malicious
+      beginSPComment: F1BenignSPComment,
+      beginpermission: F1Benignpermission,
+      begindataCollection: F1BenigndataCollection,
+      begindataSharing: F1BenigndataSharing,
+
+      maliciousSPComment: F1MaliciousSPComment,
+      maliciouspermission: F1Maliciouspermission,
+      maliciousdataCollection: F1MaliciousdataCollection,
+      maliciousdataSharing: F1MaliciousdataSharing
     },
     {
       name: "Accuracy",
-      begin: Accuracy,
-      malicious: AccuracyMalicious
+      beginSPComment: AccuracySPComment,
+      beginpermission: Accuracypermission,
+      begindataCollection: AccuracydataCollection,
+      begindataSharing: AccuracydataSharing,
+
+      maliciousSPComment: AccuracyMaliciousSPComment,
+      maliciouspermission: AccuracyMaliciouspermission,
+      maliciousdataCollection: AccuracyMaliciousdataCollection,
+      maliciousdataSharing: AccuracyMaliciousdataSharing
     }
   ];
 
@@ -5179,10 +5488,12 @@ async function test3() {
     return acc;
   }, []);
 
-  const appIds = appSurveys.reduce((acc, item) => {
+  let appIds = appSurveys.reduce((acc, item) => {
     acc = [...acc, ..._.map(item.apps, "appId")];
     return acc;
   }, []);
+
+  appIds = appIds.reverse();
 
   let rows = await Promise.map(
     appIds,
@@ -5481,7 +5792,7 @@ async function test5() {
 }
 main();
 async function main() {
-  // await test3();
+  await test3();
 
   // await test2();
   // await trainningAndTesting();
@@ -5490,7 +5801,7 @@ async function main() {
   // await trainningAndTestingLNAndBaye();
   // await test();
   // await getCommentSurveyV2();
-  await getCommentSurveyV3();
+  // await getCommentSurveyV3();
 
   // await getRemainingComments();
   await Promise.all([
