@@ -3029,7 +3029,7 @@ async function getCommentSurveyV3() {
       const comments = await Models.Comment.find({
         appId: app._id,
         isNotLabel: true
-      }).limit(1);
+      }).limit(100);
 
       app.commentIds = _.map(comments, "_id");
 
@@ -3041,17 +3041,14 @@ async function getCommentSurveyV3() {
     }
   );
 
-  const appChunks = _.chunk(appsWithComments, 14);
+  const appChunks = _.chunk(appsWithComments, 30);
   await bluebird.map(appChunks, async apps => {
-    if (apps.length < 14) return;
-    // console.log({
-    //   apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id, commentIds: app.commentIds })),
-    //   isV3: true
-    // });
-    // return Models.AppSurvey.create({
-    //   apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id, commentIds: app.commentIds })),
-    //   isV3: true
-    // });
+    if (apps.length < 30) return;
+
+    return Models.AppSurvey.create({
+      apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id, commentIds: app.commentIds })),
+      isV3: true
+    });
   });
 }
 
@@ -5484,7 +5481,7 @@ async function test5() {
 }
 main();
 async function main() {
-  await test3();
+  // await test3();
 
   // await test2();
   // await trainningAndTesting();
@@ -5493,7 +5490,7 @@ async function main() {
   // await trainningAndTestingLNAndBaye();
   // await test();
   // await getCommentSurveyV2();
-  // await getCommentSurveyV3();
+  await getCommentSurveyV3();
 
   // await getRemainingComments();
   await Promise.all([
