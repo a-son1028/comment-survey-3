@@ -5225,8 +5225,6 @@ async function test3() {
           );
           englishComments = comments.filter(item => isEnglish(item.comment)).length;
 
-          fs.writeFileSync(`./data/${app.appName}`, _.map(noLabelComments, "id").join("-"));
-
           appName = app.appName;
           totalComment = comments.length;
           // englishComments = englishComments.length;
