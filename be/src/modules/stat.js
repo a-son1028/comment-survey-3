@@ -2998,6 +2998,63 @@ async function getCommentSurveyV2() {
   });
 }
 
+async function getCommentSurveyV3() {
+  await Models.AppSurvey.deleteMany({
+    isV3: true
+  });
+  const apps = await Models.App.find({
+    isTest5: true
+  }).select("_id");
+
+  const appsHasComment = await Promise.filter(
+    apps,
+    async app => {
+      const comment = await Models.Comment.findOne({
+        appId: app._id,
+        isNotLabel: true
+      });
+
+      return !!comment;
+    },
+    {
+      concurrency: 100
+    }
+  );
+
+  // map comments to app
+  const appsWithComments = await Promise.map(
+    appsHasComment,
+    async app => {
+      app = app.toJSON();
+      const comments = await Models.Comment.find({
+        appId: app._id,
+        isNotLabel: true
+      }).limit(1);
+
+      app.commentIds = _.map(comments, "_id");
+
+      console.log(app.commentIds);
+      return app;
+    },
+    {
+      concurrency: 100
+    }
+  );
+
+  const appChunks = _.chunk(appsWithComments, 14);
+  await bluebird.map(appChunks, async apps => {
+    if (apps.length < 14) return;
+    // console.log({
+    //   apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id, commentIds: app.commentIds })),
+    //   isV3: true
+    // });
+    // return Models.AppSurvey.create({
+    //   apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id, commentIds: app.commentIds })),
+    //   isV3: true
+    // });
+  });
+}
+
 async function report2() {
   const header = [
     {
@@ -4049,6 +4106,705 @@ async function generateTrainningAndTesting() {
   console.log("done");
 }
 
+async function generateTrainningAndTestingV2() {
+  let dataCSV = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Downloads/Comment_dataset_multi_label.csv");
+
+  const getTrainningAndTestingPercent = data => {
+    const numberOfTrainning = Math.floor(data.length * 0.7);
+
+    const trainning = data.slice(0, numberOfTrainning);
+    const testing = data.slice(numberOfTrainning, data.length);
+    return {
+      trainning,
+      testing
+    };
+  };
+
+  dataCSV = dataCSV.slice(0, 10);
+  const dataSet = getTrainningAndTestingPercent(dataCSV);
+
+  // const header = [
+  //   {
+  //     id: "id",
+  //     title: "id"
+  //   },
+  //   {
+  //     id: "comment_text",
+  //     title: "comment_text"
+  //   },
+  //   {
+  //     id: "SPCommentLabel",
+  //     title: "SPCommentLabel"
+  //   },
+  //   {
+  //     id: "SPTrainingLabel",
+  //     title: "SPTrainingLabel"
+  //   },
+  //   {
+  //     id: "permissionLabel",
+  //     title: "permissionLabel"
+  //   },
+  //   {
+  //     id: "dataCollectionLabel",
+  //     title: "dataCollectionLabel"
+  //   },
+  //   {
+  //     id: "dataSharingLabel",
+  //     title: "dataSharingLabel"
+  //   },
+  //   {
+  //     id: "temp1",
+  //     title: "temp1"
+  //   }
+  // ];
+
+  // let training = [];
+
+  // dataSet.trainning.forEach(item => {
+  //   const [
+  //     ,
+  //     comment,
+  //     SPCommentLabel,
+  //     permissionLabel,
+  //     dataCollectionLabel,
+  //     dataSharingLabel
+  //   ] = item;
+
+  //   const rowIndex = training.findIndex(item => item.comment === comment.trim());
+
+  //   training.push({
+  //     comment: comment.trim(),
+  //     SPCommentLabel: SPCommentLabel === "x" ? 1 : 0,
+  //     SPTrainingLabel: 0,
+  //     permissionLabel: permissionLabel === "x" ? 1 : 0,
+  //     dataCollectionLabel: dataCollectionLabel === "x" ? 1 : 0,
+  //     dataSharingLabel: dataSharingLabel === "x" ? 1 : 0
+  //   });
+  // });
+
+  // training = training.map((item, index) => {
+  //   return {
+  //     ...item,
+  //     id: index + 1,
+  //     comment_text: item.comment,
+  //     temp1: 0
+  //   };
+  // });
+
+  // const csvWriter = createCsvWriter({
+  //   path: "./training.csv",
+  //   header
+  // });
+  // csvWriter.writeRecords(training);
+
+  //  ======== Testing
+  const calculateAccuracy = async data => {
+    const header = [
+      {
+        id: "name",
+        title: ""
+      },
+      {
+        id: "begin",
+        title: ""
+      }
+    ];
+
+    const header2 = [
+      {
+        id: "stt",
+        title: "STT"
+      },
+      {
+        id: "comment",
+        title: "Comment"
+      },
+      {
+        id: "SPCommentLabel",
+        title: "S&P assessment"
+      },
+      {
+        id: "SPCommentLabelPrediction",
+        title: "S&P assessment prediction"
+      },
+      {
+        id: "permissionLabel",
+        title: "Permission"
+      },
+      {
+        id: "permissionLabelPrediction",
+        title: "Permission rediction"
+      },
+      {
+        id: "dataCollectionLabel",
+        title: "Data collection"
+      },
+      {
+        id: "dataCollectionLabelPrediction",
+        title: "Data collection prediction"
+      },
+      {
+        id: "dataSharingLabel",
+        title: "Data sharing"
+      },
+      {
+        id: "dataSharingLabelPrediction",
+        title: "Data sharing prediction"
+      }
+    ];
+
+    const testing = await Promise.map(
+      data,
+      async (item, index) => {
+        const [
+          ,
+          comment,
+          SPCommentLabel,
+          permissionLabel,
+          dataCollectionLabel,
+          dataSharingLabel
+        ] = item;
+
+        const prediction = await Services.PredictionLabel.getPredictLabel([
+          { id: 1, text: comment }
+        ]);
+
+        console.log(prediction);
+        const SPCommentLabelPrediction = prediction[0].scores.SPCommentLabel >= 0.5 ? "x" : "";
+        const permissionLabelPrediction = prediction[0].scores.permissionLabel >= 0.5 ? "x" : "";
+        const dataCollectionLabelPrediction =
+          prediction[0].scores.dataCollectionLabel >= 0.5 ? "x" : "";
+        const dataSharingLabelPrediction = prediction[0].scores.dataSharingLabel >= 0.5 ? "x" : "";
+
+        return {
+          comment,
+          SPCommentLabel,
+          permissionLabel,
+          dataCollectionLabel,
+          dataSharingLabel,
+
+          SPCommentLabelPrediction,
+          permissionLabelPrediction,
+          dataCollectionLabelPrediction,
+          dataSharingLabelPrediction
+        };
+      },
+      { concurrency: 10 }
+    );
+
+    let X = 0,
+      Y = 0,
+      Z = 0,
+      W = 0;
+
+    testing.forEach(item => {
+      const {
+        SPCommentLabel,
+        permissionLabel,
+        dataCollectionLabel,
+        dataSharingLabel,
+
+        SPCommentLabelPrediction,
+        permissionLabelPrediction,
+        dataCollectionLabelPrediction,
+        dataSharingLabelPrediction
+      } = item;
+      if (SPCommentLabelPrediction === "" && SPCommentLabel === "") X++;
+      else if (SPCommentLabelPrediction === "x" && SPCommentLabel === "") Y++;
+      else if (SPCommentLabelPrediction === "" && SPCommentLabel === "x") Z++;
+      else if (SPCommentLabelPrediction === "x" && SPCommentLabel === "x") W++;
+
+      if (permissionLabelPrediction === "" && permissionLabel === "") X++;
+      else if (permissionLabelPrediction === "x" && permissionLabel === "") Y++;
+      else if (permissionLabelPrediction === "" && permissionLabel === "x") Z++;
+      else if (permissionLabelPrediction === "x" && permissionLabel === "x") W++;
+
+      if (dataCollectionLabelPrediction === "" && dataCollectionLabel === "") X++;
+      else if (dataCollectionLabelPrediction === "x" && dataCollectionLabel === "") Y++;
+      else if (dataCollectionLabelPrediction === "" && dataCollectionLabel === "x") Z++;
+      else if (dataCollectionLabelPrediction === "x" && dataCollectionLabel === "x") W++;
+
+      if (dataSharingLabelPrediction === "" && dataSharingLabel === "") X++;
+      else if (dataSharingLabelPrediction === "x" && dataSharingLabel === "") Y++;
+      else if (dataSharingLabelPrediction === "" && dataSharingLabel === "x") Z++;
+      else if (dataSharingLabelPrediction === "x" && dataSharingLabel === "x") W++;
+    });
+
+    const Precision = X / (X + Z);
+    const Recall = X / (X + Y);
+    const F1 = (2 * (Precision * Recall)) / (Precision + Recall);
+    const Accuracy = (X + W) / (X + Y + Z + W);
+
+    const rows = [
+      {
+        name: "Percision",
+        begin: Precision
+      },
+      {
+        name: "Recall",
+        begin: Recall
+      },
+      {
+        name: "F1",
+        begin: F1
+      },
+      {
+        name: "Accuracy",
+        begin: Accuracy
+      }
+    ];
+
+    const rows2 = testing.map((item, stt) => {
+      return {
+        stt: stt + 1,
+        ...item
+      };
+    });
+
+    const csvWriter = createCsvWriter({
+      path: `./google-bert-accuracy.csv`,
+      header
+    });
+    const csvWriter2 = createCsvWriter({
+      path: `./google-bert-prediction.csv`,
+      header: header2
+    });
+    await csvWriter.writeRecords(rows);
+    await csvWriter2.writeRecords(rows2);
+  };
+
+  const confusion = async (data, fieldName) => {
+    const header = [
+      {
+        id: "name",
+        title: ""
+      },
+      {
+        id: "predictY",
+        title: "Predicted value: YES"
+      },
+      {
+        id: "predictN",
+        title: "Predicted value: NO"
+      }
+    ];
+
+    const testing = await Promise.map(
+      data,
+      async (item, index) => {
+        const [, comment, label] = item;
+
+        const prediction = await Services.PredictionLabel.getPredictLabel([
+          { id: 1, text: comment }
+        ]);
+        const predictionLabel = prediction[0].scores[fieldName] >= 0.5 ? "Y" : "N";
+
+        console.log(index, predictionLabel);
+        return {
+          comment,
+          label,
+          prediction: prediction[0].scores[fieldName],
+          predictionLabel
+        };
+      },
+      { concurrency: 5 }
+    );
+
+    let X = 0,
+      Y = 0,
+      Z = 0,
+      W = 0;
+
+    testing.forEach(item => {
+      const { predictionLabel, label } = item;
+      if (predictionLabel === "N" && label === "N") X++;
+      else if (predictionLabel === "Y" && label === "N") Y++;
+      else if (predictionLabel === "N" && label === "Y") Z++;
+      else if (predictionLabel === "Y" && label === "Y") W++;
+    });
+
+    const rows = [
+      {
+        name: "Actual value: Yes",
+        predictY: W,
+        predictN: Z
+      },
+      {
+        name: "Actual value: No",
+        predictY: Y,
+        predictN: X
+      }
+    ];
+
+    const csvWriter = createCsvWriter({
+      path: `./${fieldName}-confusion.csv`,
+      header
+    });
+    await csvWriter.writeRecords(rows);
+  };
+
+  await calculateAccuracy(dataSet.testing, "google-bert");
+  console.log("done");
+}
+
+async function trainningAndTestingLNAndBaye() {
+  console.log("Running trainningAndTesting");
+  const percentage = 70;
+  const result = {
+    bayes: {
+      TP: 0,
+      TN: 0,
+      FP: 0,
+      FN: 0
+    },
+    logistic: {
+      TP: 0,
+      TN: 0,
+      FP: 0,
+      FN: 0
+    }
+  };
+  const headerAccuracy = [
+    {
+      id: "name",
+      title: ""
+    },
+    {
+      id: "begin",
+      title: "Bayesian"
+    },
+    {
+      id: "malicious",
+      title: "Logistic Regression"
+    }
+  ];
+
+  let dataCSV = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Downloads/Comment_dataset_multi_label.csv");
+
+  const getTrainningAndTestingPercent = data => {
+    const numberOfTrainning = Math.floor(data.length * 0.7);
+
+    const trainning = data.slice(0, numberOfTrainning);
+    const testing = data.slice(numberOfTrainning, data.length);
+    return {
+      trainning,
+      testing
+    };
+  };
+
+  const dataSet = getTrainningAndTestingPercent(dataCSV);
+
+  const getTrainning = (dataset, valueIndex) => {
+    return dataset.map(item => ({
+      comment: item[1],
+      label: item[valueIndex] === "x" ? "Y" : "N"
+    }));
+  };
+
+  let bayesClassifierSPComment = new natural.BayesClassifier(PorterStemmer);
+  let logisticRegressionClassifierSPComment = new natural.LogisticRegressionClassifier(
+    PorterStemmer
+  );
+
+  let bayesClassifierpermission = new natural.BayesClassifier(PorterStemmer);
+  let logisticRegressionClassifierpermission = new natural.LogisticRegressionClassifier(
+    PorterStemmer
+  );
+
+  let bayesClassifierdataCollection = new natural.BayesClassifier(PorterStemmer);
+  let logisticRegressionClassifierdataCollection = new natural.LogisticRegressionClassifier(
+    PorterStemmer
+  );
+
+  let bayesClassifierdataSharing = new natural.BayesClassifier(PorterStemmer);
+  let logisticRegressionClassifierdataSharing = new natural.LogisticRegressionClassifier(
+    PorterStemmer
+  );
+
+  const SPCommentTrainingSet = getTrainning(dataSet.trainning, 2);
+  const permissionTrainingSet = getTrainning(dataSet.trainning, 3);
+  const dataCollectionTrainingSet = getTrainning(dataSet.trainning, 4);
+  const dataSharingTrainingSet = getTrainning(dataSet.trainning, 5);
+
+  SPCommentTrainingSet.forEach(item => {
+    bayesClassifierSPComment.addDocument(item.comment, item.label);
+    logisticRegressionClassifierSPComment.addDocument(item.comment, item.label);
+  });
+
+  permissionTrainingSet.forEach(item => {
+    bayesClassifierpermission.addDocument(item.comment, item.label);
+    logisticRegressionClassifierpermission.addDocument(item.comment, item.label);
+  });
+
+  dataCollectionTrainingSet.forEach(item => {
+    bayesClassifierdataCollection.addDocument(item.comment, item.label);
+    logisticRegressionClassifierdataCollection.addDocument(item.comment, item.label);
+  });
+
+  dataSharingTrainingSet.forEach(item => {
+    bayesClassifierdataSharing.addDocument(item.comment, item.label);
+    logisticRegressionClassifierdataSharing.addDocument(item.comment, item.label);
+  });
+
+  bayesClassifierSPComment.train();
+  logisticRegressionClassifierSPComment.train();
+
+  bayesClassifierpermission.train();
+  logisticRegressionClassifierpermission.train();
+
+  bayesClassifierdataCollection.train();
+  logisticRegressionClassifierdataCollection.train();
+
+  bayesClassifierdataSharing.train();
+  logisticRegressionClassifierdataSharing.train();
+
+  const testing = dataSet.testing;
+  let rowsCSV = [];
+  testing.forEach(item => {
+    const [
+      ,
+      comment,
+      SPCommentLabel,
+      permissionLabel,
+      dataCollectionLabel,
+      dataSharingLabel
+    ] = item;
+
+    const actualClassBayesSPComment = bayesClassifierSPComment.classify(comment);
+    const actualClassBayespermission = bayesClassifierpermission.classify(comment);
+    const actualClassBayesdataCollection = bayesClassifierdataCollection.classify(comment);
+    const actualClassBayesdataSharing = bayesClassifierdataSharing.classify(comment);
+
+    console.log(actualClassBayesSPComment);
+    if (SPCommentLabel === "x" && actualClassBayesSPComment == "Y") result.bayes.TP++;
+    else if (SPCommentLabel === "" && actualClassBayesSPComment == "N") result.bayes.TN++;
+    else if (SPCommentLabel === "x" && actualClassBayesSPComment == "N") result.bayes.FP++;
+    else if (SPCommentLabel === "" && actualClassBayesSPComment == "Y") result.bayes.FN++;
+
+    if (permissionLabel === "x" && actualClassBayespermission == "Y") result.bayes.TP++;
+    else if (permissionLabel === "" && actualClassBayespermission == "N") result.bayes.TN++;
+    else if (permissionLabel === "x" && actualClassBayespermission == "N") result.bayes.FP++;
+    else if (permissionLabel === "" && actualClassBayespermission == "Y") result.bayes.FN++;
+
+    if (dataCollectionLabel === "x" && actualClassBayesdataCollection == "Y") result.bayes.TP++;
+    else if (dataCollectionLabel === "" && actualClassBayesdataCollection == "N") result.bayes.TN++;
+    else if (dataCollectionLabel === "x" && actualClassBayesdataCollection == "N")
+      result.bayes.FP++;
+    else if (dataCollectionLabel === "" && actualClassBayesdataCollection == "Y") result.bayes.FN++;
+
+    if (dataSharingLabel === "x" && actualClassBayesdataSharing == "Y") result.bayes.TP++;
+    else if (dataSharingLabel === "" && actualClassBayesdataSharing == "N") result.bayes.TN++;
+    else if (dataSharingLabel === "x" && actualClassBayesdataSharing == "N") result.bayes.FP++;
+    else if (dataSharingLabel === "" && actualClassBayesdataSharing == "Y") result.bayes.FN++;
+
+    const actualClassLogisticSPComment = logisticRegressionClassifierSPComment.classify(comment);
+    const actualClassLogisticpermission = logisticRegressionClassifierpermission.classify(comment);
+    const actualClassLogisticdataCollection = logisticRegressionClassifierdataCollection.classify(
+      comment
+    );
+    const actualClassLogisticdataSharing = logisticRegressionClassifierdataSharing.classify(
+      comment
+    );
+
+    if (SPCommentLabel === "x" && actualClassLogisticSPComment == "Y") result.logistic.TP++;
+    else if (SPCommentLabel === "" && actualClassLogisticSPComment == "N") result.logistic.TN++;
+    else if (SPCommentLabel === "x" && actualClassLogisticSPComment == "N") result.logistic.FP++;
+    else if (SPCommentLabel === "" && actualClassLogisticSPComment == "Y") result.logistic.FN++;
+
+    if (permissionLabel === "x" && actualClassLogisticpermission == "Y") result.logistic.TP++;
+    else if (permissionLabel === "" && actualClassLogisticpermission == "N") result.logistic.TN++;
+    else if (permissionLabel === "x" && actualClassLogisticpermission == "N") result.logistic.FP++;
+    else if (permissionLabel === "" && actualClassLogisticpermission == "Y") result.logistic.FN++;
+
+    if (dataCollectionLabel === "x" && actualClassLogisticdataCollection == "Y")
+      result.logistic.TP++;
+    else if (dataCollectionLabel === "" && actualClassLogisticdataCollection == "N")
+      result.logistic.TN++;
+    else if (dataCollectionLabel === "x" && actualClassLogisticdataCollection == "N")
+      result.logistic.FP++;
+    else if (dataCollectionLabel === "" && actualClassLogisticdataCollection == "Y")
+      result.logistic.FN++;
+
+    if (dataSharingLabel === "x" && actualClassLogisticdataSharing == "Y") result.logistic.TP++;
+    else if (dataSharingLabel === "" && actualClassLogisticdataSharing == "N") result.logistic.TN++;
+    else if (dataSharingLabel === "x" && actualClassLogisticdataSharing == "N")
+      result.logistic.FP++;
+    else if (dataSharingLabel === "" && actualClassLogisticdataSharing == "Y") result.logistic.FN++;
+
+    rowsCSV.push({
+      comment,
+      SPCommentLabel,
+      permissionLabel,
+      dataCollectionLabel,
+      dataSharingLabel,
+
+      bayesianSPComment: actualClassBayesSPComment,
+      logisticSPComment: actualClassLogisticSPComment,
+
+      bayesianpermission: actualClassBayespermission,
+      logisticpermission: actualClassLogisticpermission,
+
+      bayesiandataCollection: actualClassBayesdataCollection,
+      logisticdataCollection: actualClassLogisticdataCollection,
+
+      bayesiandataSharing: actualClassBayesdataSharing,
+      logisticdataSharing: actualClassLogisticdataSharing
+    });
+  });
+
+  console.log(result);
+  // accuracy
+  const PrecisionBenign = result.bayes.TP / (result.bayes.TP + result.bayes.FP);
+  const PrecisionMalicious = result.logistic.TP / (result.logistic.TP + result.logistic.FP);
+
+  const RecallBenign = result.bayes.TP / (result.bayes.TP + result.bayes.FN);
+  const RecallMalicious = result.logistic.TP / (result.logistic.TP + result.logistic.FN);
+
+  const F1Benign = (2 * (PrecisionBenign * RecallBenign)) / (PrecisionBenign + RecallBenign);
+  const F1Malicious =
+    (2 * (PrecisionMalicious * RecallMalicious)) / (PrecisionMalicious + RecallMalicious);
+
+  const Accuracy =
+    (result.bayes.TP + result.bayes.TN) /
+    (result.bayes.TP + result.bayes.FP + result.bayes.FN + result.bayes.TN);
+  const AccuracyMalicious =
+    (result.logistic.TP + result.logistic.TN) /
+    (result.logistic.TP + result.logistic.FP + result.logistic.FN + result.logistic.TN);
+
+  const rowsAccuracy = [
+    {
+      name: "TP",
+      begin: result.bayes.TP,
+      malicious: result.logistic.TP
+    },
+    {
+      name: "TN",
+      begin: result.bayes.TN,
+      malicious: result.logistic.TN
+    },
+    {
+      name: "FP",
+      begin: result.bayes.FP,
+      malicious: result.logistic.FP
+    },
+    {
+      name: "FN",
+      begin: result.bayes.FN,
+      malicious: result.logistic.FN
+    },
+    {
+      name: "Percision",
+      begin: PrecisionBenign,
+      malicious: PrecisionMalicious
+    },
+    {
+      name: "Recall",
+      begin: RecallBenign,
+      malicious: RecallMalicious
+    },
+    {
+      name: "F1",
+      begin: F1Benign,
+      malicious: F1Malicious
+    },
+    {
+      name: "Accuracy",
+      begin: Accuracy,
+      malicious: AccuracyMalicious
+    }
+  ];
+
+  const csvWriterAccuracy = createCsvWriter({
+    path: `./output/Bayesian-and-Logistic-Regression-Classifiers(${percentage}-${100 -
+      percentage}).csv`,
+    header: headerAccuracy
+  });
+  await csvWriterAccuracy.writeRecords(rowsAccuracy);
+
+  rowsCSV = rowsCSV.map((item, index) => {
+    item.stt = index + 1;
+    return item;
+  });
+
+  const csvWriter = createCsvWriter({
+    path: `./output/TRAINING-TEST(${percentage}-${100 - percentage}).csv`,
+    header: [
+      {
+        id: "stt",
+        title: "#"
+      },
+
+      {
+        id: "comment",
+        title: "Comment"
+      },
+
+      {
+        id: "SPCommentLabel",
+        title: "S&P assessment"
+      },
+      {
+        id: "bayesianSPComment",
+        title: "S&P assessment Bayesian"
+      },
+      {
+        id: "logisticSPComment",
+        title: "S&P assessment Logistic Regression"
+      },
+
+      //
+      {
+        id: "permissionLabel",
+        title: "Permission"
+      },
+      {
+        id: "bayesianpermission",
+        title: "Permission Bayesian"
+      },
+      {
+        id: "logisticpermission",
+        title: "Permission Logistic Regression"
+      },
+      //
+      {
+        id: "dataCollectionLabel",
+        title: "Data collection"
+      },
+      {
+        id: "bayesiandataCollection",
+        title: "Data collection Bayesian"
+      },
+      {
+        id: "logisticdataCollection",
+        title: "Data collection Logistic Regression"
+      },
+
+      //
+      {
+        id: "dataSharingLabel",
+        title: "Data sharing"
+      },
+      {
+        id: "bayesiandataSharing",
+        title: "Data sharing Bayesian"
+      },
+      {
+        id: "logisticdataSharing",
+        title: "Data sharing Logistic Regression"
+      }
+    ]
+  });
+  await csvWriter.writeRecords(rowsCSV);
+
+  console.log("DONE");
+}
+
 async function trainningAndTesting() {
   console.log("Running trainningAndTesting");
 
@@ -4467,13 +5223,13 @@ async function test3() {
           const noLabelComments = comments.filter(
             item => !_.includes(commentIdsAnswered, item._id.toString())
           );
-          const englishComments = comments.filter(item => isEnglish(item.comment));
+          englishComments = comments.filter(item => isEnglish(item.comment)).length;
 
           fs.writeFileSync(`./data/${app.appName}`, _.map(noLabelComments, "id").join("-"));
 
           appName = app.appName;
           totalComment = comments.length;
-          englishComments = englishComments.length;
+          // englishComments = englishComments.length;
           commentIncludeKeyWord = relatedComments.length;
           commentIncludeBert = bertComments.length;
           commentIncludelabeling = labelComments.length;
@@ -4730,17 +5486,21 @@ async function test5() {
 }
 main();
 async function main() {
-  // await test3();
+  await test3();
 
   // await test2();
   // await trainningAndTesting();
   // await generateTrainningAndTesting();
+  // await generateTrainningAndTestingV2();
+  // await trainningAndTestingLNAndBaye();
   // await test();
   // await getCommentSurveyV2();
+  // await getCommentSurveyV3();
+
   // await getRemainingComments();
   await Promise.all([
-    test3(),
-    test4()
+    // test3(),
+    // test4()
     // test5()
     // getRemainingApps()
     // statCatApp(),

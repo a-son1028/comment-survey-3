@@ -6,6 +6,7 @@ var groupSchema = new Schema(
     apps: [
       {
         appId: Schema.Types.ObjectId,
+        commentIds: [Schema.Types.ObjectId],
         stt: Number
       }
     ],
@@ -18,6 +19,10 @@ var groupSchema = new Schema(
       default: false
     },
     isV2: {
+      type: Boolean,
+      default: false
+    },
+    isV3: {
       type: Boolean,
       default: false
     }
