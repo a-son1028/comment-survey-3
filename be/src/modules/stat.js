@@ -2407,7 +2407,14 @@ async function step22() {
   };
 
   const comments = await Models.Comment.find({
-    isShowOnRais3: true
+    isShowOnRais3: true,
+    $or: [
+      { securitySentences: [] },
+      { privacySentences: [] },
+      { permissionSentences: [] },
+      { collectionSentences: [] },
+      { sharingSentences: [] }
+    ]
   });
 
   // for(let i = 0; i < comments.length; i++) {
@@ -3014,13 +3021,7 @@ async function getCommentSurveyV3() {
         isNotLabel: true,
         scores: { $exists: true, $ne: null },
         isShowOnRais3: true,
-        $or: [
-          { securitySentences: { $ne: [] } },
-          { privacySentences: { $ne: [] } },
-          { permissionSentences: { $ne: [] } },
-          { collectionSentences: { $ne: [] } },
-          { sharingSentences: { $ne: [] } }
-        ]
+        isRelatedRail3: true
       });
 
       return !!comment;
@@ -3040,13 +3041,7 @@ async function getCommentSurveyV3() {
         isNotLabel: true,
         scores: { $exists: true, $ne: null },
         isShowOnRais3: true,
-        $or: [
-          { securitySentences: { $ne: [] } },
-          { privacySentences: { $ne: [] } },
-          { permissionSentences: { $ne: [] } },
-          { collectionSentences: { $ne: [] } },
-          { sharingSentences: { $ne: [] } }
-        ]
+        isRelatedRail3: true
       }).limit(300);
 
       app.commentIds = _.map(comments, "_id");
@@ -5493,8 +5488,6 @@ async function test3() {
     return acc;
   }, []);
 
-  appIds = appIds.reverse();
-
   let rows = await Promise.map(
     appIds,
     async (appId, index) => {
@@ -5528,9 +5521,7 @@ async function test3() {
           const labelComments = comments.filter(item =>
             _.includes(commentIdsAnswered, item._id.toString())
           );
-          const noLabelComments = comments.filter(
-            item => !_.includes(commentIdsAnswered, item._id.toString())
-          );
+
           englishComments = comments.filter(item => isEnglish(item.comment)).length;
 
           appName = app.appName;
