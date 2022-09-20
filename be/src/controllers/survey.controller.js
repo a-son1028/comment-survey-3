@@ -67,7 +67,7 @@ class SurveyController {
               _id: appSurveyId
             }
           : { isSelected: false, isV3: true })
-      });
+      }).sort({ totalComment: -1 });
 
       await appSurvey.updateOne({
         isSelected: true

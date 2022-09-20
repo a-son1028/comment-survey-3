@@ -3079,9 +3079,15 @@ async function getCommentSurveyV3() {
   await bluebird.map(appChunks, async apps => {
     if (apps.length < 5) return;
 
+    let totalComment = 0;
+    apps.forEach(app => {
+      totalComment += app.commentIds.length;
+    });
+
     return Models.AppSurvey.create({
       apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id, commentIds: app.commentIds })),
-      isV3: true
+      isV3: true,
+      totalComment
     });
   });
 

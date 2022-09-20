@@ -25,7 +25,8 @@ var groupSchema = new Schema(
     isV3: {
       type: Boolean,
       default: false
-    }
+    },
+    totalComment: Number
   },
   {
     timestamps: true,
