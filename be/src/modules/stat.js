@@ -2266,7 +2266,10 @@ async function step2() {
 }
 
 async function step22() {
+  console.log("Running step22");
   console.log("Load model");
+  const stemmer = natural.PorterStemmer;
+
   // https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?resourcekey=0-wjGZdNAUop6WykTtMip30g
   w2vModel = await new Promise((resolve, reject) => {
     w2v.loadModel(process.env.W2V_MODEL, function(error, model) {
@@ -2296,35 +2299,36 @@ async function step22() {
   };
 
   const getData = async comment => {
-    const commentText = comment.comment;
+    const commentText = stemmer.stem(comment.comment);
     const subComments = commentText
       .split(".")
       .map(item => item.trim())
       .filter(item => !!item);
-
     //
-    const simiSecurity = getMostSimilarWords("security");
+    const simiSecurity = getMostSimilarWords("security").map(stemmer.stem);
+
+    console.log(1, commentText);
     let securitySentences = subComments.filter(subComment => {
       return simiSecurity.some(word => subComment.toLowerCase().includes(word.toLowerCase()));
     });
     securitySentences = _.uniq(securitySentences);
 
     //
-    const simiPrivacy = getMostSimilarWords("privacy");
+    const simiPrivacy = getMostSimilarWords("privacy").map(stemmer.stem);
     let privacySentences = subComments.filter(subComment => {
       return simiPrivacy.some(word => subComment.toLowerCase().includes(word.toLowerCase()));
     });
     privacySentences = _.uniq(privacySentences);
 
     //
-    const simiPermission = getMostSimilarWords("permission");
+    const simiPermission = getMostSimilarWords("permission").map(stemmer.stem);
     const hasPermission = simiPermission.some(word =>
       commentText.toLowerCase().includes(word.toLowerCase())
     );
     let permissionSentences = [];
     if (hasPermission) {
       const simiPermissionItems = PERMISSIONS.reduce((acc, item) => {
-        return (acc = [...acc, ...getMostSimilarWords(item)]);
+        return (acc = [...acc, ...getMostSimilarWords(item).map(stemmer.stem)]);
       }, []);
       permissionSentences = subComments.filter(subComment => {
         return !!findKeydsInText(simiPermissionItems, subComment).length;
@@ -2337,7 +2341,7 @@ async function step22() {
       // const simiItems = getMostSimilarWords(item);
 
       // return !!findKeydsInText(simiItems, commentText).length;
-      return commentText.toLowerCase().includes(item.toLowerCase());
+      return commentText.toLowerCase().includes(stemmer.stem(item).toLowerCase());
     });
 
     //
@@ -2345,7 +2349,7 @@ async function step22() {
       // const simiItems = getMostSimilarWords(item);
 
       // return !!findKeydsInText(simiItems, commentText).length;
-      return commentText.toLowerCase().includes(item.toLowerCase());
+      return commentText.toLowerCase().includes(stemmer.stem(item).toLowerCase());
     });
 
     //
@@ -2353,16 +2357,16 @@ async function step22() {
       // const simiItems = getMostSimilarWords(item);
 
       // return !!findKeydsInText(simiItems, commentText).length;
-      return commentText.toLowerCase().includes(item.toLowerCase());
+      return commentText.toLowerCase().includes(stemmer.stem(item).toLowerCase());
     });
     //
-    const simiCollection = getMostSimilarWords("collection");
+    const simiCollection = getMostSimilarWords("collection").map(stemmer.stem);
     const hasCollection = !!findKeydsInText(simiCollection, commentText).length;
 
     let collectionSentences = [];
     if (hasCollection) {
       const simiItems = [...DATA_TYPES, ...PURPOSES].reduce((acc, item) => {
-        return (acc = [...acc, ...getMostSimilarWords(item)]);
+        return (acc = [...acc, ...getMostSimilarWords(item).map(stemmer.stem)]);
       }, []);
 
       collectionSentences = subComments.filter(subComment => {
@@ -2372,12 +2376,12 @@ async function step22() {
     collectionSentences = _.uniq(collectionSentences);
 
     //
-    const simiSharing = getMostSimilarWords("sharing");
+    const simiSharing = getMostSimilarWords("sharing").map(stemmer.stem);
     const hasSharing = !!findKeydsInText(simiSharing, commentText).length;
     let sharingSentences = [];
     if (hasSharing) {
       const simiItems = [...DATA_TYPES, ...PURPOSES, ...THIRD_PARTIES].reduce((acc, item) => {
-        return (acc = [...acc, ...getMostSimilarWords(item)]);
+        return (acc = [...acc, ...getMostSimilarWords(item).map(stemmer.stem)]);
       }, []);
 
       sharingSentences = subComments.filter(subComment => {
@@ -2394,7 +2398,8 @@ async function step22() {
       sharingSentences,
       dataItems,
       purposes,
-      thirdParties
+      thirdParties,
+      isCheckRelated: true
     };
 
     await Models.Comment.updateOne(
@@ -2406,16 +2411,30 @@ async function step22() {
     return;
   };
 
-  const comments = await Models.Comment.find({
-    isShowOnRais3: true,
-    $or: [
-      { securitySentences: [] },
-      { privacySentences: [] },
-      { permissionSentences: [] },
-      { collectionSentences: [] },
-      { sharingSentences: [] }
-    ]
-  });
+  let comments;
+  do {
+    comments = await Models.Comment.find({
+      // isShowOnRais3: true,
+      isNotLabel: true,
+      isCheckRelated: { $exists: false },
+      $or: [
+        { securitySentences: [] },
+        { privacySentences: [] },
+        { permissionSentences: [] },
+        { collectionSentences: [] },
+        { sharingSentences: [] }
+      ]
+    }).limit(1000);
+
+    await bluebird.map(
+      comments,
+      (comment, i) => {
+        // console.log(`Running ${i + 1}/${comments.length}`);
+        return getData(comment);
+      },
+      { concurrency: 20 }
+    );
+  } while (comments.length === 1000);
 
   // for(let i = 0; i < comments.length; i++) {
   // 	const comment = comments[i]
@@ -2423,14 +2442,6 @@ async function step22() {
   // 	await getData(comment.comment)
   // }
 
-  await bluebird.map(
-    comments,
-    (comment, i) => {
-      console.log(`Running ${i + 1}/${comments.length}`);
-      return getData(comment);
-    },
-    { concurrency: 50 }
-  );
   // const commentChunks = _.chunk(comments, 100);
   // for (let i = 0; i < commentChunks.length; i++) {
   //   console.log(`Running ${i + 1}/${commentChunks.length}`);
@@ -3020,8 +3031,13 @@ async function getCommentSurveyV3() {
         appId: app._id,
         isNotLabel: true,
         scores: { $exists: true, $ne: null },
-        isShowOnRais3: true,
-        isRelatedRail3: true
+        $or: [
+          { securitySentences: { $ne: [] } },
+          { privacySentences: { $ne: [] } },
+          { permissionSentences: { $ne: [] } },
+          { collectionSentences: { $ne: [] } },
+          { sharingSentences: { $ne: [] } }
+        ]
       });
 
       return !!comment;
@@ -3040,8 +3056,13 @@ async function getCommentSurveyV3() {
         appId: app._id,
         isNotLabel: true,
         scores: { $exists: true, $ne: null },
-        isShowOnRais3: true,
-        isRelatedRail3: true
+        $or: [
+          { securitySentences: { $ne: [] } },
+          { privacySentences: { $ne: [] } },
+          { permissionSentences: { $ne: [] } },
+          { collectionSentences: { $ne: [] } },
+          { sharingSentences: { $ne: [] } }
+        ]
       }).limit(300);
 
       app.commentIds = _.map(comments, "_id");
@@ -3054,9 +3075,9 @@ async function getCommentSurveyV3() {
     }
   );
 
-  const appChunks = _.chunk(appsWithComments, 7);
+  const appChunks = _.chunk(appsWithComments, 5);
   await bluebird.map(appChunks, async apps => {
-    if (apps.length < 7) return;
+    if (apps.length < 5) return;
 
     return Models.AppSurvey.create({
       apps: apps.map((app, stt) => ({ stt: stt + 1, appId: app.id, commentIds: app.commentIds })),
@@ -5106,6 +5127,302 @@ async function trainningAndTestingLNAndBaye() {
   console.log("DONE");
 }
 
+async function trainningAndTestingFromDatasetV2() {
+  console.log("Running trainningAndTestingFromDatasetV2");
+
+  // https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?resourcekey=0-wjGZdNAUop6WykTtMip30g
+  w2vModel = await new Promise((resolve, reject) => {
+    w2v.loadModel(process.env.W2V_MODEL, function(error, model) {
+      if (error) reject(error);
+
+      resolve(model);
+    });
+  });
+  const getMostSimilarWords = keyword => {
+    let mostSimilarWords = [];
+    if (w2vModelData[keyword]) mostSimilarWords = w2vModelData[keyword];
+    else {
+      mostSimilarWords = w2vModel.mostSimilar(keyword, 2) || [];
+      w2vModelData[keyword] = mostSimilarWords;
+    }
+
+    mostSimilarWords = _.map(mostSimilarWords, "word").map(item => item.toLowerCase());
+
+    return mostSimilarWords && mostSimilarWords.length
+      ? [keyword, ...mostSimilarWords]
+      : [keyword.toLowerCase()];
+  };
+
+  const generateComments = comment => {
+    const comments = [];
+    const commentWords = comment.split(" ");
+
+    for (let i = 0; i < commentWords.length; i++) {
+      const commentWord = commentWords[i];
+
+      const similarWords = getMostSimilarWords(commentWord);
+
+      similarWords.forEach(similarWord => {
+        comments.push(
+          `${commentWords.slice(0, i).join(" ")} ${similarWord} ${commentWords
+            .slice(i + 1)
+            .join(" ")}`
+        );
+      });
+    }
+
+    return comments;
+  };
+
+  const trainingHeader = [
+    {
+      id: "label",
+      title: ""
+    },
+    {
+      id: "comment",
+      title: ""
+    }
+  ];
+  const percentage = 70;
+
+  let mutiFileData = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Downloads/Comment_dataset_multi_label.csv");
+
+  const commentsDB = await Models.Comment.find({
+    isShowOnRais3: true,
+    securitySentences: [],
+    privacySentences: [],
+    permissionSentences: [],
+    collectionSentences: [],
+    sharingSentences: []
+  }).limit(4000);
+
+  const createFile = async (labelIndex, prefix) => {
+    const rows = mutiFileData.map(item => ({
+      comment: item[1],
+      label: item[labelIndex] === "x" ? 2 : 1
+    }));
+
+    let dataset = rows.reduce((acc, { label, comment }) => {
+      let generatedComments = [];
+      if (label === 2) generatedComments = generateComments(comment);
+
+      acc = [
+        ...acc,
+        {
+          label,
+          comment,
+          isReal: true
+        },
+        ...generatedComments.map(comment => ({
+          label,
+          comment,
+          isReal: false
+        }))
+      ];
+
+      return acc;
+    }, []);
+
+    dataset = [
+      ...dataset,
+      ..._.map(commentsDB, "comment").map(comment => ({
+        label: 1,
+        comment,
+        isReal: false
+      }))
+    ];
+    const originalDataset = [...dataset];
+
+    const totalY = dataset.filter(row => row.label === 2).length;
+    const totalN = dataset.filter(row => row.label === 1).length;
+
+    dataset = _.orderBy(dataset, row => row.label, ["desc"]);
+    const trainningY = dataset.splice(0, Math.floor(totalY * (percentage / 100)));
+    dataset = _.orderBy(dataset, row => row.label, ["asc"]);
+    const trainningN = dataset.splice(0, Math.floor(totalN * (percentage / 100)));
+
+    const trainingRowsCSV = [...trainningY, ...trainningN];
+    const testingRowsCSV = [...dataset];
+
+    const csvWriterTrainingReal = createCsvWriter({
+      path: `./training-${prefix}.csv`,
+      header: trainingHeader
+    });
+    await csvWriterTrainingReal.writeRecords(trainingRowsCSV);
+
+    const csvWriterTestingReal = createCsvWriter({
+      path: `./testing-${prefix}.csv`,
+      header: trainingHeader
+    });
+    await csvWriterTestingReal.writeRecords(testingRowsCSV);
+
+    const csvWriterTraining = createCsvWriter({
+      path: `./training-${prefix}-real.csv`,
+      header: trainingHeader
+    });
+    await csvWriterTraining.writeRecords(originalDataset);
+  };
+
+  await createFile(2, "SAndP");
+  await createFile(3, "permission");
+  await createFile(4, "dataCollection");
+  await createFile(5, "dataSharing");
+}
+
+async function trainningAndTestingFromDataset() {
+  console.log("Running trainningAndTestingFromDataset");
+
+  // https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit?resourcekey=0-wjGZdNAUop6WykTtMip30g
+  w2vModel = await new Promise((resolve, reject) => {
+    w2v.loadModel(process.env.W2V_MODEL, function(error, model) {
+      if (error) reject(error);
+
+      resolve(model);
+    });
+  });
+  const getMostSimilarWords = keyword => {
+    let mostSimilarWords = [];
+    if (w2vModelData[keyword]) mostSimilarWords = w2vModelData[keyword];
+    else {
+      mostSimilarWords = w2vModel.mostSimilar(keyword, 2) || [];
+      w2vModelData[keyword] = mostSimilarWords;
+    }
+
+    mostSimilarWords = _.map(mostSimilarWords, "word").map(item => item.toLowerCase());
+
+    return mostSimilarWords && mostSimilarWords.length
+      ? [keyword, ...mostSimilarWords]
+      : [keyword.toLowerCase()];
+  };
+
+  const generateComments = comment => {
+    const comments = [];
+    const commentWords = comment.split(" ");
+
+    for (let i = 0; i < commentWords.length; i++) {
+      const commentWord = commentWords[i];
+
+      const similarWords = getMostSimilarWords(commentWord);
+
+      similarWords.forEach(similarWord => {
+        comments.push(
+          `${commentWords.slice(0, i).join(" ")} ${similarWord} ${commentWords
+            .slice(i + 1)
+            .join(" ")}`
+        );
+      });
+    }
+
+    return comments;
+  };
+
+  const trainingHeader = [
+    {
+      id: "label",
+      title: ""
+    },
+    {
+      id: "comment",
+      title: ""
+    }
+  ];
+  const percentage = 70;
+
+  let [rows] = await Promise.all([
+    csv({
+      noheader: false,
+      output: "csv"
+    }).fromFile("/Users/tuanle/Downloads/DATA_SHARING_TRAINING (1).csv")
+  ]);
+
+  const totalY = rows.filter(row => row[2] === "Y").length;
+  const totalN = rows.filter(row => row[2] === "N").length;
+
+  rows = _.orderBy(rows, row => row[2], ["desc"]);
+  const trainningY = rows.splice(0, Math.floor(totalY * (percentage / 100)));
+  rows = _.orderBy(rows, row => row[2], ["asc"]);
+  const trainningN = rows.splice(0, Math.floor(totalN * (percentage / 100)));
+
+  const commentsDB = await Models.Comment.find({
+    isShowOnRais3: true,
+    securitySentences: [],
+    privacySentences: [],
+    permissionSentences: [],
+    collectionSentences: [],
+    sharingSentences: []
+  }).limit(4000);
+
+  let trainingRowsCSV = [...trainningY, ...trainningN].reduce((acc, item) => {
+    const comment = item[1];
+    const label = item[2];
+
+    let generatedComments = [];
+    if (label === "Y") generatedComments = generateComments(comment);
+
+    acc = [
+      ...acc,
+      {
+        label: label == "Y" ? 2 : 1,
+        comment,
+        isReal: true
+      },
+      ...generatedComments.map(comment => ({
+        label: label == "Y" ? 2 : 1,
+        comment,
+        isReal: false
+      }))
+    ];
+
+    return acc;
+  }, []);
+
+  trainingRowsCSV = [
+    ...trainingRowsCSV,
+    ..._.map(commentsDB.splice(0, 700), "comment").map(comment => ({
+      label: 1,
+      comment,
+      isReal: false
+    }))
+  ];
+
+  let testingRowsCSV = rows.reduce((acc, item) => {
+    const comment = item[1];
+    const label = item[2];
+
+    acc = [
+      ...acc,
+      {
+        label: label == "Y" ? 2 : 1,
+        comment,
+        isReal: true
+      }
+    ];
+
+    return acc;
+  }, []);
+
+  const csvWriterTrainingReal = createCsvWriter({
+    path: `./training-SP-real.csv`,
+    header: trainingHeader
+  });
+  await csvWriterTrainingReal.writeRecords(trainingRowsCSV.filter(item => item.isReal));
+
+  const csvWriterTestingReal = createCsvWriter({
+    path: `./testing-SP-real.csv`,
+    header: trainingHeader
+  });
+  await csvWriterTestingReal.writeRecords(testingRowsCSV.filter(item => item.isReal));
+
+  const csvWriterTraining = createCsvWriter({
+    path: `./training-SP.csv`,
+    header: trainingHeader
+  });
+  await csvWriterTraining.writeRecords(trainingRowsCSV);
+}
 async function trainningAndTesting() {
   console.log("Running trainningAndTesting");
 
@@ -5781,9 +6098,184 @@ async function test5() {
 
   console.log("DONE test5");
 }
+
+async function addLabelToFile() {
+  const predictionData = await csv({
+    noheader: true,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Documents/kaka/test-permission.csv");
+
+  const testingData = await csv({
+    noheader: false,
+    output: "csv"
+  }).fromFile("/Users/tuanle/ind/comment-survey-3/be/testing-SP-real.csv");
+
+  const header = [
+    {
+      id: "stt",
+      title: "#"
+    },
+    {
+      id: "comment",
+      title: "Comment"
+    },
+    {
+      id: "label",
+      title: "label"
+    },
+    {
+      id: "prediction",
+      title: "prediction label"
+    }
+  ];
+
+  function lettersOnly(str) {
+    return str.replace(/[^a-zA-Z]/g, "");
+  }
+
+  const rows = testingData.map((item, index) => {
+    const [label, comment] = item;
+
+    const predictionRow = predictionData.find(item => {
+      console.log(1, lettersOnly(item[1]), lettersOnly(comment));
+      return lettersOnly(item[1]) == lettersOnly(comment);
+    });
+
+    if (!predictionRow) {
+      console.log(2, comment);
+      throw new Error("kakakaks");
+    }
+    return {
+      stt: index + 1,
+      comment,
+      label,
+      prediction: Number(predictionRow[2]) >= 0.5 ? "Y" : "N"
+    };
+  });
+
+  const csvWriter1 = createCsvWriter({
+    path: `./permission-prediction.csv`,
+    header
+  });
+  await csvWriter1.writeRecords(rows);
+
+  console.log("DONE addLabelToFile");
+}
+
+async function getTestingSetFromDB() {
+  const trainingHeader = [
+    {
+      id: "label",
+      title: ""
+    },
+    {
+      id: "comment",
+      title: ""
+    }
+  ];
+
+  // scores: { $exists: true, $ne: null },
+  const comments = await Models.Comment.find({
+    isNotLabel: true,
+    scores: { $exists: false },
+    $or: [
+      { securitySentences: { $ne: [] } },
+      { privacySentences: { $ne: [] } },
+      { permissionSentences: { $ne: [] } },
+      { collectionSentences: { $ne: [] } },
+      { sharingSentences: { $ne: [] } }
+    ]
+  });
+
+  console.log(1, comments.length);
+
+  const rows = comments.map(item => ({
+    label: 0,
+    comment: item.comment
+  }));
+
+  const csvWriter1 = createCsvWriter({
+    path: `./testing-db.csv`,
+    header: trainingHeader
+  });
+  await csvWriter1.writeRecords(rows);
+}
+
+async function updateLabelFromFile() {
+  const labelData = await csv({
+    noheader: true,
+    output: "csv"
+  }).fromFile("/Users/tuanle/Documents/kaka/testing-db.csv");
+
+  const comments = await Models.Comment.find({
+    isNotLabel: true,
+    scores: { $exists: false },
+    $or: [
+      { securitySentences: { $ne: [] } },
+      { privacySentences: { $ne: [] } },
+      { permissionSentences: { $ne: [] } },
+      { collectionSentences: { $ne: [] } },
+      { sharingSentences: { $ne: [] } }
+    ]
+  });
+
+  await Promise.map(
+    comments,
+    async comment => {
+      const labelRow = labelData.find(
+        item => item[1].toLowerCase() === comment.comment.toLowerCase()
+      );
+
+      if (!labelRow) return;
+
+      const [, , SPLabel, permissionLabel, dataCollectionLabel, dataSharingLabel] = labelRow;
+
+      await Models.Comment.updateOne(
+        {
+          _id: comment.id
+        },
+        {
+          $set: {
+            "scores.SPLabel": Number(SPLabel),
+            "scores.permissionLabel": Number(permissionLabel),
+            "scores.dataCollectionLabel": Number(dataCollectionLabel),
+            "scores.dataSharingLabel": Number(dataSharingLabel)
+          }
+        }
+      );
+    },
+    {
+      concurrency: 10
+    }
+  );
+}
 main();
 async function main() {
-  await test3();
+  // await updateLabelFromFile();
+  // const comments = await Models.Comment.find({
+  //   isNotLabel: true,
+  //   scores: { $exists: false },
+  //   $or: [
+  //     { securitySentences: { $ne: [] } },
+  //     { privacySentences: { $ne: [] } },
+  //     { permissionSentences: { $ne: [] } },
+  //     { collectionSentences: { $ne: [] } },
+  //     { sharingSentences: { $ne: [] } }
+  //   ]
+  // });
+
+  // console.log(
+  //   1,
+  //   comments.length,
+  //   _.uniq(_.map(comments, "appId").map(item => item.toString())).length
+  // );
+  // return;
+
+  // await getTestingSetFromDB();
+  // await trainningAndTestingFromDataset();
+  // await trainningAndTestingFromDatasetV2();
+  // await addLabelToFile();
+  // await test3();
 
   // await test2();
   // await trainningAndTesting();
@@ -5792,7 +6284,7 @@ async function main() {
   // await trainningAndTestingLNAndBaye();
   // await test();
   // await getCommentSurveyV2();
-  // await getCommentSurveyV3();
+  await getCommentSurveyV3();
 
   // await getRemainingComments();
   await Promise.all([

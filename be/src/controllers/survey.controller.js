@@ -66,7 +66,7 @@ class SurveyController {
           ? {
               _id: appSurveyId
             }
-          : { isSelected: false, isV2: true })
+          : { isSelected: false, isV3: true })
       });
 
       await appSurvey.updateOne({
@@ -130,7 +130,12 @@ class SurveyController {
 
   async getComments(req, res, next) {
     try {
+      const { user } = req;
+      const { appSurveyId } = user;
       const { appId } = req.params;
+
+      let appSurvey = await Models.AppSurvey.findById(appSurveyId);
+      const selectedApp = appSurvey.apps.find(app => app.appId.toString() === appId);
 
       const app = await Models.App.findById(appId)
         .select("appName distance distanceRais3")
@@ -141,11 +146,10 @@ class SurveyController {
       })();
 
       let comments = await Models.Comment.find({
-        appId: app._id,
-        isShowOnRais3: true
-      })
-        .limit(100)
-        .cache(60 * 60 * 24 * 30);
+        _id: {
+          $in: selectedApp.commentIds
+        }
+      }).cache(60 * 60 * 24 * 30);
 
       comments = comments.map(comment => {
         comment = comment.toJSON();

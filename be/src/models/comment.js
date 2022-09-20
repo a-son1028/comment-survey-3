@@ -107,6 +107,7 @@ var groupSchema = new Schema(
     },
     label: String,
     scores: Schema.Types.Mixed,
+    isCheckRelated: Boolean,
     isNotLabel: Boolean
   },
   {
